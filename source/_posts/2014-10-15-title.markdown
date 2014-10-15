@@ -1,0 +1,15 @@
+---
+layout: post
+title: "title"
+date: 2014-10-15 23:41:29 +0900
+comments: true
+categories: 
+---
+
+``` ruby class sample
+class MyClass
+  def initialiser
+  end
+end
+```
+
