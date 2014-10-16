@@ -3,7 +3,7 @@
   
   
   <url>
-    <loc>http://ryoogata.github.io/blog/2014/10/15/title/</loc>
+    <loc>http://ryoogata.github.io/blog/title/</loc>
     
     <lastmod>2014-10-15T23:41:29+09:00</lastmod>
     
@@ -13,14 +13,14 @@
   
   <url>
     <loc>http://ryoogata.github.io/blog/archives/</loc>
-    <lastmod>2014-10-16T11:10:54+09:00</lastmod>
+    <lastmod>2014-10-16T11:54:10+09:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>http://ryoogata.github.io/</loc>
-    <lastmod>2014-10-16T11:10:54+09:00</lastmod>
+    <lastmod>2014-10-16T11:54:10+09:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
