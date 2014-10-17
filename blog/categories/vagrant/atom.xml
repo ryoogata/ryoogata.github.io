@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: vagrant | YggdrasillNetwork Blog]]></title>
+  <link href="http://ryoogata.github.io/blog/categories/vagrant/atom.xml" rel="self"/>
+  <link href="http://ryoogata.github.io/"/>
+  <updated>2014-10-17T13:54:33+09:00</updated>
+  <id>http://ryoogata.github.io/</id>
+  <author>
+    <name><![CDATA[Ryo Ogata]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Vagrant の Provisioner に Chef Client を利用する際に遭遇したトラブルとその解決策]]></title>
+    <link href="http://ryoogata.github.io/blog/vagrant/vagrant/"/>
+    <updated>2014-10-16T16:41:05+09:00</updated>
+    <id>http://ryoogata.github.io/blog/vagrant/vagrant</id>
+    <content type="html"><![CDATA[<h1>概要</h1>
+
+<p>Vagrant の Provisioner に Chef Client を利用する際に遭遇したトラブルとその解決策</p>
+
+<h2>chef is not part of the bundle エラー</h2>
+
+<h3>内容</h3>
+
+<p>下記の設定がされている状態で、vagrant destory を実行すると VM は削除されるが、chef server 上の Nodes/Clients から情報が削除されない。</p>
+
+<pre><code>chef.node_name = "vagrant-win7"
+chef.delete_node = true
+</code></pre>
+
+<p><code>chef is not part of the bundle. Add it to Gemfile. (Gem::LoadError)</code> のエラーを吐いて処理が終了してしまう。</p>
+
+<h3>エラーログ</h3>
+
+<pre><code>$ vagrant destroy -f
+WARNING: Could not load IOV methods. Check your GSSAPI C library for an update
+WARNING: Could not load AEAD methods. Check your GSSAPI C library for an update
+==&gt; default: Forcing shutdown of VM...
+==&gt; default: Destroying VM and associated drives...
+==&gt; default: Running cleanup tasks for 'chef_client' provisioner...
+==&gt; default: Deleting client "vagrant-win7.example.local" from Chef server...
+==&gt; default: Cleaning up the 'client' for Chef failed. The stdout and
+==&gt; default: stderr are shown below. Vagrant will continue destroying the machine,
+==&gt; default: so please clean up these resources manually.
+==&gt; default: 
+==&gt; default: stdout: 
+==&gt; default: 
+==&gt; default: stderr: /Applications/Vagrant/embedded/gems/gems/bundler-1.6.2/lib/bundler/rubygems_integration.rb:252:in `block in replace_gem': chef is not part of the bundle. Add it to Gemfile. (Gem::LoadError)
+==&gt; default:    from /Users/ryo/.rvm/gems/ruby-2.0.0-p451@railstutorial_rails_4_0/bin/knife:22:in `&lt;main&gt;'
+==&gt; default:    from /Users/ryo/.rvm/gems/ruby-2.0.0-p451@railstutorial_rails_4_0/bin/ruby_executable_hooks:15:in `eval'
+==&gt; default:    from /Users/ryo/.rvm/gems/ruby-2.0.0-p451@railstutorial_rails_4_0/bin/ruby_executable_hooks:15:in `&lt;main&gt;'
+==&gt; default: Deleting node "vagrant-win7.example.local" from Chef server...
+==&gt; default: Cleaning up the 'node' for Chef failed. The stdout and
+==&gt; default: stderr are shown below. Vagrant will continue destroying the machine,
+==&gt; default: so please clean up these resources manually.
+==&gt; default: 
+==&gt; default: stdout: 
+==&gt; default: 
+==&gt; default: stderr: /Applications/Vagrant/embedded/gems/gems/bundler-1.6.2/lib/bundler/rubygems_integration.rb:252:in `block in replace_gem': chef is not part of the bundle. Add it to Gemfile. (Gem::LoadError)
+==&gt; default:    from /Users/ryo/.rvm/gems/ruby-2.0.0-p451@railstutorial_rails_4_0/bin/knife:22:in `&lt;main&gt;'
+==&gt; default:    from /Users/ryo/.rvm/gems/ruby-2.0.0-p451@railstutorial_rails_4_0/bin/ruby_executable_hooks:15:in `eval'
+==&gt; default:    from /Users/ryo/.rvm/gems/ruby-2.0.0-p451@railstutorial_rails_4_0/bin/ruby_executable_hooks:15:in `&lt;main&gt;'
+</code></pre>
+
+<h3>対応策</h3>
+
+<p>Vagrant の Version を 1.6.5 に上げる</p>
+
+<p>Vagrant 1.6.3 だとエラーが出るが、 1.6.5 だとエラーが出ず、Chef Server 上から Nodes/Clients から情報が削除される。</p>
+
+<h2>NameError</h2>
+
+<h3>内容</h3>
+
+<p>下記の設定がされている状態で、vagrant destory を実行すると VM は削除されるが、chef server 上の Nodes/Clients から情報が削除されない。</p>
+
+<pre><code>chef.delete_node = true
+</code></pre>
+
+<p><code>uninitialized constant Berkshelf::BerkshelfError (NameError)</code> のエラーを吐いて処理が終了してしまう。</p>
+
+<h3>エラーログ</h3>
+
+<pre><code class="">$ vagrant destroy -f
+
+WARNING: Could not load IOV methods. Check your GSSAPI C library for an update
+WARNING: Could not load AEAD methods. Check your GSSAPI C library for an update
+==&gt; default: Forcing shutdown of VM...
+==&gt; default: Destroying VM and associated drives...
+==&gt; default: Running cleanup tasks for 'chef_client' provisioner...
+==&gt; default: Deleting client "" from Chef server...
+/Users/ryo/.vagrant.d/gems/gems/vagrant-berkshelf-3.0.1/lib/berkshelf/vagrant/action/clean.rb:21:in `rescue in call': uninitialized constant Berkshelf::BerkshelfError (NameError)
+</code></pre>
+
+<h3>対応策</h3>
+
+<p>Chef Server 上のどの Node を削除するのか指定できないので、エラーで止まるみたい。</p>
+
+<p>Vagrantfile に下記の記述を追加して対応</p>
+
+<pre><code>chef.node_name = "vagrant-win7"
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

@@ -5,11 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>YggdrasillNetwork Blog</title>
+  <title>Octopress 入門してみた - YggdrasillNetwork Blog</title>
   <meta name="author" content="Ryo Ogata">
 
   
-  <meta name="description" content="概要 Vagrant の Provisioner に Chef Client を利用する際に遭遇したトラブルとその解決策 chef is not part of the bundle エラー 内容 下記の設定がされている状態で、vagrant destory を実行すると VM は削除されるが、 &hellip;">
+  <meta name="description" content="概要 Octopress を使って Blog を公開してみようと思い立ってから、あれこれ調べたこと。 参照 URL Octpress簡単スタートガイド Octopress セットアップ Octopress を持ってくる 1
+$ git clone git://github.com/imathis/ &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ryoogata.github.io/">
+  <link rel="canonical" href="http://ryoogata.github.io/blog/octopress/octopress/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -65,215 +66,12 @@
 </nav>
   <div id="main">
     <div id="content">
-      <div class="blog-index">
+      <div>
+<article class="hentry" role="article">
   
-  
-  
-    <article>
-      
   <header>
     
-      <h1 class="entry-title"><a href="/blog/vagrant/vagrant/">Vagrant の Provisioner に Chef Client を利用する際に遭遇したトラブルとその解決策</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-10-16T16:41:05+09:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h1>概要</h1>
-
-<p>Vagrant の Provisioner に Chef Client を利用する際に遭遇したトラブルとその解決策</p>
-
-<h2>chef is not part of the bundle エラー</h2>
-
-<h3>内容</h3>
-
-<p>下記の設定がされている状態で、vagrant destory を実行すると VM は削除されるが、chef server 上の Nodes/Clients から情報が削除されない。</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>chef.node_name = "vagrant-win7"
-</span><span class='line'>chef.delete_node = true</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>chef is not part of the bundle. Add it to Gemfile. (Gem::LoadError)</code> のエラーを吐いて処理が終了してしまう。</p>
-
-<h3>エラーログ</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant destroy -f
-</span><span class='line'>WARNING: Could not load IOV methods. Check your GSSAPI C library for an update
-</span><span class='line'>WARNING: Could not load AEAD methods. Check your GSSAPI C library for an update
-</span><span class='line'>==&gt; default: Forcing shutdown of VM...
-</span><span class='line'>==&gt; default: Destroying VM and associated drives...
-</span><span class='line'>==&gt; default: Running cleanup tasks for 'chef_client' provisioner...
-</span><span class='line'>==&gt; default: Deleting client "vagrant-win7.example.local" from Chef server...
-</span><span class='line'>==&gt; default: Cleaning up the 'client' for Chef failed. The stdout and
-</span><span class='line'>==&gt; default: stderr are shown below. Vagrant will continue destroying the machine,
-</span><span class='line'>==&gt; default: so please clean up these resources manually.
-</span><span class='line'>==&gt; default: 
-</span><span class='line'>==&gt; default: stdout: 
-</span><span class='line'>==&gt; default: 
-</span><span class='line'>==&gt; default: stderr: /Applications/Vagrant/embedded/gems/gems/bundler-1.6.2/lib/bundler/rubygems_integration.rb:252:in `block in replace_gem': chef is not part of the bundle. Add it to Gemfile. (Gem::LoadError)
-</span><span class='line'>==&gt; default:   from /Users/ryo/.rvm/gems/ruby-2.0.0-p451@railstutorial_rails_4_0/bin/knife:22:in `&lt;main&gt;'
-</span><span class='line'>==&gt; default:   from /Users/ryo/.rvm/gems/ruby-2.0.0-p451@railstutorial_rails_4_0/bin/ruby_executable_hooks:15:in `eval'
-</span><span class='line'>==&gt; default:   from /Users/ryo/.rvm/gems/ruby-2.0.0-p451@railstutorial_rails_4_0/bin/ruby_executable_hooks:15:in `&lt;main&gt;'
-</span><span class='line'>==&gt; default: Deleting node "vagrant-win7.example.local" from Chef server...
-</span><span class='line'>==&gt; default: Cleaning up the 'node' for Chef failed. The stdout and
-</span><span class='line'>==&gt; default: stderr are shown below. Vagrant will continue destroying the machine,
-</span><span class='line'>==&gt; default: so please clean up these resources manually.
-</span><span class='line'>==&gt; default: 
-</span><span class='line'>==&gt; default: stdout: 
-</span><span class='line'>==&gt; default: 
-</span><span class='line'>==&gt; default: stderr: /Applications/Vagrant/embedded/gems/gems/bundler-1.6.2/lib/bundler/rubygems_integration.rb:252:in `block in replace_gem': chef is not part of the bundle. Add it to Gemfile. (Gem::LoadError)
-</span><span class='line'>==&gt; default:   from /Users/ryo/.rvm/gems/ruby-2.0.0-p451@railstutorial_rails_4_0/bin/knife:22:in `&lt;main&gt;'
-</span><span class='line'>==&gt; default:   from /Users/ryo/.rvm/gems/ruby-2.0.0-p451@railstutorial_rails_4_0/bin/ruby_executable_hooks:15:in `eval'
-</span><span class='line'>==&gt; default:   from /Users/ryo/.rvm/gems/ruby-2.0.0-p451@railstutorial_rails_4_0/bin/ruby_executable_hooks:15:in `&lt;main&gt;'</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>対応策</h3>
-
-<p>Vagrant の Version を 1.6.5 に上げる</p>
-
-<p>Vagrant 1.6.3 だとエラーが出るが、 1.6.5 だとエラーが出ず、Chef Server 上から Nodes/Clients から情報が削除される。</p>
-
-<h2>NameError</h2>
-
-<h3>内容</h3>
-
-<p>下記の設定がされている状態で、vagrant destory を実行すると VM は削除されるが、chef server 上の Nodes/Clients から情報が削除されない。</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>chef.delete_node = true</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>uninitialized constant Berkshelf::BerkshelfError (NameError)</code> のエラーを吐いて処理が終了してしまう。</p>
-
-<h3>エラーログ</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant destroy -f
-</span><span class='line'>
-</span><span class='line'>WARNING: Could not load IOV methods. Check your GSSAPI C library for an update
-</span><span class='line'>WARNING: Could not load AEAD methods. Check your GSSAPI C library for an update
-</span><span class='line'>==&gt; default: Forcing shutdown of VM...
-</span><span class='line'>==&gt; default: Destroying VM and associated drives...
-</span><span class='line'>==&gt; default: Running cleanup tasks for 'chef_client' provisioner...
-</span><span class='line'>==&gt; default: Deleting client "" from Chef server...
-</span><span class='line'>/Users/ryo/.vagrant.d/gems/gems/vagrant-berkshelf-3.0.1/lib/berkshelf/vagrant/action/clean.rb:21:in `rescue in call': uninitialized constant Berkshelf::BerkshelfError (NameError)</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>対応策</h3>
-
-<p>Chef Server 上のどの Node を削除するのか指定できないので、エラーで止まるみたい。</p>
-
-<p>Vagrantfile に下記の記述を追加して対応</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>chef.node_name = "vagrant-win7"</span></code></pre></td></tr></table></div></figure>
-
-
-
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/chef/chef-chef-server/">Chef Chef-Server</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-10-16T16:41:05+09:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>test</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/octopress/octopress/">Octopress 入門してみた</a></h1>
+      <h1 class="entry-title">Octopress 入門してみた</h1>
     
     
       <p class="meta">
@@ -296,7 +94,7 @@
   </header>
 
 
-  <div class="entry-content"><h1>概要</h1>
+<div class="entry-content"><h1>概要</h1>
 
 <p>Octopress を使って Blog を公開してみようと思い立ってから、あれこれ調べたこと。</p>
 
@@ -500,22 +298,16 @@ permalink: /blog/:categories/:title/</p></li>
 
 <p>github には master ブランチのファイルを元にページが作成される</p>
 </div>
-  
-  
 
 
-    </article>
-  
-  
-    <article>
+  <footer>
+    <p class="meta">
       
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/sample%20post/a-sample-post/">This Is a Sample Post</a></h1>
-    
-    
-      <p class="meta">
-        
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ryo Ogata</span></span>
+
+      
 
 
 
@@ -527,32 +319,44 @@ permalink: /blog/:categories/:title/</p></li>
   
 
 
-<time datetime="2014-04-22T14:40:00+09:00" pubdate data-updated="true"></time>
-        
-      </p>
+<time datetime="2014-10-16T12:20:15+09:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/octopress/'>octopress</a>
+  
+</span>
+
+
+    </p>
     
-  </header>
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ryoogata.github.io/blog/octopress/octopress/" data-via="" data-counturl="http://ryoogata.github.io/blog/octopress/octopress/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
 
-
-  <div class="entry-content"><p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/sample%20post/a-sample-post/" title="Previous Post: This is a sample post">&laquo; This is a sample post</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/chef/chef-chef-server/" title="Next Post: Chef Chef-Server">Chef Chef-Server &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
 
 </div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/sample%20post/a-sample-post/">Read on &rarr;</a>
-    </footer>
-  
 
-
-    </article>
-  
-  <div class="pagination">
-    
-    <a href="/blog/archives">Blog Archives</a>
-    
-  </div>
-</div>
 <aside class="sidebar">
   
     <section>
@@ -592,6 +396,7 @@ permalink: /blog/:categories/:title/</p></li>
 
   
 </aside>
+
 
     </div>
   </div>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: chef | YggdrasillNetwork Blog]]></title>
+  <link href="http://ryoogata.github.io/blog/categories/chef/atom.xml" rel="self"/>
+  <link href="http://ryoogata.github.io/"/>
+  <updated>2014-10-17T13:54:33+09:00</updated>
+  <id>http://ryoogata.github.io/</id>
+  <author>
+    <name><![CDATA[Ryo Ogata]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Chef Chef-Server]]></title>
+    <link href="http://ryoogata.github.io/blog/chef/chef-chef-server/"/>
+    <updated>2014-10-16T16:41:05+09:00</updated>
+    <id>http://ryoogata.github.io/blog/chef/chef-chef-server</id>
+    <content type="html"><![CDATA[<p>test</p>
+]]></content>
+  </entry>
+  
+</feed>

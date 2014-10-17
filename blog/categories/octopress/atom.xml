@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: octopress | YggdrasillNetwork Blog]]></title>
+  <link href="http://ryoogata.github.io/blog/categories/octopress/atom.xml" rel="self"/>
+  <link href="http://ryoogata.github.io/"/>
+  <updated>2014-10-17T13:54:33+09:00</updated>
+  <id>http://ryoogata.github.io/</id>
+  <author>
+    <name><![CDATA[Ryo Ogata]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Octopress 入門してみた]]></title>
+    <link href="http://ryoogata.github.io/blog/octopress/octopress/"/>
+    <updated>2014-10-16T12:20:15+09:00</updated>
+    <id>http://ryoogata.github.io/blog/octopress/octopress</id>
+    <content type="html"><![CDATA[<h1>概要</h1>
+
+<p>Octopress を使って Blog を公開してみようと思い立ってから、あれこれ調べたこと。</p>
+
+<h2>参照 URL</h2>
+
+<ul>
+<li><a href="http://www.slideshare.net/yizawa/octopress">Octpress簡単スタートガイド</a></li>
+</ul>
+
+
+<h1>Octopress セットアップ</h1>
+
+<h2>Octopress を持ってくる</h2>
+
+<pre><code>$ git clone git://github.com/imathis/octopress.git octopress
+</code></pre>
+
+<h2>bundler の実行</h2>
+
+<pre><code>$ bundle install --path vendor/bundle --binstubs vendor/binstubs
+</code></pre>
+
+<h2>Default テーマの設定</h2>
+
+<pre><code>$ rake install
+</code></pre>
+
+<h2>static サイトの生成</h2>
+
+<h3>サイトの生成</h3>
+
+<pre><code>$ rake generate
+</code></pre>
+
+<h3>Preview の表示</h3>
+
+<pre><code>$ rake preview
+</code></pre>
+
+<h2>手元の octpress Directory と github の master ブランチを連携させる</h2>
+
+<pre><code>$ rake setup_github_pages
+Enter the read/write url for your repository
+(For example, 'git@github.com:your_username/your_username.github.io.git)
+           or 'https://github.com/your_username/your_username.github.io')
+Repository url: https://github.com/ryoogata/ryoogata.github.io.git
+Added remote https://github.com/ryoogata/ryoogata.github.io.git as origin
+Set origin as default remote
+Master branch renamed to 'source' for committing your blog source files
+rm -rf _deploy
+mkdir _deploy
+cd _deploy
+Initialized empty Git repository in /Users/ryo/Dropbox/octopress/_deploy/.git/
+[master (root-commit) 9208c45] Octopress init
+ 1 file changed, 1 insertion(+)
+ create mode 100644 index.html
+cd -
+
+---
+## Now you can deploy to https://github.com/ryoogata/ryoogata.github.io.git with `rake deploy` ##
+</code></pre>
+
+<h2>octpress Directory 自体 を source ブランチに登録する</h2>
+
+<pre><code>$ git add .
+$ git commit -m "first commit"
+$ git push origin source
+
+Counting objects: 4901, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (2181/2181), done.
+Writing objects: 100% (4901/4901), 1.34 MiB | 231.00 KiB/s, done.
+Total 4901 (delta 2366), reused 4871 (delta 2338)
+To https://github.com/ryoogata/ryoogata.github.io.git
+ * [new branch]      source -&gt; source
+</code></pre>
+
+<h1>記事の作成</h1>
+
+<h2>記事の準備</h2>
+
+<pre><code>$ rake new_post["vagrant Chef-Server]
+</code></pre>
+
+<p>rake new_post[&lsquo;&rsquo;]の引数として、空白区切りで 最初の単語をcategory、後の単語を全てtagsとして登録する</p>
+
+<h1>Customize</h1>
+
+<h2>記事のパーマリンク変更</h2>
+
+<p>_config.yml</p>
+
+<ul>
+<li><p>修正前
+permalink: /blog/:year/:month/:day/:title/</p></li>
+<li><p>修正後
+permalink: /blog/:categories/:title/</p></li>
+</ul>
+
+
+<h2>タグクラウド</h2>
+
+<p><a href="http://rcmdnk.github.io/blog/2013/03/23/octopress/#section-4">Octopress Tips</a></p>
+
+<pre><code>$ cd /tmp
+$ git clone https://github.com/tokkonopapa/octopress-tagcloud
+$ cd octopress-tagcloud/
+$ cp tag_cloud.rb ~/Dropbox/ryoogata.github.io/plugins/
+$ cp source/_includes/custom/asides/tag_cloud.html ~/Dropbox/octopress/source/_includes/custom/asides/
+$ cp source/_includes/custom/asides/category_list.html ~/Dropbox/octopress/source/_includes/custom/asides/
+</code></pre>
+
+<h2>記事の下書き設定</h2>
+
+<p>Rakefile に <code>published: false</code> を追加</p>
+
+<pre><code>111   open(filename, 'w') do |post|
+112     post.puts "---"
+113     post.puts "layout: post"
+114     post.puts "title: \"#{title.gsub(/&amp;/,'&amp;amp;')}\""
+115     post.puts "date: #{Time.now.strftime('%Y-%m-%d %H:%M:%S %z')}"
+116     post.puts "comments: true"
+117     post.puts "categories: "
+118     post.puts "published: false"
+119     post.puts "---"
+120   end
+</code></pre>
+
+<h1>Tips</h1>
+
+<h2>rake deploy について</h2>
+
+<ul>
+<li>master ブランチ
+
+<ul>
+<li>static サイト用コンテンツ</li>
+<li>手元の octpress directory で generate したファイルが commit される</li>
+</ul>
+</li>
+<li>source ブランチ
+
+<ul>
+<li>octpress 用の記事のソース</li>
+</ul>
+</li>
+</ul>
+
+
+<p>github には master ブランチのファイルを元にページが作成される</p>
+]]></content>
+  </entry>
+  
+</feed>
