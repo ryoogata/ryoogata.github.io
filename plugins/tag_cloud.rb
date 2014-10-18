@@ -61,21 +61,21 @@ module Jekyll
       lists = {}
       max, min = 1, 1
       config = context.registers[:site].config
-      category_dir = config['root'] + config['category_dir'] + '/'
-      categories = context.registers[:site].categories
-      categories.keys.sort_by{ |str| str.downcase }.each do |category|
-        count = categories[category].count
-        lists[category] = count
+      tag_dir = config['root'] + config['tag_dir'] + '/'
+      tags = context.registers[:site].tags
+      tags.keys.sort_by{ |str| str.downcase }.each do |tag|
+        count = tags[tag].count
+        lists[tag] = count
         max = count if count > max
       end
 
       html = ''
-      lists.each do | category, counter |
-        url = category_dir + category.to_url
+      lists.each do | tag, counter |
+        url = tag_dir + tag.to_url
         style = "font-size: #{100 + (60 * Float(counter)/max)}%"
-        html << "<a href='#{url}' style='#{style}'>#{category}"
+        html << "<a href='#{url}' style='#{style}'>#{tag}"
         if @opts['counter']
-          html << "(#{categories[category].count})"
+          html << "(#{tags[tag].count})"
         end
         html << "</a> "
       end
