@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: Kitchen-ec2 | YggdrasillNetwork Blog]]></title>
+  <link href="http://ryoogata.github.io/blog/tags/kitchen-ec2/atom.xml" rel="self"/>
+  <link href="http://ryoogata.github.io/"/>
+  <updated>2014-11-11T18:11:17+09:00</updated>
+  <id>http://ryoogata.github.io/</id>
+  <author>
+    <name><![CDATA[Ryo Ogata]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Knife-ec2 や Kitchen-ec2 のための環境変数設定]]></title>
+    <link href="http://ryoogata.github.io/2014/11/02/chef-knife-ec2/"/>
+    <updated>2014-11-02T22:37:31+09:00</updated>
+    <id>http://ryoogata.github.io/2014/11/02/chef-knife-ec2</id>
+    <content type="html"><![CDATA[<h1>概要</h1>
+
+<p>test-kitchen の dirver に ec2 を利用する際や、knife ec2 コマンド、AWS CLI を利用する際に環境変数から設定値を読み込む設定等のまとめ。</p>
+
+<p>git で管理している設定ファイルに直接 AWS の Access Key や Secret Access Key などを記述しなくても済む方法。</p>
+
+<h1>.bash_profile</h1>
+
+<p>knife-ec2 および kitchen-ec2 の環境変数関連の挙動から、<code>.bash_profile</code> に設定する環境変数。</p>
+
+<ul>
+<li>.bash_profile</li>
+</ul>
+
+
+<pre><code>export EC2_SSH_KEY_PATH=~/.ssh/********.pem
+export AWS_ACCESS_KEY_ID=********************
+export AWS_SECRET_ACCESS_KEY=********************
+export AWS_SSH_KEY_ID=********************
+</code></pre>
+
+<h1>knife-ec2</h1>
+
+<h2>knife.rb に環境変数から設定値を読み込む設定を行っている項目</h2>
+
+<pre><code>knife[:identity_file] = ENV['EC2_SSH_KEY_PATH']
+knife[:aws_access_key_id] = ENV['AWS_ACCESS_KEY_ID']
+knife[:aws_secret_access_key] = ENV['AWS_SECRET_ACCESS_KEY']
+knife[:aws_ssh_key_id] = ENV['AWS_SSH_KEY_ID']
+</code></pre>
+
+<h1>kitchen-ec2</h1>
+
+<p>.kitchen.yml に設定項目を記述しなくても、環境変数に特定の値が設定されている場合には自動的に設定値を設定してくれる項目</p>
+
+<table>
+<thead>
+<tr>
+<th>設定項目</th>
+<th>設定のための環境変数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>aws_access_key_id</td>
+<td><code>AWS_ACCESS_KEY</code> or <code>AWS_ACCESS_KEY_ID</code></td>
+</tr>
+<tr>
+<td>aws_secret_access_key</td>
+<td><code>AWS_SECRET_KEY</code> or <code>AWS_SECRET_ACCESS_KEY</code></td>
+</tr>
+<tr>
+<td>aws_session_token</td>
+<td><code>AWS_SESSION_TOKEN</code> or <code>AWS_TOKEN</code></td>
+</tr>
+<tr>
+<td>aws_ssh_key_id</td>
+<td><code>AWS_SSH_KEY_ID</code></td>
+</tr>
+</tbody>
+</table>
+
+
+<h2>.kitchen.yml に環境変数から設定値を読み込む設定を行っている項目</h2>
+
+<ul>
+<li>EC2_SSH_KEY_PATH</li>
+</ul>
+
+
+<pre><code>driver:
+  name: ec2
+  security_group_ids: ["sg-6744b502"]
+  ssh_key: &lt;%= ENV['EC2_SSH_KEY_PATH'] %&gt;
+  region: ap-northeast-1
+  availability_zone: ap-northeast-1a
+  interface: public
+</code></pre>
+
+<h1>.aws/config</h1>
+
+<ul>
+<li>環境変数から設定値を読み込む
+
+<ul>
+<li>AWS_ACCESS_KEY_ID</li>
+<li>AWS_SECRET_ACCESS_KEY</li>
+</ul>
+</li>
+</ul>
+
+
+<h1>Tips</h1>
+
+<h2>knife.rb に設定可能な項目 List</h2>
+
+<table>
+<thead>
+<tr>
+<th>設定項目</th>
+<th>default 設定値</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>knife[:aws_credential_file]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:aws_access_key_id]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:aws_secret_access_key]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:region]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:use_iam_profile]</td>
+<td>false</td>
+</tr>
+<tr>
+<td>knife[:flavor]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:image]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:placement_group]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:availability_zone]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:chef_node_name]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:aws_ssh_key_id]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:ssh_port]</td>
+<td>22</td>
+</tr>
+<tr>
+<td>knife[:ssh_gateway]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:ssh_gateway_identity]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:bootstrap_version]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:bootstrap_proxy]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:distro]</td>
+<td>chef-full</td>
+</tr>
+<tr>
+<td>knife[:template_file]</td>
+<td>false</td>
+</tr>
+<tr>
+<td>knife[:secret]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:secret_file]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:s3_secret]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:subnet_id]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:private_ip_address]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:bootstrap_protocol]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:fqdn]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:aws_user_data]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:ebs_volume_type]</td>
+<td>standard</td>
+</tr>
+<tr>
+<td>knife[:provisioned_iops]</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+
+]]></content>
+  </entry>
+  
+</feed>

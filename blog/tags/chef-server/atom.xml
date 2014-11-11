@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Tag: Chef-Server | YggdrasillNetwork Blog]]></title>
+  <title><![CDATA[Tag: Chef-server | YggdrasillNetwork Blog]]></title>
   <link href="http://ryoogata.github.io/blog/tags/chef-server/atom.xml" rel="self"/>
   <link href="http://ryoogata.github.io/"/>
-  <updated>2014-10-17T13:54:33+09:00</updated>
+  <updated>2014-11-11T18:11:17+09:00</updated>
   <id>http://ryoogata.github.io/</id>
   <author>
     <name><![CDATA[Ryo Ogata]]></name>
@@ -14,13 +14,99 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Vagrant と Hosted Chef との連携]]></title>
+    <link href="http://ryoogata.github.io/2014/10/20/vagrant-chef-server/"/>
+    <updated>2014-10-20T15:35:34+09:00</updated>
+    <id>http://ryoogata.github.io/2014/10/20/vagrant-chef-server</id>
+    <content type="html"><![CDATA[<h1>概要</h1>
+
+<p>Vagrant の Provisioner に Chef Client を利用し、Chef Server に Hosted Chef を利用する</p>
+
+<h2>Vagrantfile</h2>
+
+<pre><code>config.vm.provision "chef_client" do |chef|
+  chef.chef_server_url = "https://api.opscode.com/organizations/tech-sales"
+  chef.validation_client_name = "tech-sales-validator"
+  chef.validation_key_path = "../../hosted-chef-repo/.chef/tech-sales-validator.pem"
+  chef.environment = "setup"
+  chef.node_name = "chef-test"
+  chef.delete_node = true
+  chef.delete_client = true
+end
+</code></pre>
+
+<ul>
+<li><p>chef_server_url</p>
+
+<ul>
+<li>Organizations 毎に変わる</li>
+</ul>
+</li>
+<li><p>validation_client_name</p>
+
+<ul>
+<li>Hosted Chef Server に Node を登録する際に使用するユーザ名</li>
+<li>Hosted Chef の Organization の Client で、<code>Validation Client</code> として利用する Client 名を指定する
+
+<ul>
+<li>default の <code>chef-validator</code> ではダメ</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Vagrant の Provisioner に Chef Client を利用する際に遭遇したトラブルとその解決策]]></title>
-    <link href="http://ryoogata.github.io/blog/vagrant/vagrant/"/>
+    <link href="http://ryoogata.github.io/2014/10/16/vagrant/"/>
     <updated>2014-10-16T16:41:05+09:00</updated>
-    <id>http://ryoogata.github.io/blog/vagrant/vagrant</id>
+    <id>http://ryoogata.github.io/2014/10/16/vagrant</id>
     <content type="html"><![CDATA[<h1>概要</h1>
 
 <p>Vagrant の Provisioner に Chef Client を利用する際に遭遇したトラブルとその解決策</p>
+
+<h3>内容</h3>
+
+<p>Hosted Chef を Chef Server として利用し、下記の設定がされている状態で、vagrant destory を実行すると VM は削除されるが、Hosted Chef 上の Nodes/Clients から情報が削除されない。</p>
+
+<pre><code>chef.chef_server_url = "https://api.opscode.com/organizations/tech-sales"
+chef.validation_client_name = "tech-sales-validator"
+chef.validation_key_path = "../../hosted-chef-repo/.chef/tech-sales-validator.pem"
+chef.environment = "setup"
+chef.node_name = "chef-test"
+chef.delete_node = true
+chef.delete_client = true
+</code></pre>
+
+<h3>エラーログ</h3>
+
+<pre><code>==&gt; default: Running cleanup tasks for 'chef_client' provisioner...
+==&gt; default: Deleting client "chef-test" from Chef server...
+==&gt; default: Cleaning up the 'client' for Chef failed. The stdout and
+==&gt; default: stderr are shown below. Vagrant will continue destroying the machine,
+==&gt; default: so please clean up these resources manually.
+==&gt; default: 
+==&gt; default: stdout: Response: Cannot load client chef-test
+==&gt; default: 
+==&gt; default: 
+==&gt; default: stderr: ERROR: The object you are looking for could not be found
+==&gt; default: Deleting node "chef-test" from Chef server...
+==&gt; default: Cleaning up the 'node' for Chef failed. The stdout and
+==&gt; default: stderr are shown below. Vagrant will continue destroying the machine,
+==&gt; default: so please clean up these resources manually.
+==&gt; default: 
+==&gt; default: stdout: Response: node 'chef-test' not found
+==&gt; default: 
+==&gt; default: 
+==&gt; default: stderr: ERROR: The object you are looking for could not be found
+</code></pre>
+
+<h3>対応策</h3>
+
+<p>未解決</p>
 
 <h2>chef is not part of the bundle エラー</h2>
 
@@ -104,15 +190,6 @@ WARNING: Could not load AEAD methods. Check your GSSAPI C library for an update
 
 <pre><code>chef.node_name = "vagrant-win7"
 </code></pre>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Chef Chef-Server]]></title>
-    <link href="http://ryoogata.github.io/blog/chef/chef-chef-server/"/>
-    <updated>2014-10-16T16:41:05+09:00</updated>
-    <id>http://ryoogata.github.io/blog/chef/chef-chef-server</id>
-    <content type="html"><![CDATA[<p>test</p>
 ]]></content>
   </entry>
   

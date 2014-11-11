@@ -5,12 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Tag: chef-server - YggdrasillNetwork Blog</title>
+  <title>knife-ec2 を利用したインスタンス操作 - YggdrasillNetwork Blog</title>
   <meta name="author" content="Ryo Ogata">
 
   
-  <meta name="description" content="Tag: chef-server">
-  
+  <meta name="description" content="概要 chef-server との連携を前提とした knife ec2 のオペレーションのまとめ knife ec2 オペレーション インスタンスの作成 $ knife ec2 server create --node-name chef_test --ssh-user ec2-user -- &hellip;">
+  <meta name="keywords" content="chef, knife-ec2">
 
   <!-- http://t.co/dKP3o1e -->
   <meta name="HandheldFriendly" content="True">
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ryoogata.github.io/blog/tags/chef-server/">
+  <link rel="canonical" href="http://ryoogata.github.io/2014/11/01/chef-knife-ec2/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -65,65 +65,164 @@
   <div id="main">
     <div id="content">
       <div>
-<article role="article">
+<article class="hentry" role="article">
   
   <header>
-    <h1 class="entry-title">Tag: Chef-server</h1>
+    
+      <h1 class="entry-title">Knife-ec2 を利用したインスタンス操作</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-11-01T22:09:37+09:00" pubdate data-updated="true"></time>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives" class="tag">
 
 
+<div class="entry-content"><h1>概要</h1>
 
-  
-  <h2>2014</h2>
+<p>chef-server との連携を前提とした knife ec2 のオペレーションのまとめ</p>
 
-<article>
-  
+<h1>knife ec2 オペレーション</h1>
 
-<h1><a href="/2014/10/20/vagrant-chef-server/">Vagrant と Hosted Chef との連携</a></h1>
-<time datetime="2014-10-20T15:35:34+09:00" pubdate><span class='month'>Oct</span> <span class='day'>20</span> <span class='year'>2014</span></time>
+<h2>インスタンスの作成</h2>
 
-<footer>
-  
-  <span class="categories">Posted in <a class='category' href='/blog/categories/vagrant/'>vagrant</a></span>
-  
-  
-    
-    <span class="tags">, tagged as <a class='tag' href='/blog/tags/chef-server/'>chef-server</a>, <a class='tag' href='/blog/tags/hosted-chef/'>hosted chef</a></span>
-    
-  
-</footer>
+<p><code>$ knife ec2 server create --node-name chef_test --ssh-user ec2-user --security-group-ids sg-6744b502</code></p>
 
+<ul>
+<li>ec2 インスタンスの作成
 
-</article>
+<ul>
+<li>&ndash;node-name
 
+<ul>
+<li>Chef-Server に登録する際の Node の名前</li>
+</ul>
+</li>
+<li>&ndash;ssh-user
 
+<ul>
+<li>SSH ログインユーザ名</li>
+</ul>
+</li>
+<li>&ndash;security-group-ids
 
-<article>
-  
-
-<h1><a href="/2014/10/16/vagrant/">Vagrant の Provisioner に Chef Client を利用する際に遭遇したトラブルとその解決策</a></h1>
-<time datetime="2014-10-16T16:41:05+09:00" pubdate><span class='month'>Oct</span> <span class='day'>16</span> <span class='year'>2014</span></time>
-
-<footer>
-  
-  <span class="categories">Posted in <a class='category' href='/blog/categories/chef/'>chef</a>, <a class='category' href='/blog/categories/vagrant/'>vagrant</a></span>
-  
-  
-    
-    <span class="tags">, tagged as <a class='tag' href='/blog/tags/chef-server/'>chef-server</a></span>
-    
-  
-</footer>
+<ul>
+<li>VPC セキュリティグループ</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>chef client のインストール</li>
+<li><code>chef server への node の追加</code></li>
+</ul>
 
 
-</article>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ knife ec2 server create --node-name chef_test --ssh-user ec2-user --security-group-ids sg-6744b502</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>インスタンスの削除</h2>
+
+<p><code>$ knife ec2 server delete i-xxxxxxxx --purge</code></p>
+
+<ul>
+<li>インスタンスの削除</li>
+<li>chef server 上に登録された Node の情報の削除</li>
+<li>chef server 上に登録された Client の情報の削除</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ knife ec2 server delete i-5effb8ac --purge</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="https://github.com/opscode/knife-ec2">opscode/knife-ec2</a></li>
+</ul>
 
 </div>
 
+
+  <footer>
+    <p class="meta">
+      
   
+
+<span class="byline author vcard">Posted by <span class="fn">Ryo Ogata</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-11-01T22:09:37+09:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  Posted in
+  
+    <a class='category' href='/blog/categories/chef/'>chef</a>
+  
+</span>
+
+
+      
+
+<span class="tags">
+  Tagged as
+  
+    <a class='tag' href='/blog/tags/knife-ec2/'>knife-ec2</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ryoogata.github.io/2014/11/01/chef-knife-ec2/" data-via="" data-counturl="http://ryoogata.github.io/2014/11/01/chef-knife-ec2/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2014/10/27/docker-boot2docker/" title="Previous Post: docker boot2docker">&laquo; docker boot2docker</a>
+      
+      
+        <a class="basic-alignment right" href="/2014/11/02/chef-knife-ec2/" title="Next Post: knife-ec2 や kitchen-ec2 のための環境変数設定">knife-ec2 や kitchen-ec2 のための環境変数設定 &raquo;</a>
+      
+    </p>
+  </footer>
 </article>
 
 </div>

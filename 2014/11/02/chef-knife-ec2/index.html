@@ -1,0 +1,500 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>knife-ec2 や kitchen-ec2 のための環境変数設定 - YggdrasillNetwork Blog</title>
+  <meta name="author" content="Ryo Ogata">
+
+  
+  <meta name="description" content="概要 test-kitchen の dirver に ec2 を利用する際や、knife ec2 コマンド、AWS CLI を利用する際に環境変数から設定値を読み込む設定等のまとめ。 git で管理している設定ファイルに直接 AWS の Access Key や Secret Access Key &hellip;">
+  <meta name="keywords" content="chef, knife-ec2">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://ryoogata.github.io/2014/11/02/chef-knife-ec2/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="YggdrasillNetwork Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:ryoogata.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+    <li><a href="/">
+        <span class="blue_light">
+            YggdrasillNetwork Blog
+        </span>
+       
+           <span class="blue_dark">
+             A blogging framework for hackers.
+           </span>
+       
+    </a></li>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Knife-ec2 や Kitchen-ec2 のための環境変数設定</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-11-02T22:37:31+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h1>概要</h1>
+
+<p>test-kitchen の dirver に ec2 を利用する際や、knife ec2 コマンド、AWS CLI を利用する際に環境変数から設定値を読み込む設定等のまとめ。</p>
+
+<p>git で管理している設定ファイルに直接 AWS の Access Key や Secret Access Key などを記述しなくても済む方法。</p>
+
+<h1>.bash_profile</h1>
+
+<p>knife-ec2 および kitchen-ec2 の環境変数関連の挙動から、<code>.bash_profile</code> に設定する環境変数。</p>
+
+<ul>
+<li>.bash_profile</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>export EC2_SSH_KEY_PATH=~/.ssh/********.pem
+</span><span class='line'>export AWS_ACCESS_KEY_ID=********************
+</span><span class='line'>export AWS_SECRET_ACCESS_KEY=********************
+</span><span class='line'>export AWS_SSH_KEY_ID=********************</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>knife-ec2</h1>
+
+<h2>knife.rb に環境変数から設定値を読み込む設定を行っている項目</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>knife[:identity_file] = ENV['EC2_SSH_KEY_PATH']
+</span><span class='line'>knife[:aws_access_key_id] = ENV['AWS_ACCESS_KEY_ID']
+</span><span class='line'>knife[:aws_secret_access_key] = ENV['AWS_SECRET_ACCESS_KEY']
+</span><span class='line'>knife[:aws_ssh_key_id] = ENV['AWS_SSH_KEY_ID']</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>kitchen-ec2</h1>
+
+<p>.kitchen.yml に設定項目を記述しなくても、環境変数に特定の値が設定されている場合には自動的に設定値を設定してくれる項目</p>
+
+<table>
+<thead>
+<tr>
+<th>設定項目</th>
+<th>設定のための環境変数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>aws_access_key_id</td>
+<td><code>AWS_ACCESS_KEY</code> or <code>AWS_ACCESS_KEY_ID</code></td>
+</tr>
+<tr>
+<td>aws_secret_access_key</td>
+<td><code>AWS_SECRET_KEY</code> or <code>AWS_SECRET_ACCESS_KEY</code></td>
+</tr>
+<tr>
+<td>aws_session_token</td>
+<td><code>AWS_SESSION_TOKEN</code> or <code>AWS_TOKEN</code></td>
+</tr>
+<tr>
+<td>aws_ssh_key_id</td>
+<td><code>AWS_SSH_KEY_ID</code></td>
+</tr>
+</tbody>
+</table>
+
+
+<h2>.kitchen.yml に環境変数から設定値を読み込む設定を行っている項目</h2>
+
+<ul>
+<li>EC2_SSH_KEY_PATH</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>driver:
+</span><span class='line'>  name: ec2
+</span><span class='line'>  security_group_ids: ["sg-6744b502"]
+</span><span class='line'>  ssh_key: &lt;%= ENV['EC2_SSH_KEY_PATH'] %&gt;
+</span><span class='line'>  region: ap-northeast-1
+</span><span class='line'>  availability_zone: ap-northeast-1a
+</span><span class='line'>  interface: public</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>.aws/config</h1>
+
+<ul>
+<li>環境変数から設定値を読み込む
+
+<ul>
+<li>AWS_ACCESS_KEY_ID</li>
+<li>AWS_SECRET_ACCESS_KEY</li>
+</ul>
+</li>
+</ul>
+
+
+<h1>Tips</h1>
+
+<h2>knife.rb に設定可能な項目 List</h2>
+
+<table>
+<thead>
+<tr>
+<th>設定項目</th>
+<th>default 設定値</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>knife[:aws_credential_file]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:aws_access_key_id]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:aws_secret_access_key]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:region]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:use_iam_profile]</td>
+<td>false</td>
+</tr>
+<tr>
+<td>knife[:flavor]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:image]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:placement_group]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:availability_zone]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:chef_node_name]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:aws_ssh_key_id]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:ssh_port]</td>
+<td>22</td>
+</tr>
+<tr>
+<td>knife[:ssh_gateway]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:ssh_gateway_identity]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:bootstrap_version]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:bootstrap_proxy]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:distro]</td>
+<td>chef-full</td>
+</tr>
+<tr>
+<td>knife[:template_file]</td>
+<td>false</td>
+</tr>
+<tr>
+<td>knife[:secret]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:secret_file]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:s3_secret]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:subnet_id]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:private_ip_address]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:bootstrap_protocol]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:fqdn]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:aws_user_data]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:ebs_volume_type]</td>
+<td>standard</td>
+</tr>
+<tr>
+<td>knife[:provisioned_iops]</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ryo Ogata</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-11-02T22:37:31+09:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  Posted in
+  
+    <a class='category' href='/blog/categories/chef/'>chef</a>
+  
+</span>
+
+
+      
+
+<span class="tags">
+  Tagged as
+  
+    <a class='tag' href='/blog/tags/kitchen-ec2/'>kitchen-ec2</a>, <a class='tag' href='/blog/tags/knife-ec2/'>knife-ec2</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ryoogata.github.io/2014/11/02/chef-knife-ec2/" data-via="" data-counturl="http://ryoogata.github.io/2014/11/02/chef-knife-ec2/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2014/11/01/chef-knife-ec2/" title="Previous Post: knife-ec2 を利用したインスタンス操作">&laquo; knife-ec2 を利用したインスタンス操作</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+  <p>IT Infrastructure Architect</p>
+</section>
+<section>
+  <h1>Categories</h1>
+    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (2)</a></li></ul>
+</section>
+<section>
+  <h1>Tag Cloud</h1>
+    <span id="tag-cloud"><a href='/blog/tags/boot2docker' style='font-size: 130.0%'>boot2docker(1)</a> <a href='/blog/tags/chef-client' style='font-size: 130.0%'>chef-client(1)</a> <a href='/blog/tags/chef-repo' style='font-size: 160.0%'>chef-repo(2)</a> <a href='/blog/tags/chef-server' style='font-size: 160.0%'>chef-server(2)</a> <a href='/blog/tags/chef-solo' style='font-size: 130.0%'>chef-solo(1)</a> <a href='/blog/tags/hosted-chef' style='font-size: 130.0%'>hosted chef(1)</a> <a href='/blog/tags/kitchen-ec2' style='font-size: 130.0%'>kitchen-ec2(1)</a> <a href='/blog/tags/knife-ec2' style='font-size: 160.0%'>knife-ec2(2)</a> <a href='/blog/tags/knife-solo' style='font-size: 130.0%'>knife-solo(1)</a> <a href='/blog/tags/windows' style='font-size: 130.0%'>windows(1)</a> </span>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2014/11/02/chef-knife-ec2/">knife-ec2 や kitchen-ec2 のための環境変数設定</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2014/11/01/chef-knife-ec2/">knife-ec2 を利用したインスタンス操作</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2014/10/27/docker-boot2docker/">docker boot2docker</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2014/10/24/docker/">Docker のバージョンを追っかける</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2014/10/23/packer-windows/">Packer を利用して Windows7 の仮想イメージを作成する</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+  <h1>Twitter Timeline</h1>
+  <p><a class="twitter-timeline" href="https://twitter.com/rfrv_ryo" data-widget-id="531634940299841536">@rfrv_ryo からのツイート</a>
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Ryo Ogata -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

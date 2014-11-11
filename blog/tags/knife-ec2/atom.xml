@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: chef | YggdrasillNetwork Blog]]></title>
-  <link href="http://ryoogata.github.io/blog/categories/chef/atom.xml" rel="self"/>
+  <title><![CDATA[Tag: Knife-ec2 | YggdrasillNetwork Blog]]></title>
+  <link href="http://ryoogata.github.io/blog/tags/knife-ec2/atom.xml" rel="self"/>
   <link href="http://ryoogata.github.io/"/>
   <updated>2014-11-11T18:11:17+09:00</updated>
   <id>http://ryoogata.github.io/</id>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[knife-ec2 や kitchen-ec2 のための環境変数設定]]></title>
+    <title type="html"><![CDATA[Knife-ec2 や Kitchen-ec2 のための環境変数設定]]></title>
     <link href="http://ryoogata.github.io/2014/11/02/chef-knife-ec2/"/>
     <updated>2014-11-02T22:37:31+09:00</updated>
     <id>http://ryoogata.github.io/2014/11/02/chef-knife-ec2</id>
@@ -241,7 +241,7 @@ knife[:aws_ssh_key_id] = ENV['AWS_SSH_KEY_ID']
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[knife-ec2 を利用したインスタンス操作]]></title>
+    <title type="html"><![CDATA[Knife-ec2 を利用したインスタンス操作]]></title>
     <link href="http://ryoogata.github.io/2014/11/01/chef-knife-ec2/"/>
     <updated>2014-11-01T22:09:37+09:00</updated>
     <id>http://ryoogata.github.io/2014/11/01/chef-knife-ec2</id>
@@ -307,193 +307,6 @@ knife[:aws_ssh_key_id] = ENV['AWS_SSH_KEY_ID']
 <li><a href="https://github.com/opscode/knife-ec2">opscode/knife-ec2</a></li>
 </ul>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[chef 関連の Directory 構成を考える]]></title>
-    <link href="http://ryoogata.github.io/2014/10/22/chef-chef-repo/"/>
-    <updated>2014-10-22T22:05:02+09:00</updated>
-    <id>http://ryoogata.github.io/2014/10/22/chef-chef-repo</id>
-    <content type="html"><![CDATA[<h1>概要</h1>
-
-<h1>やりたいこと</h1>
-
-<ul>
-<li>1 台の PC で複数の Workstation を扱いたい</li>
-<li>chef-server と chef-solo を併用したい</li>
-<li>chef-solo から将来的に chef-server へ移行する際の面倒を避けたい</li>
-</ul>
-
-
-<h1>Directory 全体像</h1>
-
-<pre><code>.
-|-- berkshelf
-|-- site-cookbooks
-|-- workstation
-</code></pre>
-
-<h1>site-cookbooks</h1>
-
-<ul>
-<li>自作 cookbook は同 Directory 以下に作成する</li>
-<li>各 chef-repo 以下には site-cookbooks を作成しない</li>
-</ul>
-
-
-<h1>workstations</h1>
-
-<ul>
-<li>workstations directory 以下に組織毎に chef-repo 用 directory を作成する</li>
-<li>組織は hosted chef の Organization と紐付けすることを想定</li>
-<li>chef-server/chef-solo どちらで利用するかに関係なく workstations directory 以下に作成していく</li>
-</ul>
-
-
-<pre><code>.
-`-- workstations
-    |-- Organization_A
-    |   |-- .chef
-    |   |-- cookbooks
-    |   |-- data_bags
-    |   |-- environments
-    |     :     
-    |     :     
-    |   `-- roles
-    |-- Organization_B
-      :
-      :
-    `-- Organization_Z
-        |-- .chef
-        |-- cookbooks
-        |-- data_bags
-        |-- environments
-          :     
-        `-- roles
-</code></pre>
-
-<h1>.chef/knife.rb</h1>
-
-<pre><code>log_level                :info
-log_location             STDOUT
-node_name                'r-ogata'
-client_key               'r-ogata.cer'
-validation_client_name   'tech-sales-validator'
-validation_key           'tech-sales-validator.cer'
-chef_server_url          'https://api.opscode.com/organizations/tech-sales'
-knife[:editor] =         '/usr/bin/vim'
-cookbook_path            ['cookbooks', '../../site-cookbooks']
-</code></pre>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[chef の登場人物をさらっとまとめてみる]]></title>
-    <link href="http://ryoogata.github.io/2014/10/22/chef-chef-solo-knife-solo-chef-client/"/>
-    <updated>2014-10-22T13:57:56+09:00</updated>
-    <id>http://ryoogata.github.io/2014/10/22/chef-chef-solo-knife-solo-chef-client</id>
-    <content type="html"><![CDATA[<h1>概要</h1>
-
-<p>chef-solo とか knife-solo とか似たような chef 用語が色々とあるので、整理をかねて簡単にまとめてみる</p>
-
-<h2>chef-solo</h2>
-
-<p>chef-solo とは?</p>
-
-<ul>
-<li>chef-server を利用しない</li>
-<li>単一の node で完結</li>
-<li>chef-repo を node 自身に保持</li>
-</ul>
-
-
-<h2>knife-solo</h2>
-
-<p>knife-solo とは?</p>
-
-<ul>
-<li>下記の作業を自動化してくれるツール
-
-<ul>
-<li>手元の cookbook をリモート node に転送</li>
-<li>リモート node 上で chef-solo コマンド実行</li>
-</ul>
-</li>
-</ul>
-
-
-<h2>chef-client</h2>
-
-<p>chef-client とは?</p>
-
-<ul>
-<li>chef-server と連携して動作</li>
-<li>Node の収束を実施</li>
-<li>Node の情報収集</li>
-<li>etc</li>
-</ul>
-
-
-<h3>chef-client ローカルモード</h3>
-
-<p>chef-client ローカルモードとは?</p>
-
-<ul>
-<li>Chef 11.x から追加されたモード</li>
-<li>Chef-Client/Server環境の簡易版</li>
-<li>chef-solo の代わり</li>
-</ul>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Windows 関連 cookbook/recipe 命名規則]]></title>
-    <link href="http://ryoogata.github.io/2014/10/22/chef/"/>
-    <updated>2014-10-22T09:08:02+09:00</updated>
-    <id>http://ryoogata.github.io/2014/10/22/chef</id>
-    <content type="html"><![CDATA[<h1>概要</h1>
-
-<p>Windows 関連の Cookbook を作成する際の命名規則のまとめ</p>
-
-<h1>cookbook 命名規則</h1>
-
-<h2>アプリケーションインストール</h2>
-
-<p>Wondows にアプリケーションをインストールする Cookbook を作成する際の命名規則</p>
-
-<p>命名規則:<br/>
-<code>アプリケーション名-windows</code></p>
-
-<p>例:<br/>
-<code>apache2-windows</code></p>
-
-<h2>Windows 設定関連</h2>
-
-<p>Windows OS の設定を変更する Cookbook を作成する際の命名規則</p>
-
-<p>命名規則:<br/>
-<code>windows_設定</code></p>
-
-<p>例:<br/>
-<code>windows_firewall</code></p>
-
-<h1>recipe 命名規則</h1>
-
-<h2>アプリケーションインストール</h2>
-
-<p>Wondows にアプリケーションをインストールする recipe を作成する際の命名規則</p>
-
-<h3>アプリケーションのインストール recipe</h3>
-
-<p>命名規則:<br/>
-<code>default.rb</code></p>
-
-<h3>アプリケーションのアップデート recipe</h3>
-
-<p>命名規則:<br/>
-<code>update.rb</code></p>
 ]]></content>
   </entry>
   

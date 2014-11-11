@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: Knife-solo | YggdrasillNetwork Blog]]></title>
+  <link href="http://ryoogata.github.io/blog/tags/knife-solo/atom.xml" rel="self"/>
+  <link href="http://ryoogata.github.io/"/>
+  <updated>2014-11-11T18:11:17+09:00</updated>
+  <id>http://ryoogata.github.io/</id>
+  <author>
+    <name><![CDATA[Ryo Ogata]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Chef の登場人物をさらっとまとめてみる]]></title>
+    <link href="http://ryoogata.github.io/2014/10/22/chef-chef-solo-knife-solo-chef-client/"/>
+    <updated>2014-10-22T13:57:56+09:00</updated>
+    <id>http://ryoogata.github.io/2014/10/22/chef-chef-solo-knife-solo-chef-client</id>
+    <content type="html"><![CDATA[<h1>概要</h1>
+
+<p>chef-solo とか knife-solo とか似たような chef 用語が色々とあるので、整理をかねて簡単にまとめてみる</p>
+
+<h2>chef-solo</h2>
+
+<p>chef-solo とは?</p>
+
+<ul>
+<li>chef-server を利用しない</li>
+<li>単一の node で完結</li>
+<li>chef-repo を node 自身に保持</li>
+</ul>
+
+
+<h2>knife-solo</h2>
+
+<p>knife-solo とは?</p>
+
+<ul>
+<li>下記の作業を自動化してくれるツール
+
+<ul>
+<li>手元の cookbook をリモート node に転送</li>
+<li>リモート node 上で chef-solo コマンド実行</li>
+</ul>
+</li>
+</ul>
+
+
+<h2>chef-client</h2>
+
+<p>chef-client とは?</p>
+
+<ul>
+<li>chef-server と連携して動作</li>
+<li>Node の収束を実施</li>
+<li>Node の情報収集</li>
+<li>etc</li>
+</ul>
+
+
+<h3>chef-client ローカルモード</h3>
+
+<p>chef-client ローカルモードとは?</p>
+
+<ul>
+<li>Chef 11.x から追加されたモード</li>
+<li>Chef-Client/Server環境の簡易版</li>
+<li>chef-solo の代わり</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

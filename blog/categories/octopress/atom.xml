@@ -4,7 +4,7 @@
   <title><![CDATA[Category: octopress | YggdrasillNetwork Blog]]></title>
   <link href="http://ryoogata.github.io/blog/categories/octopress/atom.xml" rel="self"/>
   <link href="http://ryoogata.github.io/"/>
-  <updated>2014-10-17T13:54:33+09:00</updated>
+  <updated>2014-11-11T18:11:17+09:00</updated>
   <id>http://ryoogata.github.io/</id>
   <author>
     <name><![CDATA[Ryo Ogata]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Octopress 入門してみた]]></title>
-    <link href="http://ryoogata.github.io/blog/octopress/octopress/"/>
+    <link href="http://ryoogata.github.io/2014/10/16/octopress/"/>
     <updated>2014-10-16T12:20:15+09:00</updated>
-    <id>http://ryoogata.github.io/blog/octopress/octopress</id>
+    <id>http://ryoogata.github.io/2014/10/16/octopress</id>
     <content type="html"><![CDATA[<h1>概要</h1>
 
 <p>Octopress を使って Blog を公開してみようと思い立ってから、あれこれ調べたこと。</p>
@@ -100,10 +100,24 @@ To https://github.com/ryoogata/ryoogata.github.io.git
 
 <h2>記事の準備</h2>
 
-<pre><code>$ rake new_post["vagrant Chef-Server]
+<pre><code>$ rake new_post['vagrant chef-Server']
 </code></pre>
 
 <p>rake new_post[&lsquo;&rsquo;]の引数として、空白区切りで 最初の単語をcategory、後の単語を全てtagsとして登録する</p>
+
+<h2>記事を複数のカテゴリに含める</h2>
+
+<p>category の箇所に複数のカテゴリを記述する</p>
+
+<pre><code>layout: post
+title: "Vagrant の Provisioner に Chef Client を利用する際に遭遇したトラブルとその解決策" 
+date: 2014-10-16 16:41:05 +0900
+comments: true
+category: ["vagrant", "chef"]
+tags: ["Chef-Server"]
+keywords: Chef, Chef-Server, vagrant
+published: true 
+</code></pre>
 
 <h1>Customize</h1>
 
