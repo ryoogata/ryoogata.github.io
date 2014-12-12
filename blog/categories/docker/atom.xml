@@ -4,7 +4,7 @@
   <title><![CDATA[Category: docker | YggdrasillNetwork Blog]]></title>
   <link href="http://ryoogata.github.io/blog/categories/docker/atom.xml" rel="self"/>
   <link href="http://ryoogata.github.io/"/>
-  <updated>2014-11-12T11:02:00+09:00</updated>
+  <updated>2014-12-12T23:36:23+09:00</updated>
   <id>http://ryoogata.github.io/</id>
   <author>
     <name><![CDATA[Ryo Ogata]]></name>
@@ -206,6 +206,21 @@ CMD ["/usr/sbin/apache2", "-D", "FOREGROUND"]
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>1.4.0   </td>
+<td>2014/12/11</td>
+<td><a href="http://bit.ly/1wn3igI">http://bit.ly/1wn3igI</a></td>
+</tr>
+<tr>
+<td>1.3.3   </td>
+<td>2014/12/11</td>
+<td><a href="http://bit.ly/1wn3igI">http://bit.ly/1wn3igI</a></td>
+</tr>
+<tr>
+<td>1.3.2   </td>
+<td>2014/11/24</td>
+<td><a href="http://bit.ly/1vIYXke">http://bit.ly/1vIYXke</a></td>
+</tr>
 <tr>
 <td>1.3.1   </td>
 <td>2014/11/05</td>
