@@ -4,7 +4,7 @@
   <title><![CDATA[YggdrasillNetwork Blog]]></title>
   <link href="http://ryoogata.github.io/atom.xml" rel="self"/>
   <link href="http://ryoogata.github.io/"/>
-  <updated>2015-01-27T10:00:03+09:00</updated>
+  <updated>2015-01-27T10:06:10+09:00</updated>
   <id>http://ryoogata.github.io/</id>
   <author>
     <name><![CDATA[Ryo Ogata]]></name>
@@ -202,6 +202,10 @@
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>config.omnibus.chef_version = :latest</span></code></pre></td></tr></table></div></figure>
 
+
+<h2>Vagrant Box の起動</h2>
+
+<p><code>vagrant up</code> コマンドで起動</p>
 
 <h2>Vagrant Box のパッケージ化</h2>
 
