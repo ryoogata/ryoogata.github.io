@@ -4,7 +4,7 @@
   <title><![CDATA[Category: vagrant | YggdrasillNetwork Blog]]></title>
   <link href="http://ryoogata.github.io/blog/categories/vagrant/atom.xml" rel="self"/>
   <link href="http://ryoogata.github.io/"/>
-  <updated>2014-12-12T23:36:23+09:00</updated>
+  <updated>2015-01-27T10:00:03+09:00</updated>
   <id>http://ryoogata.github.io/</id>
   <author>
     <name><![CDATA[Ryo Ogata]]></name>
@@ -12,6 +12,269 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Vagrant Box を Atlas で管理]]></title>
+    <link href="http://ryoogata.github.io/2015/01/23/vagrant/"/>
+    <updated>2015-01-23T10:12:51+09:00</updated>
+    <id>http://ryoogata.github.io/2015/01/23/vagrant</id>
+    <content type="html"><![CDATA[<h1>概要</h1>
+
+<p>Vagrant Box を Atlas by HashiCorp を利用して管理するフローをまとめる。</p>
+
+<h1>やりたいこと</h1>
+
+<ul>
+<li>Vagrant Box を一箇所で管理
+
+<ul>
+<li>test-kitchen の環境が会社と自宅にあり、それぞれ利用している Vagrant Box 異なってくる可能性があるため</li>
+</ul>
+</li>
+<li>Vagrant Box のバージョン管理
+
+<ul>
+<li>Vagrant Box に手を加える場合があるため</li>
+</ul>
+</li>
+</ul>
+
+
+<h1>必要なもの</h1>
+
+<ul>
+<li>Atlas アカウント</li>
+<li>AWS アカウント
+
+<ul>
+<li>S3 に Vagrant Box Image を保存するため</li>
+</ul>
+</li>
+<li>作業端末
+
+<ul>
+<li>Vagrant ver1.5.0 以上</li>
+</ul>
+</li>
+</ul>
+
+
+<h1>作業フロー</h1>
+
+<h2>ベースとなる Box の追加</h2>
+
+<p><code>vagrant box add</code> コマンドを利用して、ベースとなる Box を作業端末に追加する。</p>
+
+<ul>
+<li>chef/centos-6.6</li>
+</ul>
+
+
+<pre><code>$ vagrant box add chef/centos-6.6 
+==&gt; box: Loading metadata for box 'chef/centos-6.6'
+    box: URL: https://vagrantcloud.com/chef/centos-6.6
+This box can work with multiple providers! The providers that it
+can work with are listed below. Please review the list and choose
+the provider you will be working with.
+
+1) virtualbox
+2) vmware_desktop
+
+Enter your choice: 1
+==&gt; box: Adding box 'chef/centos-6.6' (v1.0.0) for provider: virtualbox
+    box: Downloading: https://vagrantcloud.com/chef/boxes/centos-6.6/versions/1.0.0/providers/virtualbox.box
+==&gt; box: Successfully added box 'chef/centos-6.6' (v1.0.0) for 'virtualbox'!
+</code></pre>
+
+<h2>Vagrantfile の作成</h2>
+
+<p><code>vagrant init</code> コマンドを利用して、Vagrantfile を作成</p>
+
+<pre><code>$ vagrant init chef/centos-6.6
+A `Vagrantfile` has been placed in this directory. You are now
+ready to `vagrant up` your first virtual environment! Please read
+the comments in the Vagrantfile as well as documentation on
+`vagrantup.com` for more information on using Vagrant.
+</code></pre>
+
+<ul>
+<li>作成される Vagrantfile ( コメントアウト行は削除 )</li>
+</ul>
+
+
+<pre><code># -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = "chef/centos-6.6"
+end
+</code></pre>
+
+<h2>Vagrantfile の修正</h2>
+
+<p>作成した Vagranfile の修正</p>
+
+<h3>追加必須</h3>
+
+<h4>synced_folder の disable</h4>
+
+<ul>
+<li>追加行</li>
+</ul>
+
+
+<pre><code>config.vm.synced_folder ".", "/vagrant", disabled: true
+</code></pre>
+
+<ul>
+<li>Vagrantfile</li>
+</ul>
+
+
+<pre><code># -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = "chef/centos-6.6"
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+end
+</code></pre>
+
+<h3>任意で追加</h3>
+
+<h4>Docker 環境セットアップ</h4>
+
+<pre><code>config.vm.provision "docker" do |d| 
+  d.version = 'latest'
+end
+</code></pre>
+
+<h4>chef 環境セットアップ</h4>
+
+<pre><code>config.omnibus.chef_version = :latest
+</code></pre>
+
+<h2>Vagrant Box のパッケージ化</h2>
+
+<p><code>vagrant package</code> コマンドを利用して Box のパッケージを作成</p>
+
+<pre><code>$ vagrant package --output centos-6.6.box
+WARNING: Could not load IOV methods. Check your GSSAPI C library for an update
+WARNING: Could not load AEAD methods. Check your GSSAPI C library for an update
+==&gt; default: Attempting graceful shutdown of VM...
+==&gt; default: Clearing any previously set forwarded ports...
+==&gt; default: Exporting VM...
+==&gt; default: Compressing package to: /private/tmp/centos-6.6.box
+</code></pre>
+
+<h2>S3 へのアップロード</h2>
+
+<p>S3 の任意の場所に作成したパッケージファイル ( e.g. centos-6.6.box ) をアップロード。</p>
+
+<p>アップロード後、ファイルの <code>Everyone</code> へのパーミッションに <code>Open/Download</code> を付加する。</p>
+
+<p>Atlas 上に登録するために、Link の URL を控えておく</p>
+
+<pre><code>https://s3-ap-northeast-1.amazonaws.com/ryoogata.ap-northease-1.tech-dev.info/centos-6.6.box
+</code></pre>
+
+<h2>Atlas 上で新しい Box を作成 </h2>
+
+<h3>1. Atlas にログイン後、新規 Box 追加</h3>
+
+<p>Atlas ログイン直後の Development の Tab から create a box here. をクリックするか、下記の URL にアクセスして新規 Box 追加画面へ移る。</p>
+
+<p><a href="https://atlas.hashicorp.com/boxes/new">https://atlas.hashicorp.com/boxes/new</a></p>
+
+<h3>2. Create a new box</h3>
+
+<h4>Name</h4>
+
+<pre><code>centos-6.6
+</code></pre>
+
+<h4>Short description</h4>
+
+<pre><code>chef/centos-6.6 ( v1.0.0 ) base customized image
+</code></pre>
+
+<h4>Description</h4>
+
+<pre><code>chef/centos-6.6 ( v1.0.0 ) をベースに下記のアプリケーションをインストール済みイメージ
+
+* Virtualbox Guest Additions
+* Chef
+* Docker
+</code></pre>
+
+<h3>3. New Box Version</h3>
+
+<h4>Version</h4>
+
+<pre><code>1.0.0
+</code></pre>
+
+<h4>Description</h4>
+
+<pre><code>下記のバージョンのアプリケーションをインストール済みイメージ
+
+* Virtualbox Guest Additions
+  * 4.3.20
+* Chef
+  * 12.0.3
+* Docker
+  * 1.3.2
+</code></pre>
+
+<h3>4. New Box Provider</h3>
+
+<h4>Provider</h4>
+
+<pre><code>virtualbox
+</code></pre>
+
+<h4>URL</h4>
+
+<pre><code>https://s3-ap-northeast-1.amazonaws.com/*******/centos-6.6.box
+</code></pre>
+
+<h3>5. Release version</h3>
+
+<p><code>Release version</code> ボタンを押下し、リリースする</p>
+
+<h1>Vagrant トラブルシュート</h1>
+
+<h2>error: No such device</h2>
+
+<p>vagrant up 時、下記のエラーメッセージを吐いて起動に失敗する場合がある。</p>
+
+<pre><code>==&gt; default: Mounting shared folders...
+    default: /vagrant =&gt; /private/tmp
+Vagrant::Errors::LinuxMountFailed: Failed to mount folders in Linux guest. This is usually because
+the "vboxsf" file system is not available. Please verify that
+the guest additions are properly installed in the guest and
+can work properly. The command attempted was:
+
+mount -t vboxsf -o uid=`id -u vagrant`,gid=`getent group vagrant | cut -d: -f3` vagrant /vagrant
+mount -t vboxsf -o uid=`id -u vagrant`,gid=`id -g vagrant` vagrant /vagrant
+
+The error output from the last command was:
+
+/sbin/mount.vboxsf: mounting failed with the error: No such device
+</code></pre>
+
+<p>sync folder が正常に mount できずにエラーになる。Vagrant box に Virtualbox Guest Additions がインストールされていなかったり、Vagrant のバージョンとの乖離がありすぎると問題になるみたい。</p>
+
+<p>Vagrant up 時に sync folder を mount しないように Vagrantfile に
+<code>config.vm.synced_folder ".", "/vagrant", disabled: true</code> の記述を追加して回避。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Vagrant と Hosted Chef との連携]]></title>

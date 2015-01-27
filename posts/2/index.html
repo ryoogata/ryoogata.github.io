@@ -9,7 +9,13 @@
   <meta name="author" content="Ryo Ogata">
 
   
-  <meta name="description" content="概要 Vagrant の Provisioner に Chef Client を利用する際に遭遇したトラブルとその解決策 内容 Hosted Chef を Chef Server として利用し、下記の設定がされている状態で、vagrant destory を実行すると VM は削除されるが、 &hellip;">
+  <meta name="description" content="概要 chef を使い始めてから chef-repo がだいぶ汚れて(?)きたので整理してみる 1
+2
+3
+4
+5
+$ git clone git://github.com/opscode/chef-repo.git hosted-chef-repo
+$ cd hosted-chef-repo &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +72,121 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2014/10/20/chef-chef-repo/">Chef-repo をみなおしてみる</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-20T10:53:18+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>概要</h1>
+
+<p>chef を使い始めてから chef-repo がだいぶ汚れて(?)きたので整理してみる</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git clone git://github.com/opscode/chef-repo.git hosted-chef-repo
+</span><span class='line'>$ cd hosted-chef-repo
+</span><span class='line'>$ rm -rf .git
+</span><span class='line'>$ mkdir .chef
+</span><span class='line'>$ mkdir .berkshelf</span></code></pre></td></tr></table></div></figure>
+
+
+<p>organization の starter-kit を Download</p>
+
+<p>psg-validator.pem と r-ogata.pem を .chef にコピー</p>
+
+<p>knife.rb</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>log_level                :info
+</span><span class='line'>log_location             STDOUT
+</span><span class='line'>node_name                ''
+</span><span class='line'>client_key               ''
+</span><span class='line'>validation_client_name   ''
+</span><span class='line'>validation_key           ''
+</span><span class='line'>chef_server_url          ''
+</span><span class='line'>knife[:editor] =         '/usr/bin/vim'
+</span><span class='line'>cookbook_path            ['cookbooks', '../../site-cookbooks/']</span></code></pre></td></tr></table></div></figure>
+
+
+<p>config.json</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{
+</span><span class='line'>  "chef": {
+</span><span class='line'>    "node_name": "",
+</span><span class='line'>    "client_key": "",
+</span><span class='line'>    "validation_client_name": "",
+</span><span class='line'>    "validation_key_path": "",
+</span><span class='line'>    "chef_server_url": ""
+</span><span class='line'>  },
+</span><span class='line'>  "ssl":{
+</span><span class='line'>    "verify": false
+</span><span class='line'>  }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p><a href="https://manage.opscode.com/login">https://manage.opscode.com/login</a></p>
+
+<p><a href="https://manage.opscode.com/starter-kit">https://manage.opscode.com/starter-kit</a></p>
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="https://docs.getchef.com/essentials_repository_create.html">Create the chef-repo</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -573,7 +694,7 @@ permalink: /blog/:categories/:title/</p></li>
 </section>
 <section>
   <h1>Categories</h1>
-    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (2)</a></li></ul>
+    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (3)</a></li></ul>
 </section>
 <section>
   <h1>Tag Cloud</h1>
@@ -582,6 +703,10 @@ permalink: /blog/:categories/:title/</p></li>
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2015/01/23/vagrant/">Vagrant Box を Atlas で管理</a>
+      </li>
     
       <li class="post">
         <a href="/2014/11/02/chef-knife-ec2/">knife-ec2 や kitchen-ec2 のための環境変数設定</a>
@@ -597,10 +722,6 @@ permalink: /blog/:categories/:title/</p></li>
     
       <li class="post">
         <a href="/2014/10/24/docker/">Docker のバージョンを追っかける</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2014/10/23/packer-windows/">Packer を利用して Windows7 の仮想イメージを作成する</a>
       </li>
     
   </ul>
@@ -621,7 +742,7 @@ permalink: /blog/:categories/:title/</p></li>
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2014 - Ryo Ogata -
+  Copyright &copy; 2015 - Ryo Ogata -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
   - <span class="credit">Theme by <a href="http://www.gehaxelt.in">Gehaxelt</a></span>
   <span class="credit">and <a href="http://www.it-solutions-neef.de">IT Solutions Neef</a></span>
