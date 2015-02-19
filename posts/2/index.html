@@ -9,14 +9,7 @@
   <meta name="author" content="Ryo Ogata">
 
   
-  <meta name="description" content="概要 やりたいこと 1 台の PC で複数の Workstation を扱いたい
-chef-server と chef-solo を併用したい
-chef-solo から将来的に chef-server へ移行する際の面倒を避けたい Directory 全体像 1
-2
-3
-4
-.
-|-- &hellip;">
+  <meta name="description" content="概要 Packer を利用して VirtualBox で利用可能な Windows7 のイメージを作成する packer 実行の流れ 1. Packer の Download 設置 下記の Packer Download URL から Packer 本体を Download し解凍後、 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -73,6 +66,481 @@ chef-solo から将来的に chef-server へ移行する際の面倒を避けた
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2014/10/23/packer-windows/">Packer を利用して Windows7 の仮想イメージを作成する</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-23T23:44:46+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>概要</h1>
+
+<p>Packer を利用して VirtualBox で利用可能な Windows7 のイメージを作成する</p>
+
+<h1>packer 実行の流れ</h1>
+
+<h2>1. Packer の Download 設置</h2>
+
+<p>下記の Packer Download URL から Packer 本体を Download し解凍後、Directory を ~/ 以下に packer に名前を変更して設置</p>
+
+<ul>
+<li><a href="https://www.packer.io/downloads.html">Packer Download URL</a></li>
+</ul>
+
+
+<h2>2. Packer の実行ファイルの Download</h2>
+
+<p>本家から Fork した Packer 実行ファイルを git clone</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git clone https://github.com/ryoogata/packer-windows.git</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>3. Windows iso イメージの設置</h2>
+
+<p>利用する Windows iso イメージの md5 の値を取得し、必要に応じて windows_7.json を修正</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ md5 windows7.iso 
+</span><span class='line'>MD5 (windows7.iso) = 69cc2d20bd2c15490f40d34e52d79290</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>windows_7.json</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>:
+</span><span class='line'>"iso_url": "iso/windows7.iso",
+</span><span class='line'>"iso_checksum_type": "md5",
+</span><span class='line'>"iso_checksum": "69cc2d20bd2c15490f40d34e52d79290",
+</span><span class='line'>:</span></code></pre></td></tr></table></div></figure>
+
+
+<p>clone した packer-windows Directory 内の iso Directory に Windows の iso イメージを設置</p>
+
+<h2>4. image の作成</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ export PATH=~/packer:$PATH
+</span><span class='line'>$ cd packer-windows
+</span><span class='line'>$ packer build -only=virtualbox-iso windows_7.json </span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>実行ログ</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>:
+</span><span class='line'>
+</span><span class='line'>==&gt; virtualbox-iso (vagrant): Creating Vagrant box for 'virtualbox' provider
+</span><span class='line'>    virtualbox-iso (vagrant): Copying from artifact: output-virtualbox-iso/packer-virtualbox-iso-1413034723-disk1.vmdk
+</span><span class='line'>    virtualbox-iso (vagrant): Copying from artifact: output-virtualbox-iso/packer-virtualbox-iso-1413034723.ovf
+</span><span class='line'>    virtualbox-iso (vagrant): Renaming the OVF to box.ovf...
+</span><span class='line'>    virtualbox-iso (vagrant): Using custom Vagrantfile: vagrantfile-windows_7.template
+</span><span class='line'>    virtualbox-iso (vagrant): Compressing: Vagrantfile
+</span><span class='line'>    virtualbox-iso (vagrant): Compressing: box.ovf
+</span><span class='line'>    virtualbox-iso (vagrant): Compressing: metadata.json
+</span><span class='line'>    virtualbox-iso (vagrant): Compressing: packer-virtualbox-iso-1413034723-disk1.vmdk
+</span><span class='line'>Build 'virtualbox-iso' finished.
+</span><span class='line'>
+</span><span class='line'>==&gt; Builds finished. The artifacts of successful builds are:
+</span><span class='line'>--&gt; virtualbox-iso: 'virtualbox' provider box: windows_7_virtualbox.box</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Tips</h1>
+
+<h2>packer コマンド実行中に実行される Script</h2>
+
+<p>packer コマンド実行中、windows_7.json に記載がある下記の script が実行される</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>"scripts": [
+</span><span class='line'>  "./scripts/vm-guest-tools.bat",
+</span><span class='line'>  "./scripts/chef.bat",
+</span><span class='line'>  "./scripts/vagrant-ssh.bat",
+</span><span class='line'>  "./scripts/disable-auto-logon.bat",
+</span><span class='line'>  "./scripts/enable-rdp.bat",
+</span><span class='line'>  "./scripts/compile-dotnet-assemblies.bat",
+</span><span class='line'>  "./scripts/compact.bat"
+</span><span class='line'>]</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>TimeZone の変更</h2>
+
+<p>answer_files/7/Autounattend.xml の修正</p>
+
+<ul>
+<li>修正前</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;TimeZone&gt;Pacific Standard Time&lt;/TimeZone&gt;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>修正後</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;TimeZone&gt;Tokyo Standard Time&lt;/TimeZone&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>ComputerName の変更</h2>
+
+<p>answer_files/7/Autounattend.xml の修正</p>
+
+<ul>
+<li>修正前</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;ComputerName&gt;vagrant-2012&lt;/ComputerName&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>修正後</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;ComputerName&gt;vagrant-win7&lt;/ComputerName&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ComputerName は <code>15 文字以内</code> で指定する</p>
+
+<h2>Headless の設定</h2>
+
+<p>Packer 実行ファイルのデバック時などは VirtualBox の Window が表示される方が便利。Default では Headless なので、必要に応じて変更する。</p>
+
+<p>windows_7.json の修正</p>
+
+<ul>
+<li>修正前</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>"headless": true,</span></code></pre></td></tr></table></div></figure>
+
+
+<p>true の場合、Headless になり、packer 実行中の VirtualBox の Window が表示されない</p>
+
+<ul>
+<li>修正後</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>"headless": false,</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Windows の日本語化</h2>
+
+<p>answer_files/7/Autounattend.xml の修正</p>
+
+<p>en-US の箇所を ja-JP に変更</p>
+
+<ul>
+<li>修正前</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;UILanguage&gt;en-US&lt;/UILanguage&gt;
+</span><span class='line'>&lt;InputLocale&gt;en-US&lt;/InputLocale&gt;
+</span><span class='line'>&lt;SystemLocale&gt;en-US&lt;/SystemLocale&gt;
+</span><span class='line'>&lt;UILanguage&gt;en-US&lt;/UILanguage&gt;
+</span><span class='line'>&lt;UILanguageFallback&gt;en-US&lt;/UILanguageFallback&gt;
+</span><span class='line'>&lt;UserLocale&gt;en-US&lt;/UserLocale&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>修正前</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;UILanguage&gt;ja-JP&lt;/UILanguage&gt;
+</span><span class='line'>&lt;InputLocale&gt;ja-JP&lt;/InputLocale&gt;
+</span><span class='line'>&lt;SystemLocale&gt;ja-JP&lt;/SystemLocale&gt;
+</span><span class='line'>&lt;UILanguage&gt;ja-JP&lt;/UILanguage&gt;
+</span><span class='line'>&lt;UILanguageFallback&gt;ja-JP&lt;/UILanguageFallback&gt;
+</span><span class='line'>&lt;UserLocale&gt;ja-JP&lt;/UserLocale&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Image 作成中の Windows Update の停止</h2>
+
+<p>Packer 実行中、Windows Update を実施しないようにする</p>
+
+<p>answer_files/7/Autounattend.xml の修正</p>
+
+<ul>
+<li>修正前</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;!-- WITHOUT WINDOWS UPDATES --&gt;
+</span><span class='line'>&lt;!--
+</span><span class='line'>    :
+</span><span class='line'>--&gt;
+</span><span class='line'>&lt;!-- END WITHOUT WINDOWS UPDATES --&gt;
+</span><span class='line'>&lt;!-- WITH WINDOWS UPDATES --&gt;
+</span><span class='line'>    :
+</span><span class='line'>&lt;!-- END WITH WINDOWS UPDATES --&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>修正後</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;!-- WITHOUT WINDOWS UPDATES --&gt;
+</span><span class='line'>    :
+</span><span class='line'>&lt;!-- END WITHOUT WINDOWS UPDATES --&gt;
+</span><span class='line'>&lt;!-- WITH WINDOWS UPDATES --&gt;
+</span><span class='line'>&lt;!--
+</span><span class='line'>    :
+</span><span class='line'>--&gt;
+</span><span class='line'>&lt;!-- END WITH WINDOWS UPDATES --&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>トラブルシュート</h1>
+
+<h2>「応答ファイルは無効です」エラー</h2>
+
+<h3>エラーログ</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>パス[specialize]の無人応答ファイル[C:\Windows\Panther\unattend.xml]を解析または処理できませんでした。応答ファイルは無効です。</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>原因</h3>
+
+<p>ComputerName が文字数制限の <code>15 文字</code> を超えている文字列を指定していた。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Autounattend.xml
+</span><span class='line'>
+</span><span class='line'>&lt;ComputerName&gt;vagrant-windows7&lt;/ComputerName&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Error uploading guest additions</h2>
+
+<h3>エラーログ</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Build 'virtualbox-iso' errored: Error uploading guest additions: Process exited with: 1. Reason was:  ()
+</span><span class='line'>
+</span><span class='line'>==&gt; Some builds didn't complete successfully and had errors:
+</span><span class='line'>--&gt; virtualbox-iso: Error uploading guest additions: Process exited with: 1. Reason was:  ()</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>原因</h3>
+
+<p>仮想メディアマネージャの光学ディスクのところに VBoxWindowsAdditions が入っていないとダメかも。適当な Windows OS に VBoxWindowsAdditions を Mount して、再度 packer コマンドを実行したらとりあえず解決できた。</p>
+
+<h2>compact.bat の sdelete.exe コマンド実行後に固まる</h2>
+
+<h3>エラーログ</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cmd /c C:\Windows\Temp\sdelete.exe -z C:
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    virtualbox-iso: SDelete - Secure Delete v1.61
+</span><span class='line'>    virtualbox-iso: Copyright (C) 1999-2012 Mark Russinovich
+</span><span class='line'>    virtualbox-iso: Sysinternals - www.sysinternals.com
+</span><span class='line'>    virtualbox-iso:
+</span><span class='line'>    virtualbox-iso: SDelete is set for 1 pass.
+</span><span class='line'>    virtualbox-iso: Zeroing free space on C:\: 0%
+</span><span class='line'>==&gt; virtualbox-iso: Provisioning with shell script: /var/folders/c0/mrt_fmsx6l1b_kjl7pbstr2h0000gn/T/packer-shell022007924
+</span><span class='line'>    virtualbox-iso: rm: cannot remove `/tmp/TMP0000000149D9D38AB494459F': Device or resource busy
+</span><span class='line'>==&gt; virtualbox-iso: Unregistering and deleting virtual machine...
+</span><span class='line'>==&gt; virtualbox-iso: Deleting output directory...
+</span><span class='line'>Build 'virtualbox-iso' errored: Script exited with non-zero exit status: 1
+</span><span class='line'>
+</span><span class='line'>==&gt; Some builds didn't complete successfully and had errors:
+</span><span class='line'>--&gt; virtualbox-iso: Script exited with non-zero exit status: 1
+</span><span class='line'>
+</span><span class='line'>==&gt; Builds finished but no artifacts were created.
+</span><span class='line'>    :
+</span><span class='line'>    :</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>原因</h3>
+
+<p>packer-windows 実行ファイルの ver 1.23 で修正済み。 1.22 以前のバージョンでは修正の必要あり</p>
+
+<p><a href="https://github.com/joefitzgerald/packer-windows">本家 packer-windows URL</a></p>
+
+<p>windows_7.json の下記を修正</p>
+
+<ul>
+<li>修正前</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> "type": "shell",
+</span><span class='line'>  "inline": [
+</span><span class='line'>    "rm -rf /tmp/*"
+</span><span class='line'>  ]
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>修正後</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> "type": "shell",
+</span><span class='line'>  "inline": [
+</span><span class='line'>    "rm -rf /tmp/* || ! false"
+</span><span class='line'>  ]
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><p><a href="http://qiita.com/hnakamur/items/da0ed14192a18405f704">OSXでpackerでCentOS6.4のVirtualBox VMを作成する</a></p></li>
+<li><p><a href="http://azukipochette.hatenablog.com/entry/2014/05/16/212551">Packer で Windows の Box (vmware-iso) を作成するまで</a></p></li>
+<li><p><a href="http://www.nofuture.tv/diary/20140530.html">packer-windowsテンプレートを使ってWindows 8.1 update(日本語版)評価版のVagrant Boxができた</a></p></li>
+<li><p><a href="https://github.com/joefitzgerald/packer-windows">packer-windows</a></p>
+
+<ul>
+<li>このテンプレートを Fork して使ってみる</li>
+</ul>
+</li>
+<li><p><a href="http://unattended.sourceforge.net/timezones.php">Index numbers for GuiUnattended/TimeZone</a></p></li>
+<li><p><a href="https://github.com/develersrl/packer-windows-vm.git">packer-windows-vm</a></p></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1122,15 +1590,19 @@ permalink: /blog/:categories/:title/</p></li>
 </section>
 <section>
   <h1>Categories</h1>
-    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/kvm/'>kvm (1)</a></li><li><a href='/blog/categories/nat/'>nat (1)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/sample-post/'>sample post (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (3)</a></li><li><a href='/blog/categories/wakame-vdc/'>wakame-vdc (2)</a></li></ul>
+    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/kvm/'>kvm (1)</a></li><li><a href='/blog/categories/nat/'>nat (1)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/openvswitch/'>openvswitch (1)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/sample-post/'>sample post (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (3)</a></li><li><a href='/blog/categories/wakame-vdc/'>wakame-vdc (2)</a></li></ul>
 </section>
 <section>
   <h1>Tag Cloud</h1>
-    <span id="tag-cloud"><a href='/blog/tags/boot2docker' style='font-size: 130.0%'>boot2docker(1)</a> <a href='/blog/tags/chef-client' style='font-size: 130.0%'>chef-client(1)</a> <a href='/blog/tags/chef-repo' style='font-size: 160.0%'>chef-repo(2)</a> <a href='/blog/tags/chef-server' style='font-size: 160.0%'>chef-server(2)</a> <a href='/blog/tags/chef-solo' style='font-size: 130.0%'>chef-solo(1)</a> <a href='/blog/tags/hosted-chef' style='font-size: 130.0%'>hosted chef(1)</a> <a href='/blog/tags/kitchen-ec2' style='font-size: 130.0%'>kitchen-ec2(1)</a> <a href='/blog/tags/knife-ec2' style='font-size: 160.0%'>knife-ec2(2)</a> <a href='/blog/tags/knife-solo' style='font-size: 130.0%'>knife-solo(1)</a> <a href='/blog/tags/kvm' style='font-size: 130.0%'>kvm(1)</a> <a href='/blog/tags/windows' style='font-size: 130.0%'>windows(1)</a> </span>
+    <span id="tag-cloud"><a href='/blog/tags/boot2docker' style='font-size: 130.0%'>boot2docker(1)</a> <a href='/blog/tags/chef-client' style='font-size: 130.0%'>chef-client(1)</a> <a href='/blog/tags/chef-repo' style='font-size: 160.0%'>chef-repo(2)</a> <a href='/blog/tags/chef-server' style='font-size: 160.0%'>chef-server(2)</a> <a href='/blog/tags/chef-solo' style='font-size: 130.0%'>chef-solo(1)</a> <a href='/blog/tags/hosted-chef' style='font-size: 130.0%'>hosted chef(1)</a> <a href='/blog/tags/kitchen-ec2' style='font-size: 130.0%'>kitchen-ec2(1)</a> <a href='/blog/tags/knife-ec2' style='font-size: 160.0%'>knife-ec2(2)</a> <a href='/blog/tags/knife-solo' style='font-size: 130.0%'>knife-solo(1)</a> <a href='/blog/tags/kvm' style='font-size: 130.0%'>kvm(1)</a> <a href='/blog/tags/network' style='font-size: 130.0%'>network(1)</a> <a href='/blog/tags/windows' style='font-size: 130.0%'>windows(1)</a> </span>
 </section>
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2015/02/19/openvswitch/">openvswitch のインストールと初期セットアップ</a>
+      </li>
     
       <li class="post">
         <a href="/2015/02/19/wakame-vdc/">Wakame 用 カスタム KVM イメージ作成</a>
@@ -1146,10 +1618,6 @@ permalink: /blog/:categories/:title/</p></li>
     
       <li class="post">
         <a href="/2015/02/06/wakame-vdc-kvm/">Wakame-vdc のカスタムイメージ作成手順</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2015/01/23/vagrant/">Vagrant Box を Atlas で管理</a>
       </li>
     
   </ul>
