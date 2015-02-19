@@ -3,6 +3,38 @@
   
   
   <url>
+    <loc>http://ryoogata.github.io/2015/02/19/wakame-vdc/</loc>
+    
+    <lastmod>2015-02-19T23:49:08+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/2015/02/19/nat/</loc>
+    
+    <lastmod>2015-02-19T23:43:56+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/2015/02/19/kvm/</loc>
+    
+    <lastmod>2015-02-19T23:23:43+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/2015/02/06/wakame-vdc-kvm/</loc>
+    
+    <lastmod>2015-02-06T23:02:07+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
     <loc>http://ryoogata.github.io/2015/01/23/vagrant/</loc>
     
     <lastmod>2015-01-23T10:12:51+09:00</lastmod>
@@ -106,38 +138,46 @@
     <priority>0.8</priority>
   </url>
   
+  <url>
+    <loc>http://ryoogata.github.io/2014/04/22/a-sample-post/</loc>
+    
+    <lastmod>2014-04-22T14:40:00+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
   
   <url>
     <loc>http://ryoogata.github.io/archives/</loc>
-    <lastmod>2015-01-27T10:06:10+09:00</lastmod>
+    <lastmod>2015-02-19T23:54:33+09:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>http://ryoogata.github.io/blog/</loc>
-    <lastmod>2015-01-27T10:06:10+09:00</lastmod>
+    <lastmod>2015-02-19T23:54:33+09:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>http://ryoogata.github.io/</loc>
-    <lastmod>2015-01-27T10:06:10+09:00</lastmod>
+    <lastmod>2015-02-19T23:54:33+09:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   
   <url>
     <loc>http://ryoogata.github.io/blog/archives/</loc>
-    <lastmod>2015-01-27T10:06:10+09:00</lastmod>
+    <lastmod>2015-02-19T23:54:33+09:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>http://ryoogata.github.io/about/</loc>
-    <lastmod>2015-01-27T10:06:10+09:00</lastmod>
+    <lastmod>2015-02-19T23:54:33+09:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>

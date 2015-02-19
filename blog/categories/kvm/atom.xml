@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: kvm | YggdrasillNetwork Blog]]></title>
+  <link href="http://ryoogata.github.io/blog/categories/kvm/atom.xml" rel="self"/>
+  <link href="http://ryoogata.github.io/"/>
+  <updated>2015-02-19T23:54:33+09:00</updated>
+  <id>http://ryoogata.github.io/</id>
+  <author>
+    <name><![CDATA[Ryo Ogata]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[KVM Tips]]></title>
+    <link href="http://ryoogata.github.io/2015/02/19/kvm/"/>
+    <updated>2015-02-19T23:23:43+09:00</updated>
+    <id>http://ryoogata.github.io/2015/02/19/kvm</id>
+    <content type="html"><![CDATA[<h1>概要</h1>
+
+<p>KVM 操作の際の Tips</p>
+
+<h1>virsh コマンド</h1>
+
+<h2>ドメイン一覧表示 ( 停止中を含む )</h2>
+
+<pre><code># virsh list --all
+</code></pre>
+
+<h2>ドメインの起動</h2>
+
+<pre><code># virsh start centos66
+</code></pre>
+
+<h2>ドメインの強制停止</h2>
+
+<pre><code># virsh destroy pc2
+</code></pre>
+
+<h2>ドメインの削除</h2>
+
+<pre><code># virsh undefine centos66
+</code></pre>
+
+<p>※ 停止中のドメインのみ実行可能</p>
+
+<h2>ゲストのコンソールに接続</h2>
+
+<pre><code># virsh console 5
+</code></pre>
+
+<h2>ゲストのコンソールから抜ける</h2>
+
+<pre><code>^] 
+</code></pre>
+
+<h2>VM の設定ファイルを編集</h2>
+
+<pre><code># virsh edit &lt;vm-name&gt;
+</code></pre>
+
+<h1>NIC の追加</h1>
+
+<p>VM が起動している状態で実行可能</p>
+
+<pre><code># virsh attach-interface --type bridge --source br0 --model e1000 nat
+</code></pre>
+
+<h1>VM に Disk の追加</h1>
+
+<p>VM が Down している状態で実行する</p>
+
+<h2>1. Disk Image の作成</h2>
+
+<pre><code># cd /var/lib/libvirt/images
+# qemu-img create -f qcow2 disk_Maria-1.img 40G
+</code></pre>
+
+<h2>2. 設定の追加</h2>
+
+<p>virsh edit コマンドを利用して設定を追記</p>
+
+<pre><code># virsh edit Maria-1
+</code></pre>
+
+<ul>
+<li>追加分 Config</li>
+</ul>
+
+
+<pre><code>&lt;disk type='file' device='disk'&gt;
+  &lt;driver name='qemu' type='qcow2' cache='none'/&gt;
+  &lt;source file='/var/lib/libvirt/images/disk_Maria-1.img'/&gt;
+  &lt;target dev='vdb' bus='virtio'/&gt;
+&lt;/disk&gt;
+</code></pre>
+
+<h1>VM のクローン</h1>
+
+<h2>1. クローンコマンドの実行</h2>
+
+<p>VM が Down している状態で実行</p>
+
+<pre><code># virt-clone --original cent_base --name Maria-1 --file /var/lib/libvirt/images/Maria-1.img
+</code></pre>
+
+<h2>2. MAC Address のメモ</h2>
+
+<pre><code># virsh dumpxml Maria-1 | grep mac
+    &lt;type arch='x86_64' machine='rhel6.6.0'&gt;hvm&lt;/type&gt;
+      &lt;mac address='52:54:00:64:df:4f'/&gt;
+</code></pre>
+
+<h2>3. vnc port の編集</h2>
+
+<p>既存の VM とかぶらない VNC の Port 番号に変更</p>
+
+<pre><code># virsh edit Maria-1
+</code></pre>
+
+<h2>4. VM の起動</h2>
+
+<pre><code>virsh start Maria-1
+</code></pre>
+
+<h2>5. 70-persistent-net.rules の編集</h2>
+
+<p>ここから VNC 経由で接続して作業</p>
+
+<pre><code>/etc/udev/rules.d/70-persistent-net.rules
+</code></pre>
+
+<h2>6. ifcfg-eth0 の編集</h2>
+
+<p>UUID
+BOOTPROTO=dchp</p>
+
+<p>BOOTPROTO=none
+IPADDR=211.14.1.11
+NETMASK=255.255.255.192</p>
+
+<h2>7. VM の再起動</h2>
+
+<h2>8. Interface のアドレス設定</h2>
+
+<p>手動で IP アドレスを付与</p>
+
+<h2>9. resolv.conf の編集</h2>
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="http://www.agilegroup.co.jp/technote/kvm-guest-clone.html">KVMのクローンを利用して新規仮想マシンを作成する</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

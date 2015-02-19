@@ -9,13 +9,14 @@
   <meta name="author" content="Ryo Ogata">
 
   
-  <meta name="description" content="概要 chef を使い始めてから chef-repo がだいぶ汚れて(?)きたので整理してみる 1
+  <meta name="description" content="概要 やりたいこと 1 台の PC で複数の Workstation を扱いたい
+chef-server と chef-solo を併用したい
+chef-solo から将来的に chef-server へ移行する際の面倒を避けたい Directory 全体像 1
 2
 3
 4
-5
-$ git clone git://github.com/opscode/chef-repo.git hosted-chef-repo
-$ cd hosted-chef-repo &hellip;">
+.
+|-- &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -72,6 +73,392 @@ $ cd hosted-chef-repo &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2014/10/22/chef-chef-repo/">Chef 関連の Directory 構成を考える</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-22T22:05:02+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>概要</h1>
+
+<h1>やりたいこと</h1>
+
+<ul>
+<li>1 台の PC で複数の Workstation を扱いたい</li>
+<li>chef-server と chef-solo を併用したい</li>
+<li>chef-solo から将来的に chef-server へ移行する際の面倒を避けたい</li>
+</ul>
+
+
+<h1>Directory 全体像</h1>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>.
+</span><span class='line'>|-- berkshelf
+</span><span class='line'>|-- site-cookbooks
+</span><span class='line'>|-- workstation</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>site-cookbooks</h1>
+
+<ul>
+<li>自作 cookbook は同 Directory 以下に作成する</li>
+<li>各 chef-repo 以下には site-cookbooks を作成しない</li>
+</ul>
+
+
+<h1>workstations</h1>
+
+<ul>
+<li>workstations directory 以下に組織毎に chef-repo 用 directory を作成する</li>
+<li>組織は hosted chef の Organization と紐付けすることを想定</li>
+<li>chef-server/chef-solo どちらで利用するかに関係なく workstations directory 以下に作成していく</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>.
+</span><span class='line'>`-- workstations
+</span><span class='line'>    |-- Organization_A
+</span><span class='line'>    |   |-- .chef
+</span><span class='line'>    |   |-- cookbooks
+</span><span class='line'>    |   |-- data_bags
+</span><span class='line'>    |   |-- environments
+</span><span class='line'>    |     :     
+</span><span class='line'>    |     :     
+</span><span class='line'>    |   `-- roles
+</span><span class='line'>    |-- Organization_B
+</span><span class='line'>      :
+</span><span class='line'>      :
+</span><span class='line'>    `-- Organization_Z
+</span><span class='line'>        |-- .chef
+</span><span class='line'>        |-- cookbooks
+</span><span class='line'>        |-- data_bags
+</span><span class='line'>        |-- environments
+</span><span class='line'>          :     
+</span><span class='line'>        `-- roles
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>.chef/knife.rb</h1>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>log_level                :info
+</span><span class='line'>log_location             STDOUT
+</span><span class='line'>node_name                'r-ogata'
+</span><span class='line'>client_key               'r-ogata.cer'
+</span><span class='line'>validation_client_name   'tech-sales-validator'
+</span><span class='line'>validation_key           'tech-sales-validator.cer'
+</span><span class='line'>chef_server_url          'https://api.opscode.com/organizations/tech-sales'
+</span><span class='line'>knife[:editor] =         '/usr/bin/vim'
+</span><span class='line'>cookbook_path            ['cookbooks', '../../site-cookbooks']</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2014/10/22/chef-chef-solo-knife-solo-chef-client/">Chef の登場人物をさらっとまとめてみる</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-22T13:57:56+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>概要</h1>
+
+<p>chef-solo とか knife-solo とか似たような chef 用語が色々とあるので、整理をかねて簡単にまとめてみる</p>
+
+<h2>chef-solo</h2>
+
+<p>chef-solo とは?</p>
+
+<ul>
+<li>chef-server を利用しない</li>
+<li>単一の node で完結</li>
+<li>chef-repo を node 自身に保持</li>
+</ul>
+
+
+<h2>knife-solo</h2>
+
+<p>knife-solo とは?</p>
+
+<ul>
+<li>下記の作業を自動化してくれるツール
+
+<ul>
+<li>手元の cookbook をリモート node に転送</li>
+<li>リモート node 上で chef-solo コマンド実行</li>
+</ul>
+</li>
+</ul>
+
+
+<h2>chef-client</h2>
+
+<p>chef-client とは?</p>
+
+<ul>
+<li>chef-server と連携して動作</li>
+<li>Node の収束を実施</li>
+<li>Node の情報収集</li>
+<li>etc</li>
+</ul>
+
+
+<h3>chef-client ローカルモード</h3>
+
+<p>chef-client ローカルモードとは?</p>
+
+<ul>
+<li>Chef 11.x から追加されたモード</li>
+<li>Chef-Client/Server環境の簡易版</li>
+<li>chef-solo の代わり</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2014/10/22/chef/">Windows 関連 Cookbook/recipe 命名規則</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-22T09:08:02+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>概要</h1>
+
+<p>Windows 関連の Cookbook を作成する際の命名規則のまとめ</p>
+
+<h1>cookbook 命名規則</h1>
+
+<h2>アプリケーションインストール</h2>
+
+<p>Wondows にアプリケーションをインストールする Cookbook を作成する際の命名規則</p>
+
+<p>命名規則:<br/>
+<code>アプリケーション名-windows</code></p>
+
+<p>例:<br/>
+<code>apache2-windows</code></p>
+
+<h2>Windows 設定関連</h2>
+
+<p>Windows OS の設定を変更する Cookbook を作成する際の命名規則</p>
+
+<p>命名規則:<br/>
+<code>windows_設定</code></p>
+
+<p>例:<br/>
+<code>windows_firewall</code></p>
+
+<h1>recipe 命名規則</h1>
+
+<h2>アプリケーションインストール</h2>
+
+<p>Wondows にアプリケーションをインストールする recipe を作成する際の命名規則</p>
+
+<h3>アプリケーションのインストール recipe</h3>
+
+<p>命名規則:<br/>
+<code>default.rb</code></p>
+
+<h3>アプリケーションのアップデート recipe</h3>
+
+<p>命名規則:<br/>
+<code>update.rb</code></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2014/10/20/vagrant-chef-server/">Vagrant と Hosted Chef との連携</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-20T15:35:34+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>概要</h1>
+
+<p>Vagrant の Provisioner に Chef Client を利用し、Chef Server に Hosted Chef を利用する</p>
+
+<h2>Vagrantfile</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>config.vm.provision "chef_client" do |chef|
+</span><span class='line'>  chef.chef_server_url = "https://api.opscode.com/organizations/tech-sales"
+</span><span class='line'>  chef.validation_client_name = "tech-sales-validator"
+</span><span class='line'>  chef.validation_key_path = "../../hosted-chef-repo/.chef/tech-sales-validator.pem"
+</span><span class='line'>  chef.environment = "setup"
+</span><span class='line'>  chef.node_name = "chef-test"
+</span><span class='line'>  chef.delete_node = true
+</span><span class='line'>  chef.delete_client = true
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><p>chef_server_url</p>
+
+<ul>
+<li>Organizations 毎に変わる</li>
+</ul>
+</li>
+<li><p>validation_client_name</p>
+
+<ul>
+<li>Hosted Chef Server に Node を登録する際に使用するユーザ名</li>
+<li>Hosted Chef の Organization の Client で、<code>Validation Client</code> として利用する Client 名を指定する
+
+<ul>
+<li>default の <code>chef-validator</code> ではダメ</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -678,6 +1065,47 @@ permalink: /blog/:categories/:title/</p></li>
 
     </article>
   
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2014/04/22/a-sample-post/">This Is a Sample Post</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-22T14:40:00+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/2014/04/22/a-sample-post/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
   <div class="pagination">
     
     <a href="/blog/archives">Blog Archives</a>
@@ -694,34 +1122,34 @@ permalink: /blog/:categories/:title/</p></li>
 </section>
 <section>
   <h1>Categories</h1>
-    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (3)</a></li></ul>
+    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/kvm/'>kvm (1)</a></li><li><a href='/blog/categories/nat/'>nat (1)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/sample-post/'>sample post (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (3)</a></li><li><a href='/blog/categories/wakame-vdc/'>wakame-vdc (2)</a></li></ul>
 </section>
 <section>
   <h1>Tag Cloud</h1>
-    <span id="tag-cloud"><a href='/blog/tags/boot2docker' style='font-size: 130.0%'>boot2docker(1)</a> <a href='/blog/tags/chef-client' style='font-size: 130.0%'>chef-client(1)</a> <a href='/blog/tags/chef-repo' style='font-size: 160.0%'>chef-repo(2)</a> <a href='/blog/tags/chef-server' style='font-size: 160.0%'>chef-server(2)</a> <a href='/blog/tags/chef-solo' style='font-size: 130.0%'>chef-solo(1)</a> <a href='/blog/tags/hosted-chef' style='font-size: 130.0%'>hosted chef(1)</a> <a href='/blog/tags/kitchen-ec2' style='font-size: 130.0%'>kitchen-ec2(1)</a> <a href='/blog/tags/knife-ec2' style='font-size: 160.0%'>knife-ec2(2)</a> <a href='/blog/tags/knife-solo' style='font-size: 130.0%'>knife-solo(1)</a> <a href='/blog/tags/windows' style='font-size: 130.0%'>windows(1)</a> </span>
+    <span id="tag-cloud"><a href='/blog/tags/boot2docker' style='font-size: 130.0%'>boot2docker(1)</a> <a href='/blog/tags/chef-client' style='font-size: 130.0%'>chef-client(1)</a> <a href='/blog/tags/chef-repo' style='font-size: 160.0%'>chef-repo(2)</a> <a href='/blog/tags/chef-server' style='font-size: 160.0%'>chef-server(2)</a> <a href='/blog/tags/chef-solo' style='font-size: 130.0%'>chef-solo(1)</a> <a href='/blog/tags/hosted-chef' style='font-size: 130.0%'>hosted chef(1)</a> <a href='/blog/tags/kitchen-ec2' style='font-size: 130.0%'>kitchen-ec2(1)</a> <a href='/blog/tags/knife-ec2' style='font-size: 160.0%'>knife-ec2(2)</a> <a href='/blog/tags/knife-solo' style='font-size: 130.0%'>knife-solo(1)</a> <a href='/blog/tags/kvm' style='font-size: 130.0%'>kvm(1)</a> <a href='/blog/tags/windows' style='font-size: 130.0%'>windows(1)</a> </span>
 </section>
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/2015/02/19/wakame-vdc/">Wakame 用 カスタム KVM イメージ作成</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/19/nat/">iptables を利用した NAT Router</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/19/kvm/">KVM Tips</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/06/wakame-vdc-kvm/">Wakame-vdc のカスタムイメージ作成手順</a>
+      </li>
+    
+      <li class="post">
         <a href="/2015/01/23/vagrant/">Vagrant Box を Atlas で管理</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2014/11/02/chef-knife-ec2/">knife-ec2 や kitchen-ec2 のための環境変数設定</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2014/11/01/chef-knife-ec2/">knife-ec2 を利用したインスタンス操作</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2014/10/27/docker-boot2docker/">docker boot2docker</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2014/10/24/docker/">Docker のバージョンを追っかける</a>
       </li>
     
   </ul>
