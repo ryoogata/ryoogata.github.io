@@ -4,7 +4,7 @@
   <title><![CDATA[YggdrasillNetwork Blog]]></title>
   <link href="http://ryoogata.github.io/atom.xml" rel="self"/>
   <link href="http://ryoogata.github.io/"/>
-  <updated>2015-02-20T11:43:34+09:00</updated>
+  <updated>2015-02-20T12:07:58+09:00</updated>
   <id>http://ryoogata.github.io/</id>
   <author>
     <name><![CDATA[Ryo Ogata]]></name>
@@ -12,6 +12,227 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[openvswitch で bonding]]></title>
+    <link href="http://ryoogata.github.io/2015/02/20/openvswitch/"/>
+    <updated>2015-02-20T11:57:54+09:00</updated>
+    <id>http://ryoogata.github.io/2015/02/20/openvswitch</id>
+    <content type="html"><![CDATA[<h1>目的</h1>
+
+<p>OpenvSwithc 環境下で bonding を設定する</p>
+
+<h1>設定</h1>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ovs-vsctl add-bond br0 bond0 eth0 eth1</span></code></pre></td></tr></table></div></figure>
+
+
+<p>※ 作成時に bond0 が存在しているとエラーになる</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ovs-vsctl show
+</span><span class='line'>49f85a35-e17c-4165-9bf9-e8476698908e
+</span><span class='line'>    Bridge "br0"
+</span><span class='line'>        Port "br0"
+</span><span class='line'>            Interface "br0"
+</span><span class='line'>                type: internal
+</span><span class='line'>        Port "bond0"
+</span><span class='line'>            Interface "eth0"
+</span><span class='line'>            Interface "eth1"
+</span><span class='line'>    ovs_version: "2.1.3"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>eth0 を固定で slave, eth1 を backup slave みたく固定で設定する方法がよくわからない&hellip;</p>
+
+<h1>Memo</h1>
+
+<h2>bond 設定確認コマンド</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ovs-appctl bond/show bond0
+</span><span class='line'>
+</span><span class='line'>---- bond0 ----
+</span><span class='line'>bond_mode: active-backup
+</span><span class='line'>bond-hash-basis: 0
+</span><span class='line'>updelay: 0 ms
+</span><span class='line'>downdelay: 0 ms
+</span><span class='line'>lacp_status: off
+</span><span class='line'>
+</span><span class='line'>slave eth0: disabled
+</span><span class='line'>  may_enable: false
+</span><span class='line'>
+</span><span class='line'>slave eth1: disabled
+</span><span class='line'>  may_enable: false</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>bond 状態確認コマンド</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ovs-vsctl list port bond0
+</span><span class='line'>
+</span><span class='line'>_uuid               : 79edb982-fe2a-4dfb-a078-38465aff870a
+</span><span class='line'>bond_downdelay      : 0
+</span><span class='line'>bond_fake_iface     : false
+</span><span class='line'>bond_mode           : []
+</span><span class='line'>bond_updelay        : 0
+</span><span class='line'>external_ids        : {}
+</span><span class='line'>fake_bridge         : false
+</span><span class='line'>interfaces          : [967407dc-f13f-4fa1-a9f7-fe720bb49512, 9e5e6bce-3d45-48ea-96b6-09017c517aa5]
+</span><span class='line'>lacp                : []
+</span><span class='line'>mac                 : []
+</span><span class='line'>name                : "bond0"
+</span><span class='line'>other_config        : {}
+</span><span class='line'>qos                 : []
+</span><span class='line'>statistics          : {}
+</span><span class='line'>status              : {}
+</span><span class='line'>tag                 : []
+</span><span class='line'>trunks              : []
+</span><span class='line'>vlan_mode           : []</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>port の削除</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ovs-vsctl del-port 0</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>man ページ</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># man 5 ovs-vswitchd.conf.db</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>雑記</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ovs-vsctl add-bond br0 bond0 eth1 eth2 bond_mode=balance-slb other_config:bond-detect-mode=miimon other_config:bond-miimon-interval=100 other_config:trunks=1,2,3,4,5,8,12,13,10,11 other_config:bond_updelay=100 other_config:lacp-time=fast
+</span><span class='line'>
+</span><span class='line'># ovs-vsctl set interface eth1 other-config:enable-vlan-splinters=true
+</span><span class='line'>
+</span><span class='line'># ovs-vsctl set interface eth2 other-config:enable-vlan-splinters=true</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># network interface settings
+</span><span class='line'>auto lo
+</span><span class='line'>iface lo inet loopback
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>auto eth1
+</span><span class='line'>iface eth1 inet manual
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>auto eth0
+</span><span class='line'>iface eth0 inet manual
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>allow-vmbr1 bond0
+</span><span class='line'>iface bond0 inet manual
+</span><span class='line'>        ovs_type OVSBond
+</span><span class='line'>        ovs_bridge vmbr1
+</span><span class='line'>        ovs_bonds eth0 eth1
+</span><span class='line'>        ovs_options bond_mode=active-backup
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>auto vmbr1
+</span><span class='line'>iface vmbr1 inet static
+</span><span class='line'>        address  192.168.0.22
+</span><span class='line'>        netmask  255.255.255.0
+</span><span class='line'>        gateway  192.168.0.1
+</span><span class='line'>        ovs_type OVSBridge
+</span><span class='line'>        ovs_ports bond0</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="http://sa3g.blogspot.jp/2011/03/ubuntu1010open-vswitch11bonding.html">Ubuntu10.10、Open vSwitch(1.1)でBonding</a></li>
+<li><a href="http://linuxdrops.com/install-and-configure-open-vswitch-on-centos-rhel-fedora/">Install And Configure Open VSwitch On CentOS RHEL Fedora</a></li>
+<li><a href="http://blog.scottlowe.org/2012/10/19/link-aggregation-and-lacp-with-open-vswitch/">Link Aggregation and LACP with Open vSwitch</a></li>
+<li><a href="http://forum.proxmox.com/threads/18429-OpenvSwitch-setup">OpenvSwitch setup</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[openvswitch のインストールと初期セットアップ]]></title>
