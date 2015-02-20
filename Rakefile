@@ -23,8 +23,8 @@ deploy_dir      = "_deploy"   # deploy directory (for Github pages deployment)
 stash_dir       = "_stash"    # directory to stash posts for speedy generation
 posts_dir       = "_posts"    # directory for blog files
 themes_dir      = ".themes"   # directory for blog files
-new_post_ext    = "markdown"  # default new post file extension when using the new_post task
-new_page_ext    = "markdown"  # default new page file extension when using the new_page task
+new_post_ext    = "md"  # default new post file extension when using the new_post task
+new_page_ext    = "md"  # default new page file extension when using the new_page task
 server_port     = "4000"      # port for preview server eg. localhost:4000
 
 if (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
@@ -102,6 +102,9 @@ task :new_post, :title do |t, args|
     title = get_stdin("Enter a title for your post: ")
   end
   raise "### You haven't set anything up yet. First run `rake install` to set up an Octopress theme." unless File.directory?(source_dir)
+  title_words = title.split(' ')
+  tags = title_words
+  category = tags.shift
   mkdir_p "#{source_dir}/#{posts_dir}"
   filename = "#{source_dir}/#{posts_dir}/#{Time.now.strftime('%Y-%m-%d')}-#{title.to_url}.#{new_post_ext}"
   if File.exist?(filename)
@@ -114,8 +117,20 @@ task :new_post, :title do |t, args|
     post.puts "title: \"#{title.gsub(/&/,'&amp;')}\""
     post.puts "date: #{Time.now.strftime('%Y-%m-%d %H:%M:%S %z')}"
     post.puts "comments: true"
-    post.puts "categories: "
+    post.puts "category: #{category}"
+    post.puts "tags: #{tags}"
+    post.puts "keywords: #{title.gsub(' ',', ')}"
+    #post.puts "description: "
+    post.puts "published: false"
+    post.puts ""
     post.puts "---"
+    post.puts ""
+    post.puts "<!-- more -->"
+    post.puts ""
+    post.puts "** Contents **"
+    post.puts "{:TOC}"
+    post.puts ""
+    post.puts ""
   end
 end
 
@@ -151,6 +166,7 @@ task :new_page, :filename do |t, args|
       page.puts "comments: true"
       page.puts "sharing: true"
       page.puts "footer: true"
+      page.puts "published: false"
       page.puts "---"
     end
   else
