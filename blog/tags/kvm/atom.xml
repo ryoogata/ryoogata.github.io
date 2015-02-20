@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: Kvm | YggdrasillNetwork Blog]]></title>
   <link href="http://ryoogata.github.io/blog/tags/kvm/atom.xml" rel="self"/>
   <link href="http://ryoogata.github.io/"/>
-  <updated>2015-02-19T23:54:33+09:00</updated>
+  <updated>2015-02-20T11:21:40+09:00</updated>
   <id>http://ryoogata.github.io/</id>
   <author>
     <name><![CDATA[Ryo Ogata]]></name>
@@ -14,13 +14,287 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Wakame-vdc のカスタムイメージ作成手順]]></title>
+    <title type="html"><![CDATA[Wakame 用 カスタム KVM イメージ作成]]></title>
+    <link href="http://ryoogata.github.io/2015/02/19/wakame-vdc/"/>
+    <updated>2015-02-19T23:49:08+09:00</updated>
+    <id>http://ryoogata.github.io/2015/02/19/wakame-vdc</id>
+    <content type="html"><![CDATA[<h1>作成手順</h1>
+
+<h2>yum update の実行</h2>
+
+<pre><code># yum update -y
+</code></pre>
+
+<h2>selinux 設定</h2>
+
+<p>selinux Permissive</p>
+
+<h2>必要なパッケージのインストール</h2>
+
+<pre><code>yum install -y telnet tcpdump wget man man-pages ntpdate bind-utils openssh-clients
+</code></pre>
+
+<h2>ipv6 disable 設定</h2>
+
+<pre><code># chkconfig ip6tables off
+</code></pre>
+
+<p>/etc/sysconfig/network に NETWORKING_IPV6=no を追加</p>
+
+<pre><code># echo 'options ipv6 disable=1' &gt; /etc/modprobe.d/disable-ipv6.conf
+</code></pre>
+
+<h2>ssh 設定</h2>
+
+<p>/etc/ssh/sshd_config
+Port 2442</p>
+
+<h2>wakame-init の Download</h2>
+
+<pre><code># cd /etc
+# wget https://raw.githubusercontent.com/axsh/wakame-vdc/master/wakame-init/rhel/6/wakame-init
+</code></pre>
+
+<h2>rc.local の編集</h2>
+
+<p>/etc/rc.local に設定追加</p>
+
+<h2>root-device の UUID の確認</h2>
+
+<pre><code># blkid
+   :
+/dev/vda3: UUID="893013b4-bf1e-47b6-baf3-495193b76238" TYPE="ext4" 
+</code></pre>
+
+<h2>不要ファイル削除</h2>
+
+<pre><code>rm -rf /root/.bash_history
+rm -rf /etc/ssh/ssh_host*
+rm -rf /etc/udev/rules.d/70-persistent-net.rules
+</code></pre>
+
+<h2>OS イメージの圧縮と移動</h2>
+
+<p>OS イメージ圧縮前のファイルサイズを控えておく</p>
+
+<pre><code># ls -al centos66.img
+</code></pre>
+
+<p>/var/lib/libvirt/images</p>
+
+<p>圧縮の実行</p>
+
+<pre><code># gzip -c centos66.img &gt; /var/lib/wakame-vdc/images/20150203_1_centos66.img.gz
+</code></pre>
+
+<p>OS イメージ圧縮後のファイルサイズを控えておく</p>
+
+<pre><code># ls -al 20150203_1_centos66.img.gz
+</code></pre>
+
+<h2>OS イメージの md5 の取得</h2>
+
+<p>OS イメージの md5 checksum 値を控えておく</p>
+
+<pre><code># md5sum 20150203_2_centos66.img.gz
+</code></pre>
+
+<h2>vdc へイメージの登録</h2>
+
+<p>vdc-manage コマンドを実行</p>
+
+<pre><code># /opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage
+</code></pre>
+
+<p>事前に控えていた下記の情報を基にカスタムイメージを DB に登録</p>
+
+<ul>
+<li>圧縮前 OS イメージファイルサイズ</li>
+<li>圧縮後 OS イメージファイルサイズ</li>
+<li>OS イメージの md5 checksum</li>
+<li>root パーティションの UUID</li>
+</ul>
+
+
+<pre><code>backupobject add \
+ --uuid 20150213_1_cent_base \
+ --display-name "CentOS 6.6" \
+ --storage-id bkst-local \
+ --object-key 20150213_1_cent_base.img.gz \
+ --size              492162200 \
+ --allocation-size 17179869184 \
+ --container-format gz \
+ --checksum 9f4089bd93fcb48a90a0a22b0d0be04d
+
+image add local bo-20150213_1_cent_base \
+ --account-id a-shpoolxx \
+ --uuid wmi-20150213_1_cent_base \
+ --root-device uuid:893013b4-bf1e-47b6-baf3-495193b76238 \
+ --display-name "CentOS 6.6"
+</code></pre>
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="https://github.com/axsh/wakame-vdc/wiki/Custom-images">Custom images</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[KVM Tips]]></title>
+    <link href="http://ryoogata.github.io/2015/02/19/kvm/"/>
+    <updated>2015-02-19T23:23:43+09:00</updated>
+    <id>http://ryoogata.github.io/2015/02/19/kvm</id>
+    <content type="html"><![CDATA[<h1>概要</h1>
+
+<p>KVM 操作の際の Tips</p>
+
+<h1>virsh コマンド</h1>
+
+<h2>ドメイン一覧表示 ( 停止中を含む )</h2>
+
+<pre><code># virsh list --all
+</code></pre>
+
+<h2>ドメインの起動</h2>
+
+<pre><code># virsh start centos66
+</code></pre>
+
+<h2>ドメインの強制停止</h2>
+
+<pre><code># virsh destroy pc2
+</code></pre>
+
+<h2>ドメインの削除</h2>
+
+<pre><code># virsh undefine centos66
+</code></pre>
+
+<p>※ 停止中のドメインのみ実行可能</p>
+
+<h2>ゲストのコンソールに接続</h2>
+
+<pre><code># virsh console 5
+</code></pre>
+
+<h2>ゲストのコンソールから抜ける</h2>
+
+<pre><code>^] 
+</code></pre>
+
+<h2>VM の設定ファイルを編集</h2>
+
+<pre><code># virsh edit &lt;vm-name&gt;
+</code></pre>
+
+<h1>NIC の追加</h1>
+
+<p>VM が起動している状態で実行可能</p>
+
+<pre><code># virsh attach-interface --type bridge --source br0 --model e1000 nat
+</code></pre>
+
+<h1>VM に Disk の追加</h1>
+
+<p>VM が Down している状態で実行する</p>
+
+<h2>1. Disk Image の作成</h2>
+
+<pre><code># cd /var/lib/libvirt/images
+# qemu-img create -f qcow2 disk_Maria-1.img 40G
+</code></pre>
+
+<h2>2. 設定の追加</h2>
+
+<p>virsh edit コマンドを利用して設定を追記</p>
+
+<pre><code># virsh edit Maria-1
+</code></pre>
+
+<ul>
+<li>追加分 Config</li>
+</ul>
+
+
+<pre><code>&lt;disk type='file' device='disk'&gt;
+  &lt;driver name='qemu' type='qcow2' cache='none'/&gt;
+  &lt;source file='/var/lib/libvirt/images/disk_Maria-1.img'/&gt;
+  &lt;target dev='vdb' bus='virtio'/&gt;
+&lt;/disk&gt;
+</code></pre>
+
+<h1>VM のクローン</h1>
+
+<h2>1. クローンコマンドの実行</h2>
+
+<p>VM が Down している状態で実行</p>
+
+<pre><code># virt-clone --original cent_base --name Maria-1 --file /var/lib/libvirt/images/Maria-1.img
+</code></pre>
+
+<h2>2. MAC Address のメモ</h2>
+
+<pre><code># virsh dumpxml Maria-1 | grep mac
+    &lt;type arch='x86_64' machine='rhel6.6.0'&gt;hvm&lt;/type&gt;
+      &lt;mac address='52:54:00:64:df:4f'/&gt;
+</code></pre>
+
+<h2>3. vnc port の編集</h2>
+
+<p>既存の VM とかぶらない VNC の Port 番号に変更</p>
+
+<pre><code># virsh edit Maria-1
+</code></pre>
+
+<h2>4. VM の起動</h2>
+
+<pre><code>virsh start Maria-1
+</code></pre>
+
+<h2>5. 70-persistent-net.rules の編集</h2>
+
+<p>ここから VNC 経由で接続して作業</p>
+
+<pre><code>/etc/udev/rules.d/70-persistent-net.rules
+</code></pre>
+
+<h2>6. ifcfg-eth0 の編集</h2>
+
+<p>UUID
+BOOTPROTO=dchp</p>
+
+<p>BOOTPROTO=none
+IPADDR=211.14.1.11
+NETMASK=255.255.255.192</p>
+
+<h2>7. VM の再起動</h2>
+
+<h2>8. Interface のアドレス設定</h2>
+
+<p>手動で IP アドレスを付与</p>
+
+<h2>9. resolv.conf の編集</h2>
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="http://www.agilegroup.co.jp/technote/kvm-guest-clone.html">KVMのクローンを利用して新規仮想マシンを作成する</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[KVM VM に OS をインストール]]></title>
     <link href="http://ryoogata.github.io/2015/02/06/wakame-vdc-kvm/"/>
     <updated>2015-02-06T23:02:07+09:00</updated>
     <id>http://ryoogata.github.io/2015/02/06/wakame-vdc-kvm</id>
     <content type="html"><![CDATA[<h1>概要</h1>
 
-<p>Wakame-vdc ( KVM 環境 ) で利用可能なカスタムイメージを作成する</p>
+<p>KVM VM に OS をインストールする手法のまとめ</p>
 
 <h1>CentOS 6.6 の場合</h1>
 
@@ -85,93 +359,9 @@
 <pre><code># virsh start centos66
 </code></pre>
 
-<h2>OS のカスタマイズ</h2>
-
-<h3>selinux の disable</h3>
-
-<p>selinux は disable にしておく</p>
-
-<h3>不要ファイル削除</h3>
-
-<pre><code>rm -rf /root/.bash_history
-rm -rf /etc/ssh/ssh_host*
-rm -rf /etc/udev/rules.d/70-persistent-net.rules
-</code></pre>
-
-<h3>root パーティションの UUID を調べておく</h3>
-
-<pre><code>[root@localhost ssh]# blkid
-/dev/vda1: UUID="60dbb3b6-a9d8-4550-82f1-e9acdf40b3f8" TYPE="ext4"
-/dev/vda2: UUID="6204d842-2c5d-498a-93a5-ff8bd105a1db" TYPE="swap"
-</code></pre>
-
-<h3>カスタマイズ後</h3>
-
-<p>必要なカスタマイズが完了したのち、OS を shutdown する</p>
-
-<h2>OS イメージの圧縮と移動</h2>
-
-<p>OS イメージ圧縮前のファイルサイズを控えておく</p>
-
-<pre><code># ls -al centos66.img
-</code></pre>
-
-<p>/var/lib/libvirt/images</p>
-
-<p>圧縮の実行</p>
-
-<pre><code># gzip -c centos66.img &gt; /var/lib/wakame-vdc/images/20150203_1_centos66.img.gz
-</code></pre>
-
-<p>OS イメージ圧縮後のファイルサイズを控えておく</p>
-
-<pre><code># ls -al 20150203_1_centos66.img.gz
-</code></pre>
-
-<h2>OS イメージの md5 の取得</h2>
-
-<p>OS イメージの md5 checksum 値を控えておく</p>
-
-<pre><code># md5sum 20150203_2_centos66.img.gz
-</code></pre>
-
-<h2>Wakame-vdc にカスタムイメージを登録</h2>
-
-<p>vdc-manage コマンドを実行</p>
-
-<pre><code># /opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage
-</code></pre>
-
-<p>事前に控えていた下記の情報を基にカスタムイメージを DB に登録</p>
-
-<ul>
-<li>圧縮前 OS イメージファイルサイズ</li>
-<li>圧縮後 OS イメージファイルサイズ</li>
-<li>OS イメージの md5 checksum</li>
-<li>root パーティションの UUID</li>
-</ul>
-
-
-<pre><code>backupobject add \
- --uuid 20150203_3_centos66 \
- --display-name "CentOS 6.6" \
- --storage-id bkst-local \
- --object-key 20150203_3_centos66.img.gz \
- --size              323502676 \
- --allocation-size 10737418240 \
- --container-format gz \
- --checksum 3e28c4d4eef476319d63c936b3403c04
-
-image add local bo-20150203_3_centos66 \
- --account-id a-shpoolxx \
- --uuid wmi-20150203_3_centos66 \
- --root-device uuid:60dbb3b6-a9d8-4550-82f1-e9acdf40b3f8 \
- --display-name "CentOS 6.6"
-</code></pre>
-
 <h1>ubuntu-14.04 の場合</h1>
 
-<p>作業途中で失敗する</p>
+<p>作業途中で失敗する&hellip;</p>
 
 <h2>仮想HDDイメージファイルの作成</h2>
 

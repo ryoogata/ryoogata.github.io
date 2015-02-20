@@ -4,7 +4,7 @@
   <title><![CDATA[YggdrasillNetwork Blog]]></title>
   <link href="http://ryoogata.github.io/atom.xml" rel="self"/>
   <link href="http://ryoogata.github.io/"/>
-  <updated>2015-02-19T23:54:33+09:00</updated>
+  <updated>2015-02-20T11:21:40+09:00</updated>
   <id>http://ryoogata.github.io/</id>
   <author>
     <name><![CDATA[Ryo Ogata]]></name>
@@ -12,6 +12,131 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[openvswitch のインストールと初期セットアップ]]></title>
+    <link href="http://ryoogata.github.io/2015/02/19/openvswitch/"/>
+    <updated>2015-02-19T23:58:33+09:00</updated>
+    <id>http://ryoogata.github.io/2015/02/19/openvswitch</id>
+    <content type="html"><![CDATA[<h1>yum 経由のインストール</h1>
+
+<h2>レポジトリの追加</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># yum install http://rdo.fedorapeople.org/openstack-icehouse/rdo-release-icehouse.rpm
+</span><span class='line'>
+</span><span class='line'>openvswitch x86_64 2.1.2-1.el6 openstack-icehouse 2.2 M</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>パッケージのインストール</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># yum install openvswitch</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>bridge kernel module の削除</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># /sbin/rmmod bridge</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>blacklist.conf への追加</h2>
+
+<p>kernel module の bridge をロードしてほしくないので、/etc/modprobe.d/blacklist.conf に記述</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>install bridge /bin/false</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Service の起動</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># service openvswitch start</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>interface の設定</h2>
+
+<h3>ifcfg-br0</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>DEVICE=br0
+</span><span class='line'>ONBOOT=yes
+</span><span class='line'>DEVICETYPE=ovs
+</span><span class='line'>TYPE=OVSBridge
+</span><span class='line'>BOOTPROTO=static
+</span><span class='line'>IPADDR=A.B.C.D
+</span><span class='line'>NETMASK=X.Y.Z.0
+</span><span class='line'>HOTPLUG=no</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>ifcfg-eth1</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>DEVICE=eth1
+</span><span class='line'>DEVICETYPE=ovs
+</span><span class='line'>HWADDR=40:A8:F0:39:96:A9
+</span><span class='line'>TYPE=OVSPort
+</span><span class='line'>UUID=22ff31c5-1d59-478d-8fa4-55f2984a94d8
+</span><span class='line'>ONBOOT=yes
+</span><span class='line'>NM_CONTROLLED=no
+</span><span class='line'>BRIDGE=br0</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Tips</h1>
+
+<h2>bridge kernel module の追加方法</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># insmod /lib/modules/2.6.32-504.el6.x86_64/kernel/net/bridge/bridge.ko</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>bridge kernel module の削除方法</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/sbin/rmmod bridge</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>br0 の作成と eth0 の追加</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ovs-vsctl add-br br0
+</span><span class='line'># ovs-vsctl add-port br0 eth0</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Memo</h1>
+
+<p>yum install <a href="http://rdo.fedorapeople.org/rdo-release.rpm">http://rdo.fedorapeople.org/rdo-release.rpm</a> <br/>
+↑これはダメ。レポジトリ先が存在していない…</p>
+
+<p>yum erase rdo-release で削除</p>
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="http://qunisaki.blog.fc2.com/blog-entry-6.html">CentOS 6.4 で openvswitch を使ってみる</a></li>
+<li><a href="http://blog.hirokikana.com/?p=533">Open vSwitchとRyuを使った最も単純なOpenFlowネットワークの構築</a></li>
+<li><a href="https://wiki.archlinux.org/index.php/Kernel_modules_%28%E6%97%A5%E6%9C%AC%E8%AA%9E%29">Kernel modules (日本語)</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Wakame 用 カスタム KVM イメージ作成]]></title>
@@ -75,7 +200,63 @@ Port 2442</p>
 </span><span class='line'>/dev/vda3: UUID="893013b4-bf1e-47b6-baf3-495193b76238" TYPE="ext4" </span></code></pre></td></tr></table></div></figure>
 
 
+<h2>不要ファイル削除</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rm -rf /root/.bash_history
+</span><span class='line'>rm -rf /etc/ssh/ssh_host*
+</span><span class='line'>rm -rf /etc/udev/rules.d/70-persistent-net.rules</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>OS イメージの圧縮と移動</h2>
+
+<p>OS イメージ圧縮前のファイルサイズを控えておく</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ls -al centos66.img</span></code></pre></td></tr></table></div></figure>
+
+
+<p>/var/lib/libvirt/images</p>
+
+<p>圧縮の実行</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># gzip -c centos66.img &gt; /var/lib/wakame-vdc/images/20150203_1_centos66.img.gz</span></code></pre></td></tr></table></div></figure>
+
+
+<p>OS イメージ圧縮後のファイルサイズを控えておく</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ls -al 20150203_1_centos66.img.gz</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>OS イメージの md5 の取得</h2>
+
+<p>OS イメージの md5 checksum 値を控えておく</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># md5sum 20150203_2_centos66.img.gz</span></code></pre></td></tr></table></div></figure>
+
+
 <h2>vdc へイメージの登録</h2>
+
+<p>vdc-manage コマンドを実行</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># /opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage</span></code></pre></td></tr></table></div></figure>
+
+
+<p>事前に控えていた下記の情報を基にカスタムイメージを DB に登録</p>
+
+<ul>
+<li>圧縮前 OS イメージファイルサイズ</li>
+<li>圧縮後 OS イメージファイルサイズ</li>
+<li>OS イメージの md5 checksum</li>
+<li>root パーティションの UUID</li>
+</ul>
+
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -369,13 +550,482 @@ NETMASK=255.255.255.192</p>
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Wakame-vdc のカスタムイメージ作成手順]]></title>
+    <title type="html"><![CDATA[wakame-vdc ( OpenVZ 版 HVA ) インストールメモ]]></title>
+    <link href="http://ryoogata.github.io/2015/02/07/wakame-vdc/"/>
+    <updated>2015-02-07T23:05:21+09:00</updated>
+    <id>http://ryoogata.github.io/2015/02/07/wakame-vdc</id>
+    <content type="html"><![CDATA[<h1>目的</h1>
+
+<p>wakame-vdc ( OpenVZ 版 HVA ) をインストールする際の手順をまとめてみる</p>
+
+<h1>yum repository の準備</h1>
+
+<p>wakame-vdc インストールするために必要なレポジトリの登録</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># curl -o /etc/yum.repos.d/wakame-vdc.repo -R https://raw.githubusercontent.com/axsh/wakame-vdc/master/rpmbuild/wakame-vdc.repo
+</span><span class='line'># yum install -y epel-release</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>DCMGR のインストール</h1>
+
+<h2>パッケージのインストール</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># yum install -y wakame-vdc-dcmgr-vmapp-config</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>設定ファイルのコピー</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># cp /opt/axsh/wakame-vdc/dcmgr/config/dcmgr.conf.example /etc/wakame-vdc/dcmgr.conf
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>MySQL の起動</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># service mysqld start</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>DB の作成</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># mysqladmin -uroot create wakame_dcmgr
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>DB Table の作成</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># cd /opt/axsh/wakame-vdc/dcmgr
+</span><span class='line'># /opt/axsh/wakame-vdc/ruby/bin/rake db:up
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>OpenVZ 版 HVA のインストール</h1>
+
+<h2>前提条件</h2>
+
+<ul>
+<li>VM は 192.168.3.0/24 の IP Address レンジに作成される</li>
+<li>HVA の物理ホスト eth0 に 192.168.3.100 が設定されている</li>
+</ul>
+
+
+<h2>yum repository の準備</h2>
+
+<p>OpenVZ 版 HVA をインストールするために必要なレポジトリの登録</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># curl -o /etc/yum.repos.d/openvz.repo -R https://raw.githubusercontent.com/axsh/wakame-vdc/master/rpmbuild/openvz.repo</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>パッケージのインストール</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># yum install -y wakame-vdc-hva-openvz-vmapp-config</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>設定ファイルのコピー</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># cp /opt/axsh/wakame-vdc/dcmgr/config/hva.conf.example /etc/wakame-vdc/hva.conf
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>bridge network の設定</h2>
+
+<h3>bridge Interface の作成</h3>
+
+<ul>
+<li>/etc/sysconfig/network-scripts/ifcfg-br0</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>DEVICE=br0
+</span><span class='line'>TYPE=Bridge
+</span><span class='line'>BOOTPROTO=static
+</span><span class='line'>ONBOOT=yes
+</span><span class='line'>NM_CONTROLLED=no
+</span><span class='line'>IPADDR=192.168.3.100
+</span><span class='line'>NETMASK=255.255.255.0
+</span><span class='line'>GATEWAY=192.168.3.1
+</span><span class='line'>DNS1=8.8.8.8
+</span><span class='line'>DELAY=0</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>/etc/sysconfig/network-scripts/ifcfg-eth0</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>DEVICE="eth0"
+</span><span class='line'>ONBOOT="yes"
+</span><span class='line'>BRIDGE=br0
+</span><span class='line'>NM_CONTROLLED=no</span></code></pre></td></tr></table></div></figure>
+
+
+<p>設定後、ネットワークの再起動</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># service network restart</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>NODE_ID の設定</h2>
+
+<p>HVA を一意に識別するために、NODE_ID の設定をする</p>
+
+<ul>
+<li>/etc/default/vdc-hva</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>NODE_ID=demo1</span></code></pre></td></tr></table></div></figure>
+
+
+<p>※ Default だとコメントアウトされている</p>
+
+<h2>HVA を DCMGR に登録する</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage host add hva.demo1 \
+</span><span class='line'>   --uuid hn-demo1 \
+</span><span class='line'>   --display-name "demo HVA 1" \
+</span><span class='line'>   --cpu-cores 100 \
+</span><span class='line'>   --memory-size 10240 \
+</span><span class='line'>   --hypervisor openvz \
+</span><span class='line'>   --arch x86_64 \
+</span><span class='line'>   --disk-space 102400 \
+</span><span class='line'>   --force</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Network 関連パラメータを DCMGR に登録する</h2>
+
+<h3>VDC 操作コマンド起動</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># /opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Network レンジの登録</h3>
+
+<p><code>nw-demo1</code> という Network レンジを作成する</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; network add \
+</span><span class='line'>  --uuid nw-demo1 \
+</span><span class='line'>  --ipv4-network 192.168.3.0 \
+</span><span class='line'>  --prefix 24 \
+</span><span class='line'>  --ipv4-gw 192.168.3.1 \
+</span><span class='line'>  --dns 8.8.8.8 \
+</span><span class='line'>  --account-id a-shpoolxx \
+</span><span class='line'>  --display-name "demo network"</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<h3>DHCP レンジの登録</h3>
+
+<p><code>nw-demo1</code> の DHCP で割り当てる IP アドレスのレンジを設定</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; network dhcp addrange nw-demo1 192.168.3.1 192.168.3.254
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>DHCP 割り当て除外 IP の登録</h3>
+
+<p><code>nw-demo1</code> の DHCP で割り当てる IP アドレスのレンジ内の割り当て除外 IP の登録</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; network reserve nw-demo1 --ipv4 192.168.3.100</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>VM 用 MAC Address レンジの登録</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; macrange add 525400 1 ffffff --uuid mr-demomacs</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>dc_network の作成と Network レンジとの紐付け</h3>
+
+<p><code>public</code> という名称の　dc_network　を作成し、<code>nw-demo1</code> と紐付ける</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; network dc add public --uuid dcn-public --description "the network instances are started in"
+</span><span class='line'>vdc-manage&gt;&gt; network dc add-network-mode public securitygroup
+</span><span class='line'>vdc-manage&gt;&gt; network forward nw-demo1 public</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>作成した dc_network と物理/Bridge Interface が紐付いているか確認</h3>
+
+<ul>
+<li>/etc/wakame-vdc/hva.conf</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>dc_network('public') {
+</span><span class='line'>  bridge_type 'linux'
+</span><span class='line'>  interface 'eth0'
+</span><span class='line'>  bridge 'br0'
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>OS の再起動</h2>
+
+<p>OpenVZ 用カスタムカーネルが動作するように OS を再起動する</p>
+
+<h1>WebUI のインストール</h1>
+
+<h2>パッケージのインストール</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># yum install -y wakame-vdc-webui-vmapp-config</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>設定ファイルのコピー</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># cp /opt/axsh/wakame-vdc/frontend/dcmgr_gui/config/database.yml.example /etc/wakame-vdc/dcmgr_gui/database.yml
+</span><span class='line'>
+</span><span class='line'># cp /opt/axsh/wakame-vdc/frontend/dcmgr_gui/config/dcmgr_gui.yml.example /etc/wakame-vdc/dcmgr_gui/dcmgr_gui.yml
+</span><span class='line'>
+</span><span class='line'># cp /opt/axsh/wakame-vdc/frontend/dcmgr_gui/config/instance_spec.yml.example /etc/wakame-vdc/dcmgr_gui/instance_spec.yml
+</span><span class='line'>
+</span><span class='line'># cp /opt/axsh/wakame-vdc/frontend/dcmgr_gui/config/load_balancer_spec.yml.example /etc/wakame-vdc/dcmgr_gui/load_balancer_spec.yml</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>DB の作成</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># mysqladmin -uroot create wakame_dcmgr_gui</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>DB Table の作成</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># cd /opt/axsh/wakame-vdc/frontend/dcmgr_gui/
+</span><span class='line'># /opt/axsh/wakame-vdc/ruby/bin/rake db:init</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>システム用アカウントの作成</h2>
+
+<h3>GUI マネージャ操作コマンド起動</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># /opt/axsh/wakame-vdc/frontend/dcmgr_gui/bin/gui-manage
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>default アカウントの追加</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gui-manage&gt;&gt; account add --name default --uuid a-shpoolxx</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>新規ユーザの追加</h2>
+
+<p>下記のユーザ名/パスワードのユーザを登録</p>
+
+<ul>
+<li>ユーザ名: demo</li>
+<li>パスワード: demo</li>
+</ul>
+
+
+<h3>新規ユーザの登録</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gui-manage&gt;&gt; user add --name "demo user" --uuid u-demo --password demo --login-id demo</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>追加ユーザとアカウントを紐づける</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gui-manage&gt;&gt; user associate u-demo --account-ids a-shpoolxx</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>デモ用マシンイメージの登録</h1>
+
+<ul>
+<li>デモ用マシンイメージを利用する
+
+<ul>
+<li>下記のコマンドを実行して事前に Download しておく</li>
+</ul>
+
+
+<pre><code class="`"> # mkdir -p /var/lib/wakame-vdc/images
+ # cd /var/lib/wakame-vdc/images
+ # curl -O http://dlc.wakame.axsh.jp.s3.amazonaws.com/demo/vmimage/ubuntu-lucid-kvm-md-32.raw.gz
+</code></pre>
+
+<ul>
+<li>デモ用マシンイメージの md5 sum はメモしておく</li>
+</ul>
+
+
+<pre><code># md5sum ubuntu-lucid-kvm-md-32.raw.gz
+</code></pre></li>
+</ul>
+
+
+<h2>VDC 操作コマンド起動</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># /opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>backupstorage の作成</h2>
+
+<p>マシンイメージを保存する場所としてローカルのストレージを登録する</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; backupstorage add \
+</span><span class='line'>  --uuid bkst-local \
+</span><span class='line'>  --display-name "local storage" \
+</span><span class='line'>  --base-uri "file:///var/lib/wakame-vdc/images/" \
+</span><span class='line'>  --storage-type local \
+</span><span class='line'>  --description "storage on the local filesystem"</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>マシンイメージをローカルのバックアップストレージに登録</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; backupobject add \
+</span><span class='line'>  --uuid bo-lucid5d \
+</span><span class='line'>  --display-name "Ubuntu 10.04 (Lucid Lynx) root partition" \
+</span><span class='line'>  --storage-id bkst-local \
+</span><span class='line'>  --object-key ubuntu-lucid-kvm-md-32.raw.gz \
+</span><span class='line'>  --size 149084 \
+</span><span class='line'>  --allocation-size 359940 \
+</span><span class='line'>  --container-format gz \
+</span><span class='line'>  --checksum 1f841b195e0fdfd4342709f77325ce29</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<h2>マシンイメージをシステムに登録</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; image add local bo-lucid5d \
+</span><span class='line'>  --account-id a-shpoolxx \
+</span><span class='line'>  --uuid wmi-lucid5d \
+</span><span class='line'>  --root-device uuid:148bc5df-3fc5-4e93-8a16-7328907cb1c0 \
+</span><span class='line'>  --display-name "Ubuntu 10.04 (Lucid Lynx)"</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Wakame-vdc の起動</h1>
+
+<h2>RabbitMQ Server の起動</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># service rabbitmq-server start</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Wakame-vdc 各コンポーネントの起動</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># start vdc-dcmgr
+</span><span class='line'># start vdc-collector
+</span><span class='line'># start vdc-hva
+</span><span class='line'># start vdc-webui</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Web UI へのアクセス</h1>
+
+<p>下記の URL にアクセス</p>
+
+<ul>
+<li>URL: <a href="http://192.168.3.100:9000">http://192.168.3.100:9000</a></li>
+</ul>
+
+
+<p>下記のユーザ名/パスワードのユーザを登録</p>
+
+<ul>
+<li>ユーザ名: demo</li>
+<li>パスワード: demo</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[KVM VM に OS をインストール]]></title>
     <link href="http://ryoogata.github.io/2015/02/06/wakame-vdc-kvm/"/>
     <updated>2015-02-06T23:02:07+09:00</updated>
     <id>http://ryoogata.github.io/2015/02/06/wakame-vdc-kvm</id>
     <content type="html"><![CDATA[<h1>概要</h1>
 
-<p>Wakame-vdc ( KVM 環境 ) で利用可能なカスタムイメージを作成する</p>
+<p>KVM VM に OS をインストールする手法のまとめ</p>
 
 <h1>CentOS 6.6 の場合</h1>
 
@@ -472,119 +1122,9 @@ NETMASK=255.255.255.192</p>
 </pre></td><td class='code'><pre><code class=''><span class='line'># virsh start centos66</span></code></pre></td></tr></table></div></figure>
 
 
-<h2>OS のカスタマイズ</h2>
-
-<h3>selinux の disable</h3>
-
-<p>selinux は disable にしておく</p>
-
-<h3>不要ファイル削除</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rm -rf /root/.bash_history
-</span><span class='line'>rm -rf /etc/ssh/ssh_host*
-</span><span class='line'>rm -rf /etc/udev/rules.d/70-persistent-net.rules</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>root パーティションの UUID を調べておく</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>[root@localhost ssh]# blkid
-</span><span class='line'>/dev/vda1: UUID="60dbb3b6-a9d8-4550-82f1-e9acdf40b3f8" TYPE="ext4"
-</span><span class='line'>/dev/vda2: UUID="6204d842-2c5d-498a-93a5-ff8bd105a1db" TYPE="swap"</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>カスタマイズ後</h3>
-
-<p>必要なカスタマイズが完了したのち、OS を shutdown する</p>
-
-<h2>OS イメージの圧縮と移動</h2>
-
-<p>OS イメージ圧縮前のファイルサイズを控えておく</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># ls -al centos66.img</span></code></pre></td></tr></table></div></figure>
-
-
-<p>/var/lib/libvirt/images</p>
-
-<p>圧縮の実行</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># gzip -c centos66.img &gt; /var/lib/wakame-vdc/images/20150203_1_centos66.img.gz</span></code></pre></td></tr></table></div></figure>
-
-
-<p>OS イメージ圧縮後のファイルサイズを控えておく</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># ls -al 20150203_1_centos66.img.gz</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>OS イメージの md5 の取得</h2>
-
-<p>OS イメージの md5 checksum 値を控えておく</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># md5sum 20150203_2_centos66.img.gz</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Wakame-vdc にカスタムイメージを登録</h2>
-
-<p>vdc-manage コマンドを実行</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># /opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage</span></code></pre></td></tr></table></div></figure>
-
-
-<p>事前に控えていた下記の情報を基にカスタムイメージを DB に登録</p>
-
-<ul>
-<li>圧縮前 OS イメージファイルサイズ</li>
-<li>圧縮後 OS イメージファイルサイズ</li>
-<li>OS イメージの md5 checksum</li>
-<li>root パーティションの UUID</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>backupobject add \
-</span><span class='line'> --uuid 20150203_3_centos66 \
-</span><span class='line'> --display-name "CentOS 6.6" \
-</span><span class='line'> --storage-id bkst-local \
-</span><span class='line'> --object-key 20150203_3_centos66.img.gz \
-</span><span class='line'> --size              323502676 \
-</span><span class='line'> --allocation-size 10737418240 \
-</span><span class='line'> --container-format gz \
-</span><span class='line'> --checksum 3e28c4d4eef476319d63c936b3403c04
-</span><span class='line'>
-</span><span class='line'>image add local bo-20150203_3_centos66 \
-</span><span class='line'> --account-id a-shpoolxx \
-</span><span class='line'> --uuid wmi-20150203_3_centos66 \
-</span><span class='line'> --root-device uuid:60dbb3b6-a9d8-4550-82f1-e9acdf40b3f8 \
-</span><span class='line'> --display-name "CentOS 6.6"</span></code></pre></td></tr></table></div></figure>
-
-
 <h1>ubuntu-14.04 の場合</h1>
 
-<p>作業途中で失敗する</p>
+<p>作業途中で失敗する&hellip;</p>
 
 <h2>仮想HDDイメージファイルの作成</h2>
 
@@ -3004,41 +3544,6 @@ permalink: /blog/:categories/:title/</p></li>
 
 
 <p>github には master ブランチのファイルを元にページが作成される</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[This is a sample post]]></title>
-    <link href="http://ryoogata.github.io/2014/04/22/a-sample-post/"/>
-    <updated>2014-04-22T14:40:00+09:00</updated>
-    <id>http://ryoogata.github.io/2014/04/22/a-sample-post</id>
-    <content type="html"><![CDATA[<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-
-<!-- More -->
-
-
-<h2>this is a sample header</h2>
-
-<p>Here&rsquo;s some sample code:</p>
-
-<pre><code>def test
-  @answer = 6*9
-  if @answer != 42  # this should never happen
-    raise "Oh no, not again."
-  else
-    print "Don't panic."
-end
-</code></pre>
-
-<p>{:lang=&ldquo;ruby&rdquo;}</p>
-<div class="footnotes">
-<hr/>
-<ol>
-<li id="fn:1">
-<p>The footnote <a href="http://www.example.com">content</a>.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
-</ol>
-</div>
-
 ]]></content>
   </entry>
   

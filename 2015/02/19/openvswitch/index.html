@@ -5,19 +5,15 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>chef 関連の Directory 構成を考える - YggdrasillNetwork Blog</title>
+  <title>openvswitch のインストールと初期セットアップ - YggdrasillNetwork Blog</title>
   <meta name="author" content="Ryo Ogata">
 
   
-  <meta name="description" content="概要 やりたいこと 1 台の PC で複数の Workstation を扱いたい
-chef-server と chef-solo を併用したい
-chef-solo から将来的に chef-server へ移行する際の面倒を避けたい Directory 全体像 1
+  <meta name="description" content="yum 経由のインストール レポジトリの追加 1
 2
 3
-4
-.
-|-- &hellip;">
-  <meta name="keywords" content="chef, chef-repo">
+# yum install http://rdo.fedorapeople.org/openstack-icehouse/rdo-release-icehouse.rpm openvswitch x86_64 2.1.2-1.el6 &hellip;">
+  <meta name="keywords" content="openvswitch">
 
   <!-- http://t.co/dKP3o1e -->
   <meta name="HandheldFriendly" content="True">
@@ -25,7 +21,7 @@ chef-solo から将来的に chef-server へ移行する際の面倒を避けた
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://ryoogata.github.io/2014/10/22/chef-chef-repo/">
+  <link rel="canonical" href="http://ryoogata.github.io/2015/02/19/openvswitch/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/stylesheets/data-table.css" rel="stylesheet" type="text/css">
@@ -76,7 +72,7 @@ chef-solo から将来的に chef-server へ移行する際の面倒を避けた
   
   <header>
     
-      <h1 class="entry-title">Chef 関連の Directory 構成を考える</h1>
+      <h1 class="entry-title">Openvswitch のインストールと初期セットアップ</h1>
     
     
       <p class="meta">
@@ -92,97 +88,54 @@ chef-solo から将来的に chef-server へ移行する際の面倒を避けた
   
 
 
-<time datetime="2014-10-22T22:05:02+09:00" pubdate data-updated="true"></time>
+<time datetime="2015-02-19T23:58:33+09:00" pubdate data-updated="true"></time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><h1>概要</h1>
+<div class="entry-content"><h1>yum 経由のインストール</h1>
 
-<h1>やりたいこと</h1>
-
-<ul>
-<li>1 台の PC で複数の Workstation を扱いたい</li>
-<li>chef-server と chef-solo を併用したい</li>
-<li>chef-solo から将来的に chef-server へ移行する際の面倒を避けたい</li>
-</ul>
-
-
-<h1>Directory 全体像</h1>
+<h2>レポジトリの追加</h2>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>.
-</span><span class='line'>|-- berkshelf
-</span><span class='line'>|-- site-cookbooks
-</span><span class='line'>|-- workstation</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'># yum install http://rdo.fedorapeople.org/openstack-icehouse/rdo-release-icehouse.rpm
+</span><span class='line'>
+</span><span class='line'>openvswitch x86_64 2.1.2-1.el6 openstack-icehouse 2.2 M</span></code></pre></td></tr></table></div></figure>
 
 
-<h1>site-cookbooks</h1>
-
-<ul>
-<li>自作 cookbook は同 Directory 以下に作成する</li>
-<li>各 chef-repo 以下には site-cookbooks を作成しない</li>
-</ul>
-
-
-<h1>workstations</h1>
-
-<ul>
-<li>workstations directory 以下に組織毎に chef-repo 用 directory を作成する</li>
-<li>組織は hosted chef の Organization と紐付けすることを想定</li>
-<li>chef-server/chef-solo どちらで利用するかに関係なく workstations directory 以下に作成していく</li>
-</ul>
-
+<h2>パッケージのインストール</h2>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>.
-</span><span class='line'>`-- workstations
-</span><span class='line'>    |-- Organization_A
-</span><span class='line'>    |   |-- .chef
-</span><span class='line'>    |   |-- cookbooks
-</span><span class='line'>    |   |-- data_bags
-</span><span class='line'>    |   |-- environments
-</span><span class='line'>    |     :     
-</span><span class='line'>    |     :     
-</span><span class='line'>    |   `-- roles
-</span><span class='line'>    |-- Organization_B
-</span><span class='line'>      :
-</span><span class='line'>      :
-</span><span class='line'>    `-- Organization_Z
-</span><span class='line'>        |-- .chef
-</span><span class='line'>        |-- cookbooks
-</span><span class='line'>        |-- data_bags
-</span><span class='line'>        |-- environments
-</span><span class='line'>          :     
-</span><span class='line'>        `-- roles
-</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'># yum install openvswitch</span></code></pre></td></tr></table></div></figure>
 
 
-<h1>.chef/knife.rb</h1>
+<h2>bridge kernel module の削除</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># /sbin/rmmod bridge</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>blacklist.conf への追加</h2>
+
+<p>kernel module の bridge をロードしてほしくないので、/etc/modprobe.d/blacklist.conf に記述</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>install bridge /bin/false</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Service の起動</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># service openvswitch start</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>interface の設定</h2>
+
+<h3>ifcfg-br0</h3>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -192,18 +145,72 @@ chef-solo から将来的に chef-server へ移行する際の面倒を避けた
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>log_level                :info
-</span><span class='line'>log_location             STDOUT
-</span><span class='line'>node_name                'r-ogata'
-</span><span class='line'>client_key               'r-ogata.cer'
-</span><span class='line'>validation_client_name   'tech-sales-validator'
-</span><span class='line'>validation_key           'tech-sales-validator.cer'
-</span><span class='line'>chef_server_url          'https://api.opscode.com/organizations/tech-sales'
-</span><span class='line'>knife[:editor] =         '/usr/bin/vim'
-</span><span class='line'>cookbook_path            ['cookbooks', '../../site-cookbooks']</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>DEVICE=br0
+</span><span class='line'>ONBOOT=yes
+</span><span class='line'>DEVICETYPE=ovs
+</span><span class='line'>TYPE=OVSBridge
+</span><span class='line'>BOOTPROTO=static
+</span><span class='line'>IPADDR=A.B.C.D
+</span><span class='line'>NETMASK=X.Y.Z.0
+</span><span class='line'>HOTPLUG=no</span></code></pre></td></tr></table></div></figure>
 
 
+<h3>ifcfg-eth1</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>DEVICE=eth1
+</span><span class='line'>DEVICETYPE=ovs
+</span><span class='line'>HWADDR=40:A8:F0:39:96:A9
+</span><span class='line'>TYPE=OVSPort
+</span><span class='line'>UUID=22ff31c5-1d59-478d-8fa4-55f2984a94d8
+</span><span class='line'>ONBOOT=yes
+</span><span class='line'>NM_CONTROLLED=no
+</span><span class='line'>BRIDGE=br0</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Tips</h1>
+
+<h2>bridge kernel module の追加方法</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># insmod /lib/modules/2.6.32-504.el6.x86_64/kernel/net/bridge/bridge.ko</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>bridge kernel module の削除方法</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/sbin/rmmod bridge</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>br0 の作成と eth0 の追加</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ovs-vsctl add-br br0
+</span><span class='line'># ovs-vsctl add-port br0 eth0</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Memo</h1>
+
+<p>yum install <a href="http://rdo.fedorapeople.org/rdo-release.rpm">http://rdo.fedorapeople.org/rdo-release.rpm</a> <br/>
+↑これはダメ。レポジトリ先が存在していない…</p>
+
+<p>yum erase rdo-release で削除</p>
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="http://qunisaki.blog.fc2.com/blog-entry-6.html">CentOS 6.4 で openvswitch を使ってみる</a></li>
+<li><a href="http://blog.hirokikana.com/?p=533">Open vSwitchとRyuを使った最も単純なOpenFlowネットワークの構築</a></li>
+<li><a href="https://wiki.archlinux.org/index.php/Kernel_modules_%28%E6%97%A5%E6%9C%AC%E8%AA%9E%29">Kernel modules (日本語)</a></li>
+</ul>
 
 </div>
 
@@ -227,12 +234,12 @@ chef-solo から将来的に chef-server へ移行する際の面倒を避けた
   
 
 
-<time datetime="2014-10-22T22:05:02+09:00" pubdate data-updated="true"></time>
+<time datetime="2015-02-19T23:58:33+09:00" pubdate data-updated="true"></time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/chef/'>chef</a>
+    <a class='category' href='/blog/categories/openvswitch/'>openvswitch</a>
   
 </span>
 
@@ -241,7 +248,7 @@ chef-solo から将来的に chef-server へ移行する際の面倒を避けた
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ryoogata.github.io/2014/10/22/chef-chef-repo/" data-via="" data-counturl="http://ryoogata.github.io/2014/10/22/chef-chef-repo/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ryoogata.github.io/2015/02/19/openvswitch/" data-via="" data-counturl="http://ryoogata.github.io/2015/02/19/openvswitch/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -254,10 +261,8 @@ chef-solo から将来的に chef-server へ移行する際の面倒を避けた
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/2014/10/22/chef-chef-solo-knife-solo-chef-client/" title="Previous Post: chef の登場人物をさらっとまとめてみる">&laquo; chef の登場人物をさらっとまとめてみる</a>
+        <a class="basic-alignment left" href="/2015/02/19/wakame-vdc/" title="Previous Post: Wakame 用 カスタム KVM イメージ作成">&laquo; Wakame 用 カスタム KVM イメージ作成</a>
       
-      
-        <a class="basic-alignment right" href="/2014/10/23/packer-windows/" title="Next Post: Packer を利用して Windows7 の仮想イメージを作成する">Packer を利用して Windows7 の仮想イメージを作成する &raquo;</a>
       
     </p>
   </footer>

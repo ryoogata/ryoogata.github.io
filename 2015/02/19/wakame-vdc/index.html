@@ -151,7 +151,63 @@ Port 2442</p>
 </span><span class='line'>/dev/vda3: UUID="893013b4-bf1e-47b6-baf3-495193b76238" TYPE="ext4" </span></code></pre></td></tr></table></div></figure>
 
 
+<h2>不要ファイル削除</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rm -rf /root/.bash_history
+</span><span class='line'>rm -rf /etc/ssh/ssh_host*
+</span><span class='line'>rm -rf /etc/udev/rules.d/70-persistent-net.rules</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>OS イメージの圧縮と移動</h2>
+
+<p>OS イメージ圧縮前のファイルサイズを控えておく</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ls -al centos66.img</span></code></pre></td></tr></table></div></figure>
+
+
+<p>/var/lib/libvirt/images</p>
+
+<p>圧縮の実行</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># gzip -c centos66.img &gt; /var/lib/wakame-vdc/images/20150203_1_centos66.img.gz</span></code></pre></td></tr></table></div></figure>
+
+
+<p>OS イメージ圧縮後のファイルサイズを控えておく</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ls -al 20150203_1_centos66.img.gz</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>OS イメージの md5 の取得</h2>
+
+<p>OS イメージの md5 checksum 値を控えておく</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># md5sum 20150203_2_centos66.img.gz</span></code></pre></td></tr></table></div></figure>
+
+
 <h2>vdc へイメージの登録</h2>
+
+<p>vdc-manage コマンドを実行</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># /opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage</span></code></pre></td></tr></table></div></figure>
+
+
+<p>事前に控えていた下記の情報を基にカスタムイメージを DB に登録</p>
+
+<ul>
+<li>圧縮前 OS イメージファイルサイズ</li>
+<li>圧縮後 OS イメージファイルサイズ</li>
+<li>OS イメージの md5 checksum</li>
+<li>root パーティションの UUID</li>
+</ul>
+
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -243,6 +299,8 @@ Port 2442</p>
         <a class="basic-alignment left" href="/2015/02/19/nat/" title="Previous Post: iptables を利用した NAT Router">&laquo; iptables を利用した NAT Router</a>
       
       
+        <a class="basic-alignment right" href="/2015/02/19/openvswitch/" title="Next Post: openvswitch のインストールと初期セットアップ">openvswitch のインストールと初期セットアップ &raquo;</a>
+      
     </p>
   </footer>
 </article>
@@ -257,15 +315,19 @@ Port 2442</p>
 </section>
 <section>
   <h1>Categories</h1>
-    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/kvm/'>kvm (1)</a></li><li><a href='/blog/categories/nat/'>nat (1)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/sample-post/'>sample post (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (3)</a></li><li><a href='/blog/categories/wakame-vdc/'>wakame-vdc (2)</a></li></ul>
+    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/kvm/'>kvm (2)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/openvswitch/'>openvswitch (1)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (3)</a></li><li><a href='/blog/categories/wakame-vdc/'>wakame-vdc (2)</a></li></ul>
 </section>
 <section>
   <h1>Tag Cloud</h1>
-    <span id="tag-cloud"><a href='/blog/tags/boot2docker' style='font-size: 130.0%'>boot2docker(1)</a> <a href='/blog/tags/chef-client' style='font-size: 130.0%'>chef-client(1)</a> <a href='/blog/tags/chef-repo' style='font-size: 160.0%'>chef-repo(2)</a> <a href='/blog/tags/chef-server' style='font-size: 160.0%'>chef-server(2)</a> <a href='/blog/tags/chef-solo' style='font-size: 130.0%'>chef-solo(1)</a> <a href='/blog/tags/hosted-chef' style='font-size: 130.0%'>hosted chef(1)</a> <a href='/blog/tags/kitchen-ec2' style='font-size: 130.0%'>kitchen-ec2(1)</a> <a href='/blog/tags/knife-ec2' style='font-size: 160.0%'>knife-ec2(2)</a> <a href='/blog/tags/knife-solo' style='font-size: 130.0%'>knife-solo(1)</a> <a href='/blog/tags/kvm' style='font-size: 130.0%'>kvm(1)</a> <a href='/blog/tags/windows' style='font-size: 130.0%'>windows(1)</a> </span>
+    <span id="tag-cloud"><a href='/blog/tags/boot2docker' style='font-size: 120.0%'>boot2docker(1)</a> <a href='/blog/tags/chef-client' style='font-size: 120.0%'>chef-client(1)</a> <a href='/blog/tags/chef-repo' style='font-size: 140.0%'>chef-repo(2)</a> <a href='/blog/tags/chef-server' style='font-size: 140.0%'>chef-server(2)</a> <a href='/blog/tags/chef-solo' style='font-size: 120.0%'>chef-solo(1)</a> <a href='/blog/tags/hosted-chef' style='font-size: 120.0%'>hosted chef(1)</a> <a href='/blog/tags/kitchen-ec2' style='font-size: 120.0%'>kitchen-ec2(1)</a> <a href='/blog/tags/knife-ec2' style='font-size: 140.0%'>knife-ec2(2)</a> <a href='/blog/tags/knife-solo' style='font-size: 120.0%'>knife-solo(1)</a> <a href='/blog/tags/kvm' style='font-size: 160.0%'>kvm(3)</a> <a href='/blog/tags/network' style='font-size: 140.0%'>network(2)</a> <a href='/blog/tags/windows' style='font-size: 120.0%'>windows(1)</a> </span>
 </section>
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2015/02/19/openvswitch/">openvswitch のインストールと初期セットアップ</a>
+      </li>
     
       <li class="post">
         <a href="/2015/02/19/wakame-vdc/">Wakame 用 カスタム KVM イメージ作成</a>
@@ -280,11 +342,7 @@ Port 2442</p>
       </li>
     
       <li class="post">
-        <a href="/2015/02/06/wakame-vdc-kvm/">Wakame-vdc のカスタムイメージ作成手順</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2015/01/23/vagrant/">Vagrant Box を Atlas で管理</a>
+        <a href="/2015/02/07/wakame-vdc/">wakame-vdc ( OpenVZ 版 HVA ) インストールメモ</a>
       </li>
     
   </ul>

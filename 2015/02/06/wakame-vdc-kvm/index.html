@@ -5,12 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Wakame-vdc のカスタムイメージ作成手順 - YggdrasillNetwork Blog</title>
+  <title>KVM VM に OS をインストール - YggdrasillNetwork Blog</title>
   <meta name="author" content="Ryo Ogata">
 
   
-  <meta name="description" content="概要 Wakame-vdc ( KVM 環境 ) で利用可能なカスタムイメージを作成する CentOS 6.6 の場合 仮想HDDイメージファイルの作成 1
-# dd if=/dev/zero of=/var/lib/libvirt/images/centos66.img bs=1M count= &hellip;">
+  <meta name="description" content="概要 KVM VM に OS をインストールする手法のまとめ CentOS 6.6 の場合 仮想HDDイメージファイルの作成 1
+# dd if=/dev/zero of=/var/lib/libvirt/images/centos66.img bs=1M count=10240 インストール開始 &hellip;">
   <meta name="keywords" content="wakame-vdc, kvm">
 
   <!-- http://t.co/dKP3o1e -->
@@ -70,7 +70,7 @@
   
   <header>
     
-      <h1 class="entry-title">Wakame-vdc のカスタムイメージ作成手順</h1>
+      <h1 class="entry-title">KVM VM に OS をインストール</h1>
     
     
       <p class="meta">
@@ -95,7 +95,7 @@
 
 <div class="entry-content"><h1>概要</h1>
 
-<p>Wakame-vdc ( KVM 環境 ) で利用可能なカスタムイメージを作成する</p>
+<p>KVM VM に OS をインストールする手法のまとめ</p>
 
 <h1>CentOS 6.6 の場合</h1>
 
@@ -192,119 +192,9 @@
 </pre></td><td class='code'><pre><code class=''><span class='line'># virsh start centos66</span></code></pre></td></tr></table></div></figure>
 
 
-<h2>OS のカスタマイズ</h2>
-
-<h3>selinux の disable</h3>
-
-<p>selinux は disable にしておく</p>
-
-<h3>不要ファイル削除</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rm -rf /root/.bash_history
-</span><span class='line'>rm -rf /etc/ssh/ssh_host*
-</span><span class='line'>rm -rf /etc/udev/rules.d/70-persistent-net.rules</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>root パーティションの UUID を調べておく</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>[root@localhost ssh]# blkid
-</span><span class='line'>/dev/vda1: UUID="60dbb3b6-a9d8-4550-82f1-e9acdf40b3f8" TYPE="ext4"
-</span><span class='line'>/dev/vda2: UUID="6204d842-2c5d-498a-93a5-ff8bd105a1db" TYPE="swap"</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>カスタマイズ後</h3>
-
-<p>必要なカスタマイズが完了したのち、OS を shutdown する</p>
-
-<h2>OS イメージの圧縮と移動</h2>
-
-<p>OS イメージ圧縮前のファイルサイズを控えておく</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># ls -al centos66.img</span></code></pre></td></tr></table></div></figure>
-
-
-<p>/var/lib/libvirt/images</p>
-
-<p>圧縮の実行</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># gzip -c centos66.img &gt; /var/lib/wakame-vdc/images/20150203_1_centos66.img.gz</span></code></pre></td></tr></table></div></figure>
-
-
-<p>OS イメージ圧縮後のファイルサイズを控えておく</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># ls -al 20150203_1_centos66.img.gz</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>OS イメージの md5 の取得</h2>
-
-<p>OS イメージの md5 checksum 値を控えておく</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># md5sum 20150203_2_centos66.img.gz</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Wakame-vdc にカスタムイメージを登録</h2>
-
-<p>vdc-manage コマンドを実行</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># /opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage</span></code></pre></td></tr></table></div></figure>
-
-
-<p>事前に控えていた下記の情報を基にカスタムイメージを DB に登録</p>
-
-<ul>
-<li>圧縮前 OS イメージファイルサイズ</li>
-<li>圧縮後 OS イメージファイルサイズ</li>
-<li>OS イメージの md5 checksum</li>
-<li>root パーティションの UUID</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>backupobject add \
-</span><span class='line'> --uuid 20150203_3_centos66 \
-</span><span class='line'> --display-name "CentOS 6.6" \
-</span><span class='line'> --storage-id bkst-local \
-</span><span class='line'> --object-key 20150203_3_centos66.img.gz \
-</span><span class='line'> --size              323502676 \
-</span><span class='line'> --allocation-size 10737418240 \
-</span><span class='line'> --container-format gz \
-</span><span class='line'> --checksum 3e28c4d4eef476319d63c936b3403c04
-</span><span class='line'>
-</span><span class='line'>image add local bo-20150203_3_centos66 \
-</span><span class='line'> --account-id a-shpoolxx \
-</span><span class='line'> --uuid wmi-20150203_3_centos66 \
-</span><span class='line'> --root-device uuid:60dbb3b6-a9d8-4550-82f1-e9acdf40b3f8 \
-</span><span class='line'> --display-name "CentOS 6.6"</span></code></pre></td></tr></table></div></figure>
-
-
 <h1>ubuntu-14.04 の場合</h1>
 
-<p>作業途中で失敗する</p>
+<p>作業途中で失敗する&hellip;</p>
 
 <h2>仮想HDDイメージファイルの作成</h2>
 
@@ -404,7 +294,7 @@
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/wakame-vdc/'>wakame-vdc</a>
+    <a class='category' href='/blog/categories/kvm/'>kvm</a>
   
 </span>
 
@@ -429,7 +319,7 @@
         <a class="basic-alignment left" href="/2015/01/23/vagrant/" title="Previous Post: Vagrant Box を Atlas で管理">&laquo; Vagrant Box を Atlas で管理</a>
       
       
-        <a class="basic-alignment right" href="/2015/02/19/kvm/" title="Next Post: KVM Tips">KVM Tips &raquo;</a>
+        <a class="basic-alignment right" href="/2015/02/07/wakame-vdc/" title="Next Post: wakame-vdc ( OpenVZ 版 HVA ) インストールメモ">wakame-vdc ( OpenVZ 版 HVA ) インストールメモ &raquo;</a>
       
     </p>
   </footer>
@@ -445,15 +335,19 @@
 </section>
 <section>
   <h1>Categories</h1>
-    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/kvm/'>kvm (1)</a></li><li><a href='/blog/categories/nat/'>nat (1)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/sample-post/'>sample post (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (3)</a></li><li><a href='/blog/categories/wakame-vdc/'>wakame-vdc (2)</a></li></ul>
+    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/kvm/'>kvm (2)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/openvswitch/'>openvswitch (1)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (3)</a></li><li><a href='/blog/categories/wakame-vdc/'>wakame-vdc (2)</a></li></ul>
 </section>
 <section>
   <h1>Tag Cloud</h1>
-    <span id="tag-cloud"><a href='/blog/tags/boot2docker' style='font-size: 130.0%'>boot2docker(1)</a> <a href='/blog/tags/chef-client' style='font-size: 130.0%'>chef-client(1)</a> <a href='/blog/tags/chef-repo' style='font-size: 160.0%'>chef-repo(2)</a> <a href='/blog/tags/chef-server' style='font-size: 160.0%'>chef-server(2)</a> <a href='/blog/tags/chef-solo' style='font-size: 130.0%'>chef-solo(1)</a> <a href='/blog/tags/hosted-chef' style='font-size: 130.0%'>hosted chef(1)</a> <a href='/blog/tags/kitchen-ec2' style='font-size: 130.0%'>kitchen-ec2(1)</a> <a href='/blog/tags/knife-ec2' style='font-size: 160.0%'>knife-ec2(2)</a> <a href='/blog/tags/knife-solo' style='font-size: 130.0%'>knife-solo(1)</a> <a href='/blog/tags/kvm' style='font-size: 130.0%'>kvm(1)</a> <a href='/blog/tags/windows' style='font-size: 130.0%'>windows(1)</a> </span>
+    <span id="tag-cloud"><a href='/blog/tags/boot2docker' style='font-size: 120.0%'>boot2docker(1)</a> <a href='/blog/tags/chef-client' style='font-size: 120.0%'>chef-client(1)</a> <a href='/blog/tags/chef-repo' style='font-size: 140.0%'>chef-repo(2)</a> <a href='/blog/tags/chef-server' style='font-size: 140.0%'>chef-server(2)</a> <a href='/blog/tags/chef-solo' style='font-size: 120.0%'>chef-solo(1)</a> <a href='/blog/tags/hosted-chef' style='font-size: 120.0%'>hosted chef(1)</a> <a href='/blog/tags/kitchen-ec2' style='font-size: 120.0%'>kitchen-ec2(1)</a> <a href='/blog/tags/knife-ec2' style='font-size: 140.0%'>knife-ec2(2)</a> <a href='/blog/tags/knife-solo' style='font-size: 120.0%'>knife-solo(1)</a> <a href='/blog/tags/kvm' style='font-size: 160.0%'>kvm(3)</a> <a href='/blog/tags/network' style='font-size: 140.0%'>network(2)</a> <a href='/blog/tags/windows' style='font-size: 120.0%'>windows(1)</a> </span>
 </section>
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2015/02/19/openvswitch/">openvswitch のインストールと初期セットアップ</a>
+      </li>
     
       <li class="post">
         <a href="/2015/02/19/wakame-vdc/">Wakame 用 カスタム KVM イメージ作成</a>
@@ -468,11 +362,7 @@
       </li>
     
       <li class="post">
-        <a href="/2015/02/06/wakame-vdc-kvm/">Wakame-vdc のカスタムイメージ作成手順</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2015/01/23/vagrant/">Vagrant Box を Atlas で管理</a>
+        <a href="/2015/02/07/wakame-vdc/">wakame-vdc ( OpenVZ 版 HVA ) インストールメモ</a>
       </li>
     
   </ul>

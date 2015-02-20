@@ -1,0 +1,722 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>wakame-vdc ( OpenVZ 版 HVA ) インストールメモ - YggdrasillNetwork Blog</title>
+  <meta name="author" content="Ryo Ogata">
+
+  
+  <meta name="description" content="目的 wakame-vdc ( OpenVZ 版 HVA ) をインストールする際の手順をまとめてみる yum repository の準備 wakame-vdc インストールするために必要なレポジトリの登録 1
+2
+# curl -o /etc/yum.repos.d/wakame-vdc. &hellip;">
+  <meta name="keywords" content="wakame-vdc">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://ryoogata.github.io/2015/02/07/wakame-vdc/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/stylesheets/data-table.css" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="YggdrasillNetwork Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">YggdrasillNetwork Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:ryoogata.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Wakame-vdc ( OpenVZ 版 HVA ) インストールメモ</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-02-07T23:05:21+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h1>目的</h1>
+
+<p>wakame-vdc ( OpenVZ 版 HVA ) をインストールする際の手順をまとめてみる</p>
+
+<h1>yum repository の準備</h1>
+
+<p>wakame-vdc インストールするために必要なレポジトリの登録</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># curl -o /etc/yum.repos.d/wakame-vdc.repo -R https://raw.githubusercontent.com/axsh/wakame-vdc/master/rpmbuild/wakame-vdc.repo
+</span><span class='line'># yum install -y epel-release</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>DCMGR のインストール</h1>
+
+<h2>パッケージのインストール</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># yum install -y wakame-vdc-dcmgr-vmapp-config</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>設定ファイルのコピー</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># cp /opt/axsh/wakame-vdc/dcmgr/config/dcmgr.conf.example /etc/wakame-vdc/dcmgr.conf
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>MySQL の起動</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># service mysqld start</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>DB の作成</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># mysqladmin -uroot create wakame_dcmgr
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>DB Table の作成</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># cd /opt/axsh/wakame-vdc/dcmgr
+</span><span class='line'># /opt/axsh/wakame-vdc/ruby/bin/rake db:up
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>OpenVZ 版 HVA のインストール</h1>
+
+<h2>前提条件</h2>
+
+<ul>
+<li>VM は 192.168.3.0/24 の IP Address レンジに作成される</li>
+<li>HVA の物理ホスト eth0 に 192.168.3.100 が設定されている</li>
+</ul>
+
+
+<h2>yum repository の準備</h2>
+
+<p>OpenVZ 版 HVA をインストールするために必要なレポジトリの登録</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># curl -o /etc/yum.repos.d/openvz.repo -R https://raw.githubusercontent.com/axsh/wakame-vdc/master/rpmbuild/openvz.repo</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>パッケージのインストール</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># yum install -y wakame-vdc-hva-openvz-vmapp-config</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>設定ファイルのコピー</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># cp /opt/axsh/wakame-vdc/dcmgr/config/hva.conf.example /etc/wakame-vdc/hva.conf
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>bridge network の設定</h2>
+
+<h3>bridge Interface の作成</h3>
+
+<ul>
+<li>/etc/sysconfig/network-scripts/ifcfg-br0</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>DEVICE=br0
+</span><span class='line'>TYPE=Bridge
+</span><span class='line'>BOOTPROTO=static
+</span><span class='line'>ONBOOT=yes
+</span><span class='line'>NM_CONTROLLED=no
+</span><span class='line'>IPADDR=192.168.3.100
+</span><span class='line'>NETMASK=255.255.255.0
+</span><span class='line'>GATEWAY=192.168.3.1
+</span><span class='line'>DNS1=8.8.8.8
+</span><span class='line'>DELAY=0</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>/etc/sysconfig/network-scripts/ifcfg-eth0</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>DEVICE="eth0"
+</span><span class='line'>ONBOOT="yes"
+</span><span class='line'>BRIDGE=br0
+</span><span class='line'>NM_CONTROLLED=no</span></code></pre></td></tr></table></div></figure>
+
+
+<p>設定後、ネットワークの再起動</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># service network restart</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>NODE_ID の設定</h2>
+
+<p>HVA を一意に識別するために、NODE_ID の設定をする</p>
+
+<ul>
+<li>/etc/default/vdc-hva</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>NODE_ID=demo1</span></code></pre></td></tr></table></div></figure>
+
+
+<p>※ Default だとコメントアウトされている</p>
+
+<h2>HVA を DCMGR に登録する</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage host add hva.demo1 \
+</span><span class='line'>   --uuid hn-demo1 \
+</span><span class='line'>   --display-name "demo HVA 1" \
+</span><span class='line'>   --cpu-cores 100 \
+</span><span class='line'>   --memory-size 10240 \
+</span><span class='line'>   --hypervisor openvz \
+</span><span class='line'>   --arch x86_64 \
+</span><span class='line'>   --disk-space 102400 \
+</span><span class='line'>   --force</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Network 関連パラメータを DCMGR に登録する</h2>
+
+<h3>VDC 操作コマンド起動</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># /opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Network レンジの登録</h3>
+
+<p><code>nw-demo1</code> という Network レンジを作成する</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; network add \
+</span><span class='line'>  --uuid nw-demo1 \
+</span><span class='line'>  --ipv4-network 192.168.3.0 \
+</span><span class='line'>  --prefix 24 \
+</span><span class='line'>  --ipv4-gw 192.168.3.1 \
+</span><span class='line'>  --dns 8.8.8.8 \
+</span><span class='line'>  --account-id a-shpoolxx \
+</span><span class='line'>  --display-name "demo network"</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<h3>DHCP レンジの登録</h3>
+
+<p><code>nw-demo1</code> の DHCP で割り当てる IP アドレスのレンジを設定</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; network dhcp addrange nw-demo1 192.168.3.1 192.168.3.254
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>DHCP 割り当て除外 IP の登録</h3>
+
+<p><code>nw-demo1</code> の DHCP で割り当てる IP アドレスのレンジ内の割り当て除外 IP の登録</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; network reserve nw-demo1 --ipv4 192.168.3.100</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>VM 用 MAC Address レンジの登録</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; macrange add 525400 1 ffffff --uuid mr-demomacs</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>dc_network の作成と Network レンジとの紐付け</h3>
+
+<p><code>public</code> という名称の　dc_network　を作成し、<code>nw-demo1</code> と紐付ける</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; network dc add public --uuid dcn-public --description "the network instances are started in"
+</span><span class='line'>vdc-manage&gt;&gt; network dc add-network-mode public securitygroup
+</span><span class='line'>vdc-manage&gt;&gt; network forward nw-demo1 public</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>作成した dc_network と物理/Bridge Interface が紐付いているか確認</h3>
+
+<ul>
+<li>/etc/wakame-vdc/hva.conf</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>dc_network('public') {
+</span><span class='line'>  bridge_type 'linux'
+</span><span class='line'>  interface 'eth0'
+</span><span class='line'>  bridge 'br0'
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>OS の再起動</h2>
+
+<p>OpenVZ 用カスタムカーネルが動作するように OS を再起動する</p>
+
+<h1>WebUI のインストール</h1>
+
+<h2>パッケージのインストール</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># yum install -y wakame-vdc-webui-vmapp-config</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>設定ファイルのコピー</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># cp /opt/axsh/wakame-vdc/frontend/dcmgr_gui/config/database.yml.example /etc/wakame-vdc/dcmgr_gui/database.yml
+</span><span class='line'>
+</span><span class='line'># cp /opt/axsh/wakame-vdc/frontend/dcmgr_gui/config/dcmgr_gui.yml.example /etc/wakame-vdc/dcmgr_gui/dcmgr_gui.yml
+</span><span class='line'>
+</span><span class='line'># cp /opt/axsh/wakame-vdc/frontend/dcmgr_gui/config/instance_spec.yml.example /etc/wakame-vdc/dcmgr_gui/instance_spec.yml
+</span><span class='line'>
+</span><span class='line'># cp /opt/axsh/wakame-vdc/frontend/dcmgr_gui/config/load_balancer_spec.yml.example /etc/wakame-vdc/dcmgr_gui/load_balancer_spec.yml</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>DB の作成</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># mysqladmin -uroot create wakame_dcmgr_gui</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>DB Table の作成</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># cd /opt/axsh/wakame-vdc/frontend/dcmgr_gui/
+</span><span class='line'># /opt/axsh/wakame-vdc/ruby/bin/rake db:init</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>システム用アカウントの作成</h2>
+
+<h3>GUI マネージャ操作コマンド起動</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># /opt/axsh/wakame-vdc/frontend/dcmgr_gui/bin/gui-manage
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>default アカウントの追加</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gui-manage&gt;&gt; account add --name default --uuid a-shpoolxx</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>新規ユーザの追加</h2>
+
+<p>下記のユーザ名/パスワードのユーザを登録</p>
+
+<ul>
+<li>ユーザ名: demo</li>
+<li>パスワード: demo</li>
+</ul>
+
+
+<h3>新規ユーザの登録</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gui-manage&gt;&gt; user add --name "demo user" --uuid u-demo --password demo --login-id demo</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>追加ユーザとアカウントを紐づける</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gui-manage&gt;&gt; user associate u-demo --account-ids a-shpoolxx</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>デモ用マシンイメージの登録</h1>
+
+<ul>
+<li>デモ用マシンイメージを利用する
+
+<ul>
+<li>下記のコマンドを実行して事前に Download しておく</li>
+</ul>
+
+
+<pre><code class="`"> # mkdir -p /var/lib/wakame-vdc/images
+ # cd /var/lib/wakame-vdc/images
+ # curl -O http://dlc.wakame.axsh.jp.s3.amazonaws.com/demo/vmimage/ubuntu-lucid-kvm-md-32.raw.gz
+</code></pre>
+
+<ul>
+<li>デモ用マシンイメージの md5 sum はメモしておく</li>
+</ul>
+
+
+<pre><code># md5sum ubuntu-lucid-kvm-md-32.raw.gz
+</code></pre></li>
+</ul>
+
+
+<h2>VDC 操作コマンド起動</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># /opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>backupstorage の作成</h2>
+
+<p>マシンイメージを保存する場所としてローカルのストレージを登録する</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; backupstorage add \
+</span><span class='line'>  --uuid bkst-local \
+</span><span class='line'>  --display-name "local storage" \
+</span><span class='line'>  --base-uri "file:///var/lib/wakame-vdc/images/" \
+</span><span class='line'>  --storage-type local \
+</span><span class='line'>  --description "storage on the local filesystem"</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>マシンイメージをローカルのバックアップストレージに登録</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; backupobject add \
+</span><span class='line'>  --uuid bo-lucid5d \
+</span><span class='line'>  --display-name "Ubuntu 10.04 (Lucid Lynx) root partition" \
+</span><span class='line'>  --storage-id bkst-local \
+</span><span class='line'>  --object-key ubuntu-lucid-kvm-md-32.raw.gz \
+</span><span class='line'>  --size 149084 \
+</span><span class='line'>  --allocation-size 359940 \
+</span><span class='line'>  --container-format gz \
+</span><span class='line'>  --checksum 1f841b195e0fdfd4342709f77325ce29</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<h2>マシンイメージをシステムに登録</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; image add local bo-lucid5d \
+</span><span class='line'>  --account-id a-shpoolxx \
+</span><span class='line'>  --uuid wmi-lucid5d \
+</span><span class='line'>  --root-device uuid:148bc5df-3fc5-4e93-8a16-7328907cb1c0 \
+</span><span class='line'>  --display-name "Ubuntu 10.04 (Lucid Lynx)"</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Wakame-vdc の起動</h1>
+
+<h2>RabbitMQ Server の起動</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># service rabbitmq-server start</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Wakame-vdc 各コンポーネントの起動</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># start vdc-dcmgr
+</span><span class='line'># start vdc-collector
+</span><span class='line'># start vdc-hva
+</span><span class='line'># start vdc-webui</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Web UI へのアクセス</h1>
+
+<p>下記の URL にアクセス</p>
+
+<ul>
+<li>URL: <a href="http://192.168.3.100:9000">http://192.168.3.100:9000</a></li>
+</ul>
+
+
+<p>下記のユーザ名/パスワードのユーザを登録</p>
+
+<ul>
+<li>ユーザ名: demo</li>
+<li>パスワード: demo</li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ryo Ogata</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-02-07T23:05:21+09:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/wakame-vdc/'>wakame-vdc</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ryoogata.github.io/2015/02/07/wakame-vdc/" data-via="" data-counturl="http://ryoogata.github.io/2015/02/07/wakame-vdc/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2015/02/06/wakame-vdc-kvm/" title="Previous Post: KVM VM に OS をインストール">&laquo; KVM VM に OS をインストール</a>
+      
+      
+        <a class="basic-alignment right" href="/2015/02/19/kvm/" title="Next Post: KVM Tips">KVM Tips &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+  <p>A little something about me.</p>
+</section>
+<section>
+  <h1>Categories</h1>
+    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/kvm/'>kvm (2)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/openvswitch/'>openvswitch (1)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (3)</a></li><li><a href='/blog/categories/wakame-vdc/'>wakame-vdc (2)</a></li></ul>
+</section>
+<section>
+  <h1>Tag Cloud</h1>
+    <span id="tag-cloud"><a href='/blog/tags/boot2docker' style='font-size: 120.0%'>boot2docker(1)</a> <a href='/blog/tags/chef-client' style='font-size: 120.0%'>chef-client(1)</a> <a href='/blog/tags/chef-repo' style='font-size: 140.0%'>chef-repo(2)</a> <a href='/blog/tags/chef-server' style='font-size: 140.0%'>chef-server(2)</a> <a href='/blog/tags/chef-solo' style='font-size: 120.0%'>chef-solo(1)</a> <a href='/blog/tags/hosted-chef' style='font-size: 120.0%'>hosted chef(1)</a> <a href='/blog/tags/kitchen-ec2' style='font-size: 120.0%'>kitchen-ec2(1)</a> <a href='/blog/tags/knife-ec2' style='font-size: 140.0%'>knife-ec2(2)</a> <a href='/blog/tags/knife-solo' style='font-size: 120.0%'>knife-solo(1)</a> <a href='/blog/tags/kvm' style='font-size: 160.0%'>kvm(3)</a> <a href='/blog/tags/network' style='font-size: 140.0%'>network(2)</a> <a href='/blog/tags/windows' style='font-size: 120.0%'>windows(1)</a> </span>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2015/02/19/openvswitch/">openvswitch のインストールと初期セットアップ</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/19/wakame-vdc/">Wakame 用 カスタム KVM イメージ作成</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/19/nat/">iptables を利用した NAT Router</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/19/kvm/">KVM Tips</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/07/wakame-vdc/">wakame-vdc ( OpenVZ 版 HVA ) インストールメモ</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+  <h1>Twitter Timeline</h1>
+  <p><a class="twitter-timeline" href="https://twitter.com/rfrv_ryo" data-widget-id="531634940299841536">@rfrv_ryo からのツイート</a>
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Ryo Ogata -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  - <span class="credit">Theme by <a href="http://www.gehaxelt.in">Gehaxelt</a></span>
+  <span class="credit">and <a href="http://www.it-solutions-neef.de">IT Solutions Neef</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

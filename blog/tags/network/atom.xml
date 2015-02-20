@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: Network | YggdrasillNetwork Blog]]></title>
+  <link href="http://ryoogata.github.io/blog/tags/network/atom.xml" rel="self"/>
+  <link href="http://ryoogata.github.io/"/>
+  <updated>2015-02-20T11:21:40+09:00</updated>
+  <id>http://ryoogata.github.io/</id>
+  <author>
+    <name><![CDATA[Ryo Ogata]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Openvswitch のインストールと初期セットアップ]]></title>
+    <link href="http://ryoogata.github.io/2015/02/19/openvswitch/"/>
+    <updated>2015-02-19T23:58:33+09:00</updated>
+    <id>http://ryoogata.github.io/2015/02/19/openvswitch</id>
+    <content type="html"><![CDATA[<h1>yum 経由のインストール</h1>
+
+<h2>レポジトリの追加</h2>
+
+<pre><code># yum install http://rdo.fedorapeople.org/openstack-icehouse/rdo-release-icehouse.rpm
+
+openvswitch x86_64 2.1.2-1.el6 openstack-icehouse 2.2 M
+</code></pre>
+
+<h2>パッケージのインストール</h2>
+
+<pre><code># yum install openvswitch
+</code></pre>
+
+<h2>bridge kernel module の削除</h2>
+
+<pre><code># /sbin/rmmod bridge
+</code></pre>
+
+<h2>blacklist.conf への追加</h2>
+
+<p>kernel module の bridge をロードしてほしくないので、/etc/modprobe.d/blacklist.conf に記述</p>
+
+<pre><code>install bridge /bin/false
+</code></pre>
+
+<h2>Service の起動</h2>
+
+<pre><code># service openvswitch start
+</code></pre>
+
+<h2>interface の設定</h2>
+
+<h3>ifcfg-br0</h3>
+
+<pre><code>DEVICE=br0
+ONBOOT=yes
+DEVICETYPE=ovs
+TYPE=OVSBridge
+BOOTPROTO=static
+IPADDR=A.B.C.D
+NETMASK=X.Y.Z.0
+HOTPLUG=no
+</code></pre>
+
+<h3>ifcfg-eth1</h3>
+
+<pre><code>DEVICE=eth1
+DEVICETYPE=ovs
+HWADDR=40:A8:F0:39:96:A9
+TYPE=OVSPort
+UUID=22ff31c5-1d59-478d-8fa4-55f2984a94d8
+ONBOOT=yes
+NM_CONTROLLED=no
+BRIDGE=br0
+</code></pre>
+
+<h1>Tips</h1>
+
+<h2>bridge kernel module の追加方法</h2>
+
+<pre><code># insmod /lib/modules/2.6.32-504.el6.x86_64/kernel/net/bridge/bridge.ko
+</code></pre>
+
+<h2>bridge kernel module の削除方法</h2>
+
+<pre><code>/sbin/rmmod bridge
+</code></pre>
+
+<h2>br0 の作成と eth0 の追加</h2>
+
+<pre><code># ovs-vsctl add-br br0
+# ovs-vsctl add-port br0 eth0
+</code></pre>
+
+<h1>Memo</h1>
+
+<p>yum install <a href="http://rdo.fedorapeople.org/rdo-release.rpm">http://rdo.fedorapeople.org/rdo-release.rpm</a> <br/>
+↑これはダメ。レポジトリ先が存在していない…</p>
+
+<p>yum erase rdo-release で削除</p>
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="http://qunisaki.blog.fc2.com/blog-entry-6.html">CentOS 6.4 で openvswitch を使ってみる</a></li>
+<li><a href="http://blog.hirokikana.com/?p=533">Open vSwitchとRyuを使った最も単純なOpenFlowネットワークの構築</a></li>
+<li><a href="https://wiki.archlinux.org/index.php/Kernel_modules_%28%E6%97%A5%E6%9C%AC%E8%AA%9E%29">Kernel modules (日本語)</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Iptables を利用した NAT Router]]></title>
+    <link href="http://ryoogata.github.io/2015/02/19/nat/"/>
+    <updated>2015-02-19T23:43:56+09:00</updated>
+    <id>http://ryoogata.github.io/2015/02/19/nat</id>
+    <content type="html"><![CDATA[<h1>NAT 設定追加</h1>
+
+<h2>内部から外部への通信を NAT する設定</h2>
+
+<p>例: 内部 IP アドレスレンジ ( 10.1.0.0/24 ) から外部への通信を NAT する</p>
+
+<pre><code># iptables -t nat -F
+# iptables -t nat -A POSTROUTING -s 10.1.0.0/24 -j MASQUERADE
+</code></pre>
+
+<h2>外部から内部への通信を NAT する設定</h2>
+
+<pre><code># iptables -t nat -I PREROUTING -d 172.16.1.36 -p tcp -m tcp --dport 1022 -j DNAT --to-destination "10.1.0.10:2442"
+# iptables -t nat -I PREROUTING -d 172.16.1.36 -p tcp -m tcp --dport 1122 -j DNAT --to-destination "10.1.0.11:2442"
+# iptables -t nat -I PREROUTING -d 172.16.1.36 -p tcp -m tcp --dport 1222 -j DNAT --to-destination "10.1.0.12:2442"
+# iptables -t nat -I PREROUTING -d 172.16.1.36 -p tcp -m tcp --dport 1322 -j DNAT --to-destination "10.1.0.13:2442"
+# iptables -t nat -I PREROUTING -d 172.16.1.36 -p tcp -m tcp --dport 1422 -j DNAT --to-destination "10.1.0.14:2442"
+# iptables -t nat -I PREROUTING -d 172.16.1.36 -p tcp -m tcp --dport 1080 -j DNAT --to-destination "10.1.0.10:80"
+</code></pre>
+
+<h1>NAT 設定削除方法</h1>
+
+<h2>1. 行番号確認</h2>
+
+<pre><code># iptables -t nat -L --line-numbers
+</code></pre>
+
+<h2>2. 行数を指定して削除</h2>
+
+<pre><code># iptables -t nat -D PREROUTING 3
+</code></pre>
+
+<h1>iptable 設定保存</h1>
+
+<pre><code># service iptables save
+</code></pre>
+
+<p>/etc/sysconfig/iptables に保存される</p>
+
+<h1>パケットフォワード設定</h1>
+
+<h2>net.ipv4.ip_forward の設定</h2>
+
+<pre><code># sysctl -w net.ipv4.ip_forward=1
+</code></pre>
+
+<h2>設定の保存</h2>
+
+<p>/etc/sysctl.conf に下記の記述を追加</p>
+
+<pre><code>net.ipv4.ip_forward=1
+</code></pre>
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="http://aidemoire.hatenablog.com/entry/2013/10/04/184507">LinuxでNATルータを構成するメモ</a></li>
+<li><a href="http://d.hatena.ne.jp/nosa1/20120313/1331618377">ipTablesのルールの削除</a></li>
+<li><a href="http://safe-linux.homeip.net/network/Gateway_Server-06.html">IPv4 フォワーディングを有効にするには</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

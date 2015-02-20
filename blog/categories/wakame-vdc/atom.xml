@@ -4,7 +4,7 @@
   <title><![CDATA[Category: wakame-vdc | YggdrasillNetwork Blog]]></title>
   <link href="http://ryoogata.github.io/blog/categories/wakame-vdc/atom.xml" rel="self"/>
   <link href="http://ryoogata.github.io/"/>
-  <updated>2015-02-19T23:54:33+09:00</updated>
+  <updated>2015-02-20T11:21:40+09:00</updated>
   <id>http://ryoogata.github.io/</id>
   <author>
     <name><![CDATA[Ryo Ogata]]></name>
@@ -66,7 +66,55 @@ Port 2442</p>
 /dev/vda3: UUID="893013b4-bf1e-47b6-baf3-495193b76238" TYPE="ext4" 
 </code></pre>
 
+<h2>不要ファイル削除</h2>
+
+<pre><code>rm -rf /root/.bash_history
+rm -rf /etc/ssh/ssh_host*
+rm -rf /etc/udev/rules.d/70-persistent-net.rules
+</code></pre>
+
+<h2>OS イメージの圧縮と移動</h2>
+
+<p>OS イメージ圧縮前のファイルサイズを控えておく</p>
+
+<pre><code># ls -al centos66.img
+</code></pre>
+
+<p>/var/lib/libvirt/images</p>
+
+<p>圧縮の実行</p>
+
+<pre><code># gzip -c centos66.img &gt; /var/lib/wakame-vdc/images/20150203_1_centos66.img.gz
+</code></pre>
+
+<p>OS イメージ圧縮後のファイルサイズを控えておく</p>
+
+<pre><code># ls -al 20150203_1_centos66.img.gz
+</code></pre>
+
+<h2>OS イメージの md5 の取得</h2>
+
+<p>OS イメージの md5 checksum 値を控えておく</p>
+
+<pre><code># md5sum 20150203_2_centos66.img.gz
+</code></pre>
+
 <h2>vdc へイメージの登録</h2>
+
+<p>vdc-manage コマンドを実行</p>
+
+<pre><code># /opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage
+</code></pre>
+
+<p>事前に控えていた下記の情報を基にカスタムイメージを DB に登録</p>
+
+<ul>
+<li>圧縮前 OS イメージファイルサイズ</li>
+<li>圧縮後 OS イメージファイルサイズ</li>
+<li>OS イメージの md5 checksum</li>
+<li>root パーティションの UUID</li>
+</ul>
+
 
 <pre><code>backupobject add \
  --uuid 20150213_1_cent_base \
@@ -95,216 +143,362 @@ image add local bo-20150213_1_cent_base \
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Wakame-vdc のカスタムイメージ作成手順]]></title>
-    <link href="http://ryoogata.github.io/2015/02/06/wakame-vdc-kvm/"/>
-    <updated>2015-02-06T23:02:07+09:00</updated>
-    <id>http://ryoogata.github.io/2015/02/06/wakame-vdc-kvm</id>
-    <content type="html"><![CDATA[<h1>概要</h1>
+    <title type="html"><![CDATA[wakame-vdc ( OpenVZ 版 HVA ) インストールメモ]]></title>
+    <link href="http://ryoogata.github.io/2015/02/07/wakame-vdc/"/>
+    <updated>2015-02-07T23:05:21+09:00</updated>
+    <id>http://ryoogata.github.io/2015/02/07/wakame-vdc</id>
+    <content type="html"><![CDATA[<h1>目的</h1>
 
-<p>Wakame-vdc ( KVM 環境 ) で利用可能なカスタムイメージを作成する</p>
+<p>wakame-vdc ( OpenVZ 版 HVA ) をインストールする際の手順をまとめてみる</p>
 
-<h1>CentOS 6.6 の場合</h1>
+<h1>yum repository の準備</h1>
 
-<h2>仮想HDDイメージファイルの作成</h2>
+<p>wakame-vdc インストールするために必要なレポジトリの登録</p>
 
-<pre><code># dd if=/dev/zero of=/var/lib/libvirt/images/centos66.img bs=1M count=10240
+<pre><code># curl -o /etc/yum.repos.d/wakame-vdc.repo -R https://raw.githubusercontent.com/axsh/wakame-vdc/master/rpmbuild/wakame-vdc.repo
+# yum install -y epel-release
 </code></pre>
 
-<h2>インストール開始</h2>
+<h1>DCMGR のインストール</h1>
 
-<p>VNC経由もしくはテキストモードにてインストールを実施する</p>
+<h2>パッケージのインストール</h2>
 
-<h3>VNC 経由の場合</h3>
-
-<p>VNC 経由で作業を実施するために、<code>virt-viewr</code> を事前にインストールしておく</p>
-
-<pre><code># yum install virt-viewer
+<pre><code># yum install -y wakame-vdc-dcmgr-vmapp-config
 </code></pre>
 
-<p>下記のコマンドを実行し、インストールを実施</p>
+<h2>設定ファイルのコピー</h2>
 
-<pre><code># virt-install \
- --virt-type=kvm \
- --hvm \
- --connect qemu:///system \
- --vcpus 1 \
- --ram=1024 \
- --os-type=linux \
- --os-variant=rhel6 \
- --network bridge=br0 \
- --vnc --vncport=29741 --vnclisten=0.0.0.0 \
- --name centos66 \
- --disk=/var/lib/libvirt/images/centos66.img \
- --location='/var/lib/libvirt/images/CentOS-6.6-x86_64-bin-DVD1.iso' \
- --accelerate
+<pre><code># cp /opt/axsh/wakame-vdc/dcmgr/config/dcmgr.conf.example /etc/wakame-vdc/dcmgr.conf
 </code></pre>
 
-<h3>テキストモードの場合</h3>
+<h2>MySQL の起動</h2>
 
-<p>テキストモードインストールでは、GUIインストールとは異なり、パーティション等の編集メニューが出てこない。
-インストール時に指定したい場合には、キックスタートを利用してインストールすればよい。</p>
-
-<pre><code># virt-install \
- --virt-type=kvm \
- --hvm \
- --connect qemu:///system \
- --vcpus 1 \
- --ram=1024 \
- --os-type=linux \
- --os-variant=rhel6 \
- --network bridge=br0 \
- --nographics \
- --extra-args='console=tty0 console=ttyS0, 115200n8' \
- --name centos66 \
- --disk=/var/lib/libvirt/images/centos.img \
- --location='/var/lib/libvirt/images/CentOS-6.6-x86_64-bin-DVD1.iso' \
- --accelerate \
+<pre><code># service mysqld start
 </code></pre>
 
-<h2>ドメインの起動</h2>
+<h2>DB の作成</h2>
 
-<pre><code># virsh start centos66
+<pre><code># mysqladmin -uroot create wakame_dcmgr
 </code></pre>
 
-<h2>OS のカスタマイズ</h2>
+<h2>DB Table の作成</h2>
 
-<h3>selinux の disable</h3>
-
-<p>selinux は disable にしておく</p>
-
-<h3>不要ファイル削除</h3>
-
-<pre><code>rm -rf /root/.bash_history
-rm -rf /etc/ssh/ssh_host*
-rm -rf /etc/udev/rules.d/70-persistent-net.rules
+<pre><code># cd /opt/axsh/wakame-vdc/dcmgr
+# /opt/axsh/wakame-vdc/ruby/bin/rake db:up
 </code></pre>
 
-<h3>root パーティションの UUID を調べておく</h3>
+<h1>OpenVZ 版 HVA のインストール</h1>
 
-<pre><code>[root@localhost ssh]# blkid
-/dev/vda1: UUID="60dbb3b6-a9d8-4550-82f1-e9acdf40b3f8" TYPE="ext4"
-/dev/vda2: UUID="6204d842-2c5d-498a-93a5-ff8bd105a1db" TYPE="swap"
+<h2>前提条件</h2>
+
+<ul>
+<li>VM は 192.168.3.0/24 の IP Address レンジに作成される</li>
+<li>HVA の物理ホスト eth0 に 192.168.3.100 が設定されている</li>
+</ul>
+
+
+<h2>yum repository の準備</h2>
+
+<p>OpenVZ 版 HVA をインストールするために必要なレポジトリの登録</p>
+
+<pre><code># curl -o /etc/yum.repos.d/openvz.repo -R https://raw.githubusercontent.com/axsh/wakame-vdc/master/rpmbuild/openvz.repo
 </code></pre>
 
-<h3>カスタマイズ後</h3>
+<h2>パッケージのインストール</h2>
 
-<p>必要なカスタマイズが完了したのち、OS を shutdown する</p>
-
-<h2>OS イメージの圧縮と移動</h2>
-
-<p>OS イメージ圧縮前のファイルサイズを控えておく</p>
-
-<pre><code># ls -al centos66.img
+<pre><code># yum install -y wakame-vdc-hva-openvz-vmapp-config
 </code></pre>
 
-<p>/var/lib/libvirt/images</p>
+<h2>設定ファイルのコピー</h2>
 
-<p>圧縮の実行</p>
-
-<pre><code># gzip -c centos66.img &gt; /var/lib/wakame-vdc/images/20150203_1_centos66.img.gz
+<pre><code># cp /opt/axsh/wakame-vdc/dcmgr/config/hva.conf.example /etc/wakame-vdc/hva.conf
 </code></pre>
 
-<p>OS イメージ圧縮後のファイルサイズを控えておく</p>
+<h2>bridge network の設定</h2>
 
-<pre><code># ls -al 20150203_1_centos66.img.gz
+<h3>bridge Interface の作成</h3>
+
+<ul>
+<li>/etc/sysconfig/network-scripts/ifcfg-br0</li>
+</ul>
+
+
+<pre><code>DEVICE=br0
+TYPE=Bridge
+BOOTPROTO=static
+ONBOOT=yes
+NM_CONTROLLED=no
+IPADDR=192.168.3.100
+NETMASK=255.255.255.0
+GATEWAY=192.168.3.1
+DNS1=8.8.8.8
+DELAY=0
 </code></pre>
 
-<h2>OS イメージの md5 の取得</h2>
+<ul>
+<li>/etc/sysconfig/network-scripts/ifcfg-eth0</li>
+</ul>
 
-<p>OS イメージの md5 checksum 値を控えておく</p>
 
-<pre><code># md5sum 20150203_2_centos66.img.gz
+<pre><code>DEVICE="eth0"
+ONBOOT="yes"
+BRIDGE=br0
+NM_CONTROLLED=no
 </code></pre>
 
-<h2>Wakame-vdc にカスタムイメージを登録</h2>
+<p>設定後、ネットワークの再起動</p>
 
-<p>vdc-manage コマンドを実行</p>
+<pre><code># service network restart
+</code></pre>
+
+<h2>NODE_ID の設定</h2>
+
+<p>HVA を一意に識別するために、NODE_ID の設定をする</p>
+
+<ul>
+<li>/etc/default/vdc-hva</li>
+</ul>
+
+
+<pre><code>NODE_ID=demo1
+</code></pre>
+
+<p>※ Default だとコメントアウトされている</p>
+
+<h2>HVA を DCMGR に登録する</h2>
+
+<pre><code>/opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage host add hva.demo1 \
+   --uuid hn-demo1 \
+   --display-name "demo HVA 1" \
+   --cpu-cores 100 \
+   --memory-size 10240 \
+   --hypervisor openvz \
+   --arch x86_64 \
+   --disk-space 102400 \
+   --force
+</code></pre>
+
+<h2>Network 関連パラメータを DCMGR に登録する</h2>
+
+<h3>VDC 操作コマンド起動</h3>
 
 <pre><code># /opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage
 </code></pre>
 
-<p>事前に控えていた下記の情報を基にカスタムイメージを DB に登録</p>
+<h3>Network レンジの登録</h3>
+
+<p><code>nw-demo1</code> という Network レンジを作成する</p>
+
+<pre><code>vdc-manage&gt;&gt; network add \
+  --uuid nw-demo1 \
+  --ipv4-network 192.168.3.0 \
+  --prefix 24 \
+  --ipv4-gw 192.168.3.1 \
+  --dns 8.8.8.8 \
+  --account-id a-shpoolxx \
+  --display-name "demo network"
+</code></pre>
+
+<h3>DHCP レンジの登録</h3>
+
+<p><code>nw-demo1</code> の DHCP で割り当てる IP アドレスのレンジを設定</p>
+
+<pre><code>vdc-manage&gt;&gt; network dhcp addrange nw-demo1 192.168.3.1 192.168.3.254
+</code></pre>
+
+<h3>DHCP 割り当て除外 IP の登録</h3>
+
+<p><code>nw-demo1</code> の DHCP で割り当てる IP アドレスのレンジ内の割り当て除外 IP の登録</p>
+
+<pre><code>vdc-manage&gt;&gt; network reserve nw-demo1 --ipv4 192.168.3.100
+</code></pre>
+
+<h3>VM 用 MAC Address レンジの登録</h3>
+
+<pre><code>vdc-manage&gt;&gt; macrange add 525400 1 ffffff --uuid mr-demomacs
+</code></pre>
+
+<h3>dc_network の作成と Network レンジとの紐付け</h3>
+
+<p><code>public</code> という名称の　dc_network　を作成し、<code>nw-demo1</code> と紐付ける</p>
+
+<pre><code>vdc-manage&gt;&gt; network dc add public --uuid dcn-public --description "the network instances are started in"
+vdc-manage&gt;&gt; network dc add-network-mode public securitygroup
+vdc-manage&gt;&gt; network forward nw-demo1 public
+</code></pre>
+
+<h3>作成した dc_network と物理/Bridge Interface が紐付いているか確認</h3>
 
 <ul>
-<li>圧縮前 OS イメージファイルサイズ</li>
-<li>圧縮後 OS イメージファイルサイズ</li>
-<li>OS イメージの md5 checksum</li>
-<li>root パーティションの UUID</li>
+<li>/etc/wakame-vdc/hva.conf</li>
 </ul>
 
 
-<pre><code>backupobject add \
- --uuid 20150203_3_centos66 \
- --display-name "CentOS 6.6" \
- --storage-id bkst-local \
- --object-key 20150203_3_centos66.img.gz \
- --size              323502676 \
- --allocation-size 10737418240 \
- --container-format gz \
- --checksum 3e28c4d4eef476319d63c936b3403c04
-
-image add local bo-20150203_3_centos66 \
- --account-id a-shpoolxx \
- --uuid wmi-20150203_3_centos66 \
- --root-device uuid:60dbb3b6-a9d8-4550-82f1-e9acdf40b3f8 \
- --display-name "CentOS 6.6"
+<pre><code>dc_network('public') {
+  bridge_type 'linux'
+  interface 'eth0'
+  bridge 'br0'
+}
 </code></pre>
 
-<h1>ubuntu-14.04 の場合</h1>
+<h2>OS の再起動</h2>
 
-<p>作業途中で失敗する</p>
+<p>OpenVZ 用カスタムカーネルが動作するように OS を再起動する</p>
 
-<h2>仮想HDDイメージファイルの作成</h2>
+<h1>WebUI のインストール</h1>
 
-<pre><code># dd if=/dev/zero of=/var/lib/libvirt/images/ubuntu.img bs=1M count=10240
+<h2>パッケージのインストール</h2>
+
+<pre><code># yum install -y wakame-vdc-webui-vmapp-config
 </code></pre>
 
-<h2>ISO イメージをループバックマウント</h2>
+<h2>設定ファイルのコピー</h2>
 
-<pre><code># mount --read-only --options loop ubuntu-14.04.1-server-amd64.iso ISO
+<pre><code># cp /opt/axsh/wakame-vdc/frontend/dcmgr_gui/config/database.yml.example /etc/wakame-vdc/dcmgr_gui/database.yml
+
+# cp /opt/axsh/wakame-vdc/frontend/dcmgr_gui/config/dcmgr_gui.yml.example /etc/wakame-vdc/dcmgr_gui/dcmgr_gui.yml
+
+# cp /opt/axsh/wakame-vdc/frontend/dcmgr_gui/config/instance_spec.yml.example /etc/wakame-vdc/dcmgr_gui/instance_spec.yml
+
+# cp /opt/axsh/wakame-vdc/frontend/dcmgr_gui/config/load_balancer_spec.yml.example /etc/wakame-vdc/dcmgr_gui/load_balancer_spec.yml
 </code></pre>
 
-<h2>インストール開始</h2>
+<h2>DB の作成</h2>
 
-<h3>VNC 経由の場合</h3>
-
-<pre><code># virt-install \
- --name=TestMachine \
- --ram=2048 \
- --vcpus=1 \
- --os-variant ubuntuprecise \
- --hvm \
- --connect qemu:///system \
- --virt-type=kvm \
- --disk=/var/lib/libvirt/images/ubuntu.img,format=qcow2 \
- --network=bridge:br0 \
- --keymap=ja \
- --location /var/lib/libvirt/images/ISO/ \
- --serial pty \
- --extra-args=console=ttyS0
+<pre><code># mysqladmin -uroot create wakame_dcmgr_gui
 </code></pre>
 
-<h1>Tips</h1>
+<h2>DB Table の作成</h2>
 
-<h2>SSH PortFoward</h2>
-
-<pre><code># ssh -L 29741:localhost:29741 root@172.16.1.108 
+<pre><code># cd /opt/axsh/wakame-vdc/frontend/dcmgr_gui/
+# /opt/axsh/wakame-vdc/ruby/bin/rake db:init
 </code></pre>
 
-<h2>gzip 圧縮 ( 元ファイル残す )</h2>
+<h2>システム用アカウントの作成</h2>
 
-<pre><code># gzip -c centos66.img &gt; 20150202_2_centos66.img.gz
+<h3>GUI マネージャ操作コマンド起動</h3>
+
+<pre><code># /opt/axsh/wakame-vdc/frontend/dcmgr_gui/bin/gui-manage
 </code></pre>
 
-<h1>参照 URL</h1>
+<h3>default アカウントの追加</h3>
+
+<pre><code>gui-manage&gt;&gt; account add --name default --uuid a-shpoolxx
+</code></pre>
+
+<h2>新規ユーザの追加</h2>
+
+<p>下記のユーザ名/パスワードのユーザを登録</p>
 
 <ul>
-<li><a href="http://www.maruko2.com/mw/CentOS/%E3%83%91%E3%83%BC%E3%83%86%E3%82%A3%E3%82%B7%E3%83%A7%E3%83%B3%E3%81%AE_UUID_%E3%82%92%E7%A2%BA%E8%AA%8D%E3%83%BB%E5%A4%89%E6%9B%B4%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95">CentOS/パーティションの UUID を確認・変更する方法</a></li>
-<li><a href="http://blog.osamu.habuka.jp/blog/2014/12/03/try-to-make-wakame-vdcs-image/">Wakame-VDC のマシンイメージを作ってみる</a></li>
-<li><a href="http://www.oss-d.net/virt/kvm/backup">KVMにおけるゲストOSのバックアップ/リストア </a></li>
-<li><a href="https://github.com/axsh/wakame-vdc/wiki/Custom-images">Custom images</a></li>
-<li><a href="http://blog.livedoor.jp/hide_system/archives/51888446.html">CentOS6.4(minimal) KVMによる仮想環境構築(テキストモード)</a></li>
-<li><a href="http://fishrimper.blogspot.jp/2014/01/kvm-os-ubuntu.html">KVM ゲスト OS としてコンソールから Ubuntu をインストール </a></li>
+<li>ユーザ名: demo</li>
+<li>パスワード: demo</li>
+</ul>
+
+
+<h3>新規ユーザの登録</h3>
+
+<pre><code>gui-manage&gt;&gt; user add --name "demo user" --uuid u-demo --password demo --login-id demo
+</code></pre>
+
+<h3>追加ユーザとアカウントを紐づける</h3>
+
+<pre><code>gui-manage&gt;&gt; user associate u-demo --account-ids a-shpoolxx
+</code></pre>
+
+<h1>デモ用マシンイメージの登録</h1>
+
+<ul>
+<li>デモ用マシンイメージを利用する
+
+<ul>
+<li>下記のコマンドを実行して事前に Download しておく</li>
+</ul>
+
+
+<pre><code class="`"> # mkdir -p /var/lib/wakame-vdc/images
+ # cd /var/lib/wakame-vdc/images
+ # curl -O http://dlc.wakame.axsh.jp.s3.amazonaws.com/demo/vmimage/ubuntu-lucid-kvm-md-32.raw.gz
+</code></pre>
+
+<ul>
+<li>デモ用マシンイメージの md5 sum はメモしておく</li>
+</ul>
+
+
+<pre><code># md5sum ubuntu-lucid-kvm-md-32.raw.gz
+</code></pre></li>
+</ul>
+
+
+<h2>VDC 操作コマンド起動</h2>
+
+<pre><code># /opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage
+</code></pre>
+
+<h2>backupstorage の作成</h2>
+
+<p>マシンイメージを保存する場所としてローカルのストレージを登録する</p>
+
+<pre><code>vdc-manage&gt;&gt; backupstorage add \
+  --uuid bkst-local \
+  --display-name "local storage" \
+  --base-uri "file:///var/lib/wakame-vdc/images/" \
+  --storage-type local \
+  --description "storage on the local filesystem"
+</code></pre>
+
+<h2>マシンイメージをローカルのバックアップストレージに登録</h2>
+
+<pre><code>vdc-manage&gt;&gt; backupobject add \
+  --uuid bo-lucid5d \
+  --display-name "Ubuntu 10.04 (Lucid Lynx) root partition" \
+  --storage-id bkst-local \
+  --object-key ubuntu-lucid-kvm-md-32.raw.gz \
+  --size 149084 \
+  --allocation-size 359940 \
+  --container-format gz \
+  --checksum 1f841b195e0fdfd4342709f77325ce29
+</code></pre>
+
+<h2>マシンイメージをシステムに登録</h2>
+
+<pre><code>vdc-manage&gt;&gt; image add local bo-lucid5d \
+  --account-id a-shpoolxx \
+  --uuid wmi-lucid5d \
+  --root-device uuid:148bc5df-3fc5-4e93-8a16-7328907cb1c0 \
+  --display-name "Ubuntu 10.04 (Lucid Lynx)"
+</code></pre>
+
+<h1>Wakame-vdc の起動</h1>
+
+<h2>RabbitMQ Server の起動</h2>
+
+<pre><code># service rabbitmq-server start
+</code></pre>
+
+<h2>Wakame-vdc 各コンポーネントの起動</h2>
+
+<pre><code># start vdc-dcmgr
+# start vdc-collector
+# start vdc-hva
+# start vdc-webui
+</code></pre>
+
+<h1>Web UI へのアクセス</h1>
+
+<p>下記の URL にアクセス</p>
+
+<ul>
+<li>URL: <a href="http://192.168.3.100:9000">http://192.168.3.100:9000</a></li>
+</ul>
+
+
+<p>下記のユーザ名/パスワードのユーザを登録</p>
+
+<ul>
+<li>ユーザ名: demo</li>
+<li>パスワード: demo</li>
 </ul>
 
 ]]></content>

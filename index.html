@@ -9,9 +9,10 @@
   <meta name="author" content="Ryo Ogata">
 
   
-  <meta name="description" content="作成手順 yum update の実行 1
-# yum update -y selinux 設定 selinux Permissive 必要なパッケージのインストール 1
-yum install -y telnet tcpdump wget man man-pages ntpdate bind- &hellip;">
+  <meta name="description" content="yum 経由のインストール レポジトリの追加 1
+2
+3
+# yum install http://rdo.fedorapeople.org/openstack-icehouse/rdo-release-icehouse.rpm openvswitch x86_64 2.1.2-1.el6 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -68,6 +69,158 @@ yum install -y telnet tcpdump wget man man-pages ntpdate bind- &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2015/02/19/openvswitch/">Openvswitch のインストールと初期セットアップ</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-02-19T23:58:33+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>yum 経由のインストール</h1>
+
+<h2>レポジトリの追加</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># yum install http://rdo.fedorapeople.org/openstack-icehouse/rdo-release-icehouse.rpm
+</span><span class='line'>
+</span><span class='line'>openvswitch x86_64 2.1.2-1.el6 openstack-icehouse 2.2 M</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>パッケージのインストール</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># yum install openvswitch</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>bridge kernel module の削除</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># /sbin/rmmod bridge</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>blacklist.conf への追加</h2>
+
+<p>kernel module の bridge をロードしてほしくないので、/etc/modprobe.d/blacklist.conf に記述</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>install bridge /bin/false</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Service の起動</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># service openvswitch start</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>interface の設定</h2>
+
+<h3>ifcfg-br0</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>DEVICE=br0
+</span><span class='line'>ONBOOT=yes
+</span><span class='line'>DEVICETYPE=ovs
+</span><span class='line'>TYPE=OVSBridge
+</span><span class='line'>BOOTPROTO=static
+</span><span class='line'>IPADDR=A.B.C.D
+</span><span class='line'>NETMASK=X.Y.Z.0
+</span><span class='line'>HOTPLUG=no</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>ifcfg-eth1</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>DEVICE=eth1
+</span><span class='line'>DEVICETYPE=ovs
+</span><span class='line'>HWADDR=40:A8:F0:39:96:A9
+</span><span class='line'>TYPE=OVSPort
+</span><span class='line'>UUID=22ff31c5-1d59-478d-8fa4-55f2984a94d8
+</span><span class='line'>ONBOOT=yes
+</span><span class='line'>NM_CONTROLLED=no
+</span><span class='line'>BRIDGE=br0</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Tips</h1>
+
+<h2>bridge kernel module の追加方法</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># insmod /lib/modules/2.6.32-504.el6.x86_64/kernel/net/bridge/bridge.ko</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>bridge kernel module の削除方法</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/sbin/rmmod bridge</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>br0 の作成と eth0 の追加</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ovs-vsctl add-br br0
+</span><span class='line'># ovs-vsctl add-port br0 eth0</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Memo</h1>
+
+<p>yum install <a href="http://rdo.fedorapeople.org/rdo-release.rpm">http://rdo.fedorapeople.org/rdo-release.rpm</a> <br/>
+↑これはダメ。レポジトリ先が存在していない…</p>
+
+<p>yum erase rdo-release で削除</p>
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="http://qunisaki.blog.fc2.com/blog-entry-6.html">CentOS 6.4 で openvswitch を使ってみる</a></li>
+<li><a href="http://blog.hirokikana.com/?p=533">Open vSwitchとRyuを使った最も単純なOpenFlowネットワークの構築</a></li>
+<li><a href="https://wiki.archlinux.org/index.php/Kernel_modules_%28%E6%97%A5%E6%9C%AC%E8%AA%9E%29">Kernel modules (日本語)</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -154,7 +307,63 @@ Port 2442</p>
 </span><span class='line'>/dev/vda3: UUID="893013b4-bf1e-47b6-baf3-495193b76238" TYPE="ext4" </span></code></pre></td></tr></table></div></figure>
 
 
+<h2>不要ファイル削除</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rm -rf /root/.bash_history
+</span><span class='line'>rm -rf /etc/ssh/ssh_host*
+</span><span class='line'>rm -rf /etc/udev/rules.d/70-persistent-net.rules</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>OS イメージの圧縮と移動</h2>
+
+<p>OS イメージ圧縮前のファイルサイズを控えておく</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ls -al centos66.img</span></code></pre></td></tr></table></div></figure>
+
+
+<p>/var/lib/libvirt/images</p>
+
+<p>圧縮の実行</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># gzip -c centos66.img &gt; /var/lib/wakame-vdc/images/20150203_1_centos66.img.gz</span></code></pre></td></tr></table></div></figure>
+
+
+<p>OS イメージ圧縮後のファイルサイズを控えておく</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ls -al 20150203_1_centos66.img.gz</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>OS イメージの md5 の取得</h2>
+
+<p>OS イメージの md5 checksum 値を控えておく</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># md5sum 20150203_2_centos66.img.gz</span></code></pre></td></tr></table></div></figure>
+
+
 <h2>vdc へイメージの登録</h2>
+
+<p>vdc-manage コマンドを実行</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># /opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage</span></code></pre></td></tr></table></div></figure>
+
+
+<p>事前に控えていた下記の情報を基にカスタムイメージを DB に登録</p>
+
+<ul>
+<li>圧縮前 OS イメージファイルサイズ</li>
+<li>圧縮後 OS イメージファイルサイズ</li>
+<li>OS イメージの md5 checksum</li>
+<li>root パーティションの UUID</li>
+</ul>
+
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -510,7 +719,503 @@ NETMASK=255.255.255.192</p>
       
   <header>
     
-      <h1 class="entry-title"><a href="/2015/02/06/wakame-vdc-kvm/">Wakame-vdc のカスタムイメージ作成手順</a></h1>
+      <h1 class="entry-title"><a href="/2015/02/07/wakame-vdc/">Wakame-vdc ( OpenVZ 版 HVA ) インストールメモ</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-02-07T23:05:21+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>目的</h1>
+
+<p>wakame-vdc ( OpenVZ 版 HVA ) をインストールする際の手順をまとめてみる</p>
+
+<h1>yum repository の準備</h1>
+
+<p>wakame-vdc インストールするために必要なレポジトリの登録</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># curl -o /etc/yum.repos.d/wakame-vdc.repo -R https://raw.githubusercontent.com/axsh/wakame-vdc/master/rpmbuild/wakame-vdc.repo
+</span><span class='line'># yum install -y epel-release</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>DCMGR のインストール</h1>
+
+<h2>パッケージのインストール</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># yum install -y wakame-vdc-dcmgr-vmapp-config</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>設定ファイルのコピー</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># cp /opt/axsh/wakame-vdc/dcmgr/config/dcmgr.conf.example /etc/wakame-vdc/dcmgr.conf
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>MySQL の起動</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># service mysqld start</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>DB の作成</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># mysqladmin -uroot create wakame_dcmgr
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>DB Table の作成</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># cd /opt/axsh/wakame-vdc/dcmgr
+</span><span class='line'># /opt/axsh/wakame-vdc/ruby/bin/rake db:up
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>OpenVZ 版 HVA のインストール</h1>
+
+<h2>前提条件</h2>
+
+<ul>
+<li>VM は 192.168.3.0/24 の IP Address レンジに作成される</li>
+<li>HVA の物理ホスト eth0 に 192.168.3.100 が設定されている</li>
+</ul>
+
+
+<h2>yum repository の準備</h2>
+
+<p>OpenVZ 版 HVA をインストールするために必要なレポジトリの登録</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># curl -o /etc/yum.repos.d/openvz.repo -R https://raw.githubusercontent.com/axsh/wakame-vdc/master/rpmbuild/openvz.repo</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>パッケージのインストール</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># yum install -y wakame-vdc-hva-openvz-vmapp-config</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>設定ファイルのコピー</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># cp /opt/axsh/wakame-vdc/dcmgr/config/hva.conf.example /etc/wakame-vdc/hva.conf
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>bridge network の設定</h2>
+
+<h3>bridge Interface の作成</h3>
+
+<ul>
+<li>/etc/sysconfig/network-scripts/ifcfg-br0</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>DEVICE=br0
+</span><span class='line'>TYPE=Bridge
+</span><span class='line'>BOOTPROTO=static
+</span><span class='line'>ONBOOT=yes
+</span><span class='line'>NM_CONTROLLED=no
+</span><span class='line'>IPADDR=192.168.3.100
+</span><span class='line'>NETMASK=255.255.255.0
+</span><span class='line'>GATEWAY=192.168.3.1
+</span><span class='line'>DNS1=8.8.8.8
+</span><span class='line'>DELAY=0</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>/etc/sysconfig/network-scripts/ifcfg-eth0</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>DEVICE="eth0"
+</span><span class='line'>ONBOOT="yes"
+</span><span class='line'>BRIDGE=br0
+</span><span class='line'>NM_CONTROLLED=no</span></code></pre></td></tr></table></div></figure>
+
+
+<p>設定後、ネットワークの再起動</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># service network restart</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>NODE_ID の設定</h2>
+
+<p>HVA を一意に識別するために、NODE_ID の設定をする</p>
+
+<ul>
+<li>/etc/default/vdc-hva</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>NODE_ID=demo1</span></code></pre></td></tr></table></div></figure>
+
+
+<p>※ Default だとコメントアウトされている</p>
+
+<h2>HVA を DCMGR に登録する</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage host add hva.demo1 \
+</span><span class='line'>   --uuid hn-demo1 \
+</span><span class='line'>   --display-name "demo HVA 1" \
+</span><span class='line'>   --cpu-cores 100 \
+</span><span class='line'>   --memory-size 10240 \
+</span><span class='line'>   --hypervisor openvz \
+</span><span class='line'>   --arch x86_64 \
+</span><span class='line'>   --disk-space 102400 \
+</span><span class='line'>   --force</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Network 関連パラメータを DCMGR に登録する</h2>
+
+<h3>VDC 操作コマンド起動</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># /opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Network レンジの登録</h3>
+
+<p><code>nw-demo1</code> という Network レンジを作成する</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; network add \
+</span><span class='line'>  --uuid nw-demo1 \
+</span><span class='line'>  --ipv4-network 192.168.3.0 \
+</span><span class='line'>  --prefix 24 \
+</span><span class='line'>  --ipv4-gw 192.168.3.1 \
+</span><span class='line'>  --dns 8.8.8.8 \
+</span><span class='line'>  --account-id a-shpoolxx \
+</span><span class='line'>  --display-name "demo network"</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<h3>DHCP レンジの登録</h3>
+
+<p><code>nw-demo1</code> の DHCP で割り当てる IP アドレスのレンジを設定</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; network dhcp addrange nw-demo1 192.168.3.1 192.168.3.254
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>DHCP 割り当て除外 IP の登録</h3>
+
+<p><code>nw-demo1</code> の DHCP で割り当てる IP アドレスのレンジ内の割り当て除外 IP の登録</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; network reserve nw-demo1 --ipv4 192.168.3.100</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>VM 用 MAC Address レンジの登録</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; macrange add 525400 1 ffffff --uuid mr-demomacs</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>dc_network の作成と Network レンジとの紐付け</h3>
+
+<p><code>public</code> という名称の　dc_network　を作成し、<code>nw-demo1</code> と紐付ける</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; network dc add public --uuid dcn-public --description "the network instances are started in"
+</span><span class='line'>vdc-manage&gt;&gt; network dc add-network-mode public securitygroup
+</span><span class='line'>vdc-manage&gt;&gt; network forward nw-demo1 public</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>作成した dc_network と物理/Bridge Interface が紐付いているか確認</h3>
+
+<ul>
+<li>/etc/wakame-vdc/hva.conf</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>dc_network('public') {
+</span><span class='line'>  bridge_type 'linux'
+</span><span class='line'>  interface 'eth0'
+</span><span class='line'>  bridge 'br0'
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>OS の再起動</h2>
+
+<p>OpenVZ 用カスタムカーネルが動作するように OS を再起動する</p>
+
+<h1>WebUI のインストール</h1>
+
+<h2>パッケージのインストール</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># yum install -y wakame-vdc-webui-vmapp-config</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>設定ファイルのコピー</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># cp /opt/axsh/wakame-vdc/frontend/dcmgr_gui/config/database.yml.example /etc/wakame-vdc/dcmgr_gui/database.yml
+</span><span class='line'>
+</span><span class='line'># cp /opt/axsh/wakame-vdc/frontend/dcmgr_gui/config/dcmgr_gui.yml.example /etc/wakame-vdc/dcmgr_gui/dcmgr_gui.yml
+</span><span class='line'>
+</span><span class='line'># cp /opt/axsh/wakame-vdc/frontend/dcmgr_gui/config/instance_spec.yml.example /etc/wakame-vdc/dcmgr_gui/instance_spec.yml
+</span><span class='line'>
+</span><span class='line'># cp /opt/axsh/wakame-vdc/frontend/dcmgr_gui/config/load_balancer_spec.yml.example /etc/wakame-vdc/dcmgr_gui/load_balancer_spec.yml</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>DB の作成</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># mysqladmin -uroot create wakame_dcmgr_gui</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>DB Table の作成</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># cd /opt/axsh/wakame-vdc/frontend/dcmgr_gui/
+</span><span class='line'># /opt/axsh/wakame-vdc/ruby/bin/rake db:init</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>システム用アカウントの作成</h2>
+
+<h3>GUI マネージャ操作コマンド起動</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># /opt/axsh/wakame-vdc/frontend/dcmgr_gui/bin/gui-manage
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>default アカウントの追加</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gui-manage&gt;&gt; account add --name default --uuid a-shpoolxx</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>新規ユーザの追加</h2>
+
+<p>下記のユーザ名/パスワードのユーザを登録</p>
+
+<ul>
+<li>ユーザ名: demo</li>
+<li>パスワード: demo</li>
+</ul>
+
+
+<h3>新規ユーザの登録</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gui-manage&gt;&gt; user add --name "demo user" --uuid u-demo --password demo --login-id demo</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>追加ユーザとアカウントを紐づける</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gui-manage&gt;&gt; user associate u-demo --account-ids a-shpoolxx</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>デモ用マシンイメージの登録</h1>
+
+<ul>
+<li>デモ用マシンイメージを利用する
+
+<ul>
+<li>下記のコマンドを実行して事前に Download しておく</li>
+</ul>
+
+
+<pre><code class="`"> # mkdir -p /var/lib/wakame-vdc/images
+ # cd /var/lib/wakame-vdc/images
+ # curl -O http://dlc.wakame.axsh.jp.s3.amazonaws.com/demo/vmimage/ubuntu-lucid-kvm-md-32.raw.gz
+</code></pre>
+
+<ul>
+<li>デモ用マシンイメージの md5 sum はメモしておく</li>
+</ul>
+
+
+<pre><code># md5sum ubuntu-lucid-kvm-md-32.raw.gz
+</code></pre></li>
+</ul>
+
+
+<h2>VDC 操作コマンド起動</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># /opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>backupstorage の作成</h2>
+
+<p>マシンイメージを保存する場所としてローカルのストレージを登録する</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; backupstorage add \
+</span><span class='line'>  --uuid bkst-local \
+</span><span class='line'>  --display-name "local storage" \
+</span><span class='line'>  --base-uri "file:///var/lib/wakame-vdc/images/" \
+</span><span class='line'>  --storage-type local \
+</span><span class='line'>  --description "storage on the local filesystem"</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>マシンイメージをローカルのバックアップストレージに登録</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; backupobject add \
+</span><span class='line'>  --uuid bo-lucid5d \
+</span><span class='line'>  --display-name "Ubuntu 10.04 (Lucid Lynx) root partition" \
+</span><span class='line'>  --storage-id bkst-local \
+</span><span class='line'>  --object-key ubuntu-lucid-kvm-md-32.raw.gz \
+</span><span class='line'>  --size 149084 \
+</span><span class='line'>  --allocation-size 359940 \
+</span><span class='line'>  --container-format gz \
+</span><span class='line'>  --checksum 1f841b195e0fdfd4342709f77325ce29</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<h2>マシンイメージをシステムに登録</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vdc-manage&gt;&gt; image add local bo-lucid5d \
+</span><span class='line'>  --account-id a-shpoolxx \
+</span><span class='line'>  --uuid wmi-lucid5d \
+</span><span class='line'>  --root-device uuid:148bc5df-3fc5-4e93-8a16-7328907cb1c0 \
+</span><span class='line'>  --display-name "Ubuntu 10.04 (Lucid Lynx)"</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Wakame-vdc の起動</h1>
+
+<h2>RabbitMQ Server の起動</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># service rabbitmq-server start</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Wakame-vdc 各コンポーネントの起動</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># start vdc-dcmgr
+</span><span class='line'># start vdc-collector
+</span><span class='line'># start vdc-hva
+</span><span class='line'># start vdc-webui</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Web UI へのアクセス</h1>
+
+<p>下記の URL にアクセス</p>
+
+<ul>
+<li>URL: <a href="http://192.168.3.100:9000">http://192.168.3.100:9000</a></li>
+</ul>
+
+
+<p>下記のユーザ名/パスワードのユーザを登録</p>
+
+<ul>
+<li>ユーザ名: demo</li>
+<li>パスワード: demo</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2015/02/06/wakame-vdc-kvm/">KVM VM に OS をインストール</a></h1>
     
     
       <p class="meta">
@@ -535,7 +1240,7 @@ NETMASK=255.255.255.192</p>
 
   <div class="entry-content"><h1>概要</h1>
 
-<p>Wakame-vdc ( KVM 環境 ) で利用可能なカスタムイメージを作成する</p>
+<p>KVM VM に OS をインストールする手法のまとめ</p>
 
 <h1>CentOS 6.6 の場合</h1>
 
@@ -632,119 +1337,9 @@ NETMASK=255.255.255.192</p>
 </pre></td><td class='code'><pre><code class=''><span class='line'># virsh start centos66</span></code></pre></td></tr></table></div></figure>
 
 
-<h2>OS のカスタマイズ</h2>
-
-<h3>selinux の disable</h3>
-
-<p>selinux は disable にしておく</p>
-
-<h3>不要ファイル削除</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rm -rf /root/.bash_history
-</span><span class='line'>rm -rf /etc/ssh/ssh_host*
-</span><span class='line'>rm -rf /etc/udev/rules.d/70-persistent-net.rules</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>root パーティションの UUID を調べておく</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>[root@localhost ssh]# blkid
-</span><span class='line'>/dev/vda1: UUID="60dbb3b6-a9d8-4550-82f1-e9acdf40b3f8" TYPE="ext4"
-</span><span class='line'>/dev/vda2: UUID="6204d842-2c5d-498a-93a5-ff8bd105a1db" TYPE="swap"</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>カスタマイズ後</h3>
-
-<p>必要なカスタマイズが完了したのち、OS を shutdown する</p>
-
-<h2>OS イメージの圧縮と移動</h2>
-
-<p>OS イメージ圧縮前のファイルサイズを控えておく</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># ls -al centos66.img</span></code></pre></td></tr></table></div></figure>
-
-
-<p>/var/lib/libvirt/images</p>
-
-<p>圧縮の実行</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># gzip -c centos66.img &gt; /var/lib/wakame-vdc/images/20150203_1_centos66.img.gz</span></code></pre></td></tr></table></div></figure>
-
-
-<p>OS イメージ圧縮後のファイルサイズを控えておく</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># ls -al 20150203_1_centos66.img.gz</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>OS イメージの md5 の取得</h2>
-
-<p>OS イメージの md5 checksum 値を控えておく</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># md5sum 20150203_2_centos66.img.gz</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Wakame-vdc にカスタムイメージを登録</h2>
-
-<p>vdc-manage コマンドを実行</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># /opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage</span></code></pre></td></tr></table></div></figure>
-
-
-<p>事前に控えていた下記の情報を基にカスタムイメージを DB に登録</p>
-
-<ul>
-<li>圧縮前 OS イメージファイルサイズ</li>
-<li>圧縮後 OS イメージファイルサイズ</li>
-<li>OS イメージの md5 checksum</li>
-<li>root パーティションの UUID</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>backupobject add \
-</span><span class='line'> --uuid 20150203_3_centos66 \
-</span><span class='line'> --display-name "CentOS 6.6" \
-</span><span class='line'> --storage-id bkst-local \
-</span><span class='line'> --object-key 20150203_3_centos66.img.gz \
-</span><span class='line'> --size              323502676 \
-</span><span class='line'> --allocation-size 10737418240 \
-</span><span class='line'> --container-format gz \
-</span><span class='line'> --checksum 3e28c4d4eef476319d63c936b3403c04
-</span><span class='line'>
-</span><span class='line'>image add local bo-20150203_3_centos66 \
-</span><span class='line'> --account-id a-shpoolxx \
-</span><span class='line'> --uuid wmi-20150203_3_centos66 \
-</span><span class='line'> --root-device uuid:60dbb3b6-a9d8-4550-82f1-e9acdf40b3f8 \
-</span><span class='line'> --display-name "CentOS 6.6"</span></code></pre></td></tr></table></div></figure>
-
-
 <h1>ubuntu-14.04 の場合</h1>
 
-<p>作業途中で失敗する</p>
+<p>作業途中で失敗する&hellip;</p>
 
 <h2>仮想HDDイメージファイルの作成</h2>
 
@@ -1903,634 +2498,6 @@ NETMASK=255.255.255.192</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/2014/10/24/docker/">Docker のバージョンを追っかける</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-10-24T23:58:09+09:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h1>概要</h1>
-
-<p>Docker のバージョンアップを追っかける</p>
-
-<h1>バージョン履歴</h1>
-
-<table>
-<thead>
-<tr>
-<th>バージョン</th>
-<th>リリース日  </th>
-<th>URL</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1.4.1   </td>
-<td>2014/12/17</td>
-<td><a href="http://bit.ly/1GRTIae">http://bit.ly/1GRTIae</a></td>
-</tr>
-<tr>
-<td>1.4.0   </td>
-<td>2014/12/11</td>
-<td><a href="http://bit.ly/1wn3igI">http://bit.ly/1wn3igI</a></td>
-</tr>
-<tr>
-<td>1.3.3   </td>
-<td>2014/12/11</td>
-<td><a href="http://bit.ly/1wn3igI">http://bit.ly/1wn3igI</a></td>
-</tr>
-<tr>
-<td>1.3.2   </td>
-<td>2014/11/24</td>
-<td><a href="http://bit.ly/1vIYXke">http://bit.ly/1vIYXke</a></td>
-</tr>
-<tr>
-<td>1.3.1   </td>
-<td>2014/11/05</td>
-<td><a href="http://bit.ly/11dAEUE">http://bit.ly/11dAEUE</a></td>
-</tr>
-<tr>
-<td>1.3.0   </td>
-<td>2014/10/16</td>
-<td><a href="http://bit.ly/1vnovr9">http://bit.ly/1vnovr9</a></td>
-</tr>
-<tr>
-<td>1.2.0   </td>
-<td>2014/08/22</td>
-<td><a href="http://bit.ly/1z4tQ9B">http://bit.ly/1z4tQ9B</a></td>
-</tr>
-<tr>
-<td>1.1.0   </td>
-<td>2014/07/03</td>
-<td><a href="http://bit.ly/U5ar6k">http://bit.ly/U5ar6k</a></td>
-</tr>
-<tr>
-<td>1.0.0   </td>
-<td>2014/06/09</td>
-<td><a href="http://bit.ly/1wleJYt">http://bit.ly/1wleJYt</a></td>
-</tr>
-<tr>
-<td>0.11.0  </td>
-<td>2014/05/07</td>
-<td><a href="http://bit.ly/1woNMRd">http://bit.ly/1woNMRd</a></td>
-</tr>
-<tr>
-<td>0.10.0  </td>
-<td>2014/04/08</td>
-<td><a href="http://bit.ly/1ts2FC4">http://bit.ly/1ts2FC4</a></td>
-</tr>
-<tr>
-<td>0.9.0   </td>
-<td>2014/03/10</td>
-<td><a href="http://bit.ly/1pIceIe">http://bit.ly/1pIceIe</a></td>
-</tr>
-<tr>
-<td>0.8.0   </td>
-<td>2014/02/04</td>
-<td><a href="http://bit.ly/1tjF1sI">http://bit.ly/1tjF1sI</a></td>
-</tr>
-<tr>
-<td>0.7.0   </td>
-<td>2013/11/26</td>
-<td><a href="http://bit.ly/1uQ8B4A">http://bit.ly/1uQ8B4A</a></td>
-</tr>
-<tr>
-<td>0.6.0   </td>
-<td>2013/08/23</td>
-<td><a href="http://bit.ly/1zoRsXy">http://bit.ly/1zoRsXy</a></td>
-</tr>
-<tr>
-<td>0.5.0   </td>
-<td>2013/07/18</td>
-<td><a href="http://bit.ly/10rC7Gs">http://bit.ly/10rC7Gs</a></td>
-</tr>
-<tr>
-<td>0.4.0   </td>
-<td>2013/06/03</td>
-<td><a href="http://bit.ly/1ts30F0">http://bit.ly/1ts30F0</a></td>
-</tr>
-<tr>
-<td>0.3.0   </td>
-<td>2013/05/06</td>
-<td><a href="http://bit.ly/1D7dcnw">http://bit.ly/1D7dcnw</a></td>
-</tr>
-<tr>
-<td>0.2.0   </td>
-<td>2013/04/25</td>
-<td><a href="http://bit.ly/1wlfdO5">http://bit.ly/1wlfdO5</a></td>
-</tr>
-<tr>
-<td>0.1.0   </td>
-<td>2013/03/20</td>
-<td><a href="http://bit.ly/1vZeQYd">http://bit.ly/1vZeQYd</a></td>
-</tr>
-</tbody>
-</table>
-
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/2014/10/23/packer-windows/">Packer を利用して Windows7 の仮想イメージを作成する</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-10-23T23:44:46+09:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h1>概要</h1>
-
-<p>Packer を利用して VirtualBox で利用可能な Windows7 のイメージを作成する</p>
-
-<h1>packer 実行の流れ</h1>
-
-<h2>1. Packer の Download 設置</h2>
-
-<p>下記の Packer Download URL から Packer 本体を Download し解凍後、Directory を ~/ 以下に packer に名前を変更して設置</p>
-
-<ul>
-<li><a href="https://www.packer.io/downloads.html">Packer Download URL</a></li>
-</ul>
-
-
-<h2>2. Packer の実行ファイルの Download</h2>
-
-<p>本家から Fork した Packer 実行ファイルを git clone</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ git clone https://github.com/ryoogata/packer-windows.git</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>3. Windows iso イメージの設置</h2>
-
-<p>利用する Windows iso イメージの md5 の値を取得し、必要に応じて windows_7.json を修正</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ md5 windows7.iso 
-</span><span class='line'>MD5 (windows7.iso) = 69cc2d20bd2c15490f40d34e52d79290</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>windows_7.json</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>:
-</span><span class='line'>"iso_url": "iso/windows7.iso",
-</span><span class='line'>"iso_checksum_type": "md5",
-</span><span class='line'>"iso_checksum": "69cc2d20bd2c15490f40d34e52d79290",
-</span><span class='line'>:</span></code></pre></td></tr></table></div></figure>
-
-
-<p>clone した packer-windows Directory 内の iso Directory に Windows の iso イメージを設置</p>
-
-<h2>4. image の作成</h2>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ export PATH=~/packer:$PATH
-</span><span class='line'>$ cd packer-windows
-</span><span class='line'>$ packer build -only=virtualbox-iso windows_7.json </span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>実行ログ</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>:
-</span><span class='line'>
-</span><span class='line'>==&gt; virtualbox-iso (vagrant): Creating Vagrant box for 'virtualbox' provider
-</span><span class='line'>    virtualbox-iso (vagrant): Copying from artifact: output-virtualbox-iso/packer-virtualbox-iso-1413034723-disk1.vmdk
-</span><span class='line'>    virtualbox-iso (vagrant): Copying from artifact: output-virtualbox-iso/packer-virtualbox-iso-1413034723.ovf
-</span><span class='line'>    virtualbox-iso (vagrant): Renaming the OVF to box.ovf...
-</span><span class='line'>    virtualbox-iso (vagrant): Using custom Vagrantfile: vagrantfile-windows_7.template
-</span><span class='line'>    virtualbox-iso (vagrant): Compressing: Vagrantfile
-</span><span class='line'>    virtualbox-iso (vagrant): Compressing: box.ovf
-</span><span class='line'>    virtualbox-iso (vagrant): Compressing: metadata.json
-</span><span class='line'>    virtualbox-iso (vagrant): Compressing: packer-virtualbox-iso-1413034723-disk1.vmdk
-</span><span class='line'>Build 'virtualbox-iso' finished.
-</span><span class='line'>
-</span><span class='line'>==&gt; Builds finished. The artifacts of successful builds are:
-</span><span class='line'>--&gt; virtualbox-iso: 'virtualbox' provider box: windows_7_virtualbox.box</span></code></pre></td></tr></table></div></figure>
-
-
-<h1>Tips</h1>
-
-<h2>packer コマンド実行中に実行される Script</h2>
-
-<p>packer コマンド実行中、windows_7.json に記載がある下記の script が実行される</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>"scripts": [
-</span><span class='line'>  "./scripts/vm-guest-tools.bat",
-</span><span class='line'>  "./scripts/chef.bat",
-</span><span class='line'>  "./scripts/vagrant-ssh.bat",
-</span><span class='line'>  "./scripts/disable-auto-logon.bat",
-</span><span class='line'>  "./scripts/enable-rdp.bat",
-</span><span class='line'>  "./scripts/compile-dotnet-assemblies.bat",
-</span><span class='line'>  "./scripts/compact.bat"
-</span><span class='line'>]</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>TimeZone の変更</h2>
-
-<p>answer_files/7/Autounattend.xml の修正</p>
-
-<ul>
-<li>修正前</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;TimeZone&gt;Pacific Standard Time&lt;/TimeZone&gt;
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>修正後</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;TimeZone&gt;Tokyo Standard Time&lt;/TimeZone&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>ComputerName の変更</h2>
-
-<p>answer_files/7/Autounattend.xml の修正</p>
-
-<ul>
-<li>修正前</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;ComputerName&gt;vagrant-2012&lt;/ComputerName&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>修正後</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;ComputerName&gt;vagrant-win7&lt;/ComputerName&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-<p>ComputerName は <code>15 文字以内</code> で指定する</p>
-
-<h2>Headless の設定</h2>
-
-<p>Packer 実行ファイルのデバック時などは VirtualBox の Window が表示される方が便利。Default では Headless なので、必要に応じて変更する。</p>
-
-<p>windows_7.json の修正</p>
-
-<ul>
-<li>修正前</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>"headless": true,</span></code></pre></td></tr></table></div></figure>
-
-
-<p>true の場合、Headless になり、packer 実行中の VirtualBox の Window が表示されない</p>
-
-<ul>
-<li>修正後</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>"headless": false,</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Windows の日本語化</h2>
-
-<p>answer_files/7/Autounattend.xml の修正</p>
-
-<p>en-US の箇所を ja-JP に変更</p>
-
-<ul>
-<li>修正前</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;UILanguage&gt;en-US&lt;/UILanguage&gt;
-</span><span class='line'>&lt;InputLocale&gt;en-US&lt;/InputLocale&gt;
-</span><span class='line'>&lt;SystemLocale&gt;en-US&lt;/SystemLocale&gt;
-</span><span class='line'>&lt;UILanguage&gt;en-US&lt;/UILanguage&gt;
-</span><span class='line'>&lt;UILanguageFallback&gt;en-US&lt;/UILanguageFallback&gt;
-</span><span class='line'>&lt;UserLocale&gt;en-US&lt;/UserLocale&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>修正前</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;UILanguage&gt;ja-JP&lt;/UILanguage&gt;
-</span><span class='line'>&lt;InputLocale&gt;ja-JP&lt;/InputLocale&gt;
-</span><span class='line'>&lt;SystemLocale&gt;ja-JP&lt;/SystemLocale&gt;
-</span><span class='line'>&lt;UILanguage&gt;ja-JP&lt;/UILanguage&gt;
-</span><span class='line'>&lt;UILanguageFallback&gt;ja-JP&lt;/UILanguageFallback&gt;
-</span><span class='line'>&lt;UserLocale&gt;ja-JP&lt;/UserLocale&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Image 作成中の Windows Update の停止</h2>
-
-<p>Packer 実行中、Windows Update を実施しないようにする</p>
-
-<p>answer_files/7/Autounattend.xml の修正</p>
-
-<ul>
-<li>修正前</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;!-- WITHOUT WINDOWS UPDATES --&gt;
-</span><span class='line'>&lt;!--
-</span><span class='line'>    :
-</span><span class='line'>--&gt;
-</span><span class='line'>&lt;!-- END WITHOUT WINDOWS UPDATES --&gt;
-</span><span class='line'>&lt;!-- WITH WINDOWS UPDATES --&gt;
-</span><span class='line'>    :
-</span><span class='line'>&lt;!-- END WITH WINDOWS UPDATES --&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>修正後</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;!-- WITHOUT WINDOWS UPDATES --&gt;
-</span><span class='line'>    :
-</span><span class='line'>&lt;!-- END WITHOUT WINDOWS UPDATES --&gt;
-</span><span class='line'>&lt;!-- WITH WINDOWS UPDATES --&gt;
-</span><span class='line'>&lt;!--
-</span><span class='line'>    :
-</span><span class='line'>--&gt;
-</span><span class='line'>&lt;!-- END WITH WINDOWS UPDATES --&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-<h1>トラブルシュート</h1>
-
-<h2>「応答ファイルは無効です」エラー</h2>
-
-<h3>エラーログ</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>パス[specialize]の無人応答ファイル[C:\Windows\Panther\unattend.xml]を解析または処理できませんでした。応答ファイルは無効です。</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>原因</h3>
-
-<p>ComputerName が文字数制限の <code>15 文字</code> を超えている文字列を指定していた。</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Autounattend.xml
-</span><span class='line'>
-</span><span class='line'>&lt;ComputerName&gt;vagrant-windows7&lt;/ComputerName&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Error uploading guest additions</h2>
-
-<h3>エラーログ</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Build 'virtualbox-iso' errored: Error uploading guest additions: Process exited with: 1. Reason was:  ()
-</span><span class='line'>
-</span><span class='line'>==&gt; Some builds didn't complete successfully and had errors:
-</span><span class='line'>--&gt; virtualbox-iso: Error uploading guest additions: Process exited with: 1. Reason was:  ()</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>原因</h3>
-
-<p>仮想メディアマネージャの光学ディスクのところに VBoxWindowsAdditions が入っていないとダメかも。適当な Windows OS に VBoxWindowsAdditions を Mount して、再度 packer コマンドを実行したらとりあえず解決できた。</p>
-
-<h2>compact.bat の sdelete.exe コマンド実行後に固まる</h2>
-
-<h3>エラーログ</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>cmd /c C:\Windows\Temp\sdelete.exe -z C:
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'>    virtualbox-iso: SDelete - Secure Delete v1.61
-</span><span class='line'>    virtualbox-iso: Copyright (C) 1999-2012 Mark Russinovich
-</span><span class='line'>    virtualbox-iso: Sysinternals - www.sysinternals.com
-</span><span class='line'>    virtualbox-iso:
-</span><span class='line'>    virtualbox-iso: SDelete is set for 1 pass.
-</span><span class='line'>    virtualbox-iso: Zeroing free space on C:\: 0%
-</span><span class='line'>==&gt; virtualbox-iso: Provisioning with shell script: /var/folders/c0/mrt_fmsx6l1b_kjl7pbstr2h0000gn/T/packer-shell022007924
-</span><span class='line'>    virtualbox-iso: rm: cannot remove `/tmp/TMP0000000149D9D38AB494459F': Device or resource busy
-</span><span class='line'>==&gt; virtualbox-iso: Unregistering and deleting virtual machine...
-</span><span class='line'>==&gt; virtualbox-iso: Deleting output directory...
-</span><span class='line'>Build 'virtualbox-iso' errored: Script exited with non-zero exit status: 1
-</span><span class='line'>
-</span><span class='line'>==&gt; Some builds didn't complete successfully and had errors:
-</span><span class='line'>--&gt; virtualbox-iso: Script exited with non-zero exit status: 1
-</span><span class='line'>
-</span><span class='line'>==&gt; Builds finished but no artifacts were created.
-</span><span class='line'>    :
-</span><span class='line'>    :</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>原因</h3>
-
-<p>packer-windows 実行ファイルの ver 1.23 で修正済み。 1.22 以前のバージョンでは修正の必要あり</p>
-
-<p><a href="https://github.com/joefitzgerald/packer-windows">本家 packer-windows URL</a></p>
-
-<p>windows_7.json の下記を修正</p>
-
-<ul>
-<li>修正前</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'> "type": "shell",
-</span><span class='line'>  "inline": [
-</span><span class='line'>    "rm -rf /tmp/*"
-</span><span class='line'>  ]
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>修正後</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'> "type": "shell",
-</span><span class='line'>  "inline": [
-</span><span class='line'>    "rm -rf /tmp/* || ! false"
-</span><span class='line'>  ]
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<h1>参照 URL</h1>
-
-<ul>
-<li><p><a href="http://qiita.com/hnakamur/items/da0ed14192a18405f704">OSXでpackerでCentOS6.4のVirtualBox VMを作成する</a></p></li>
-<li><p><a href="http://azukipochette.hatenablog.com/entry/2014/05/16/212551">Packer で Windows の Box (vmware-iso) を作成するまで</a></p></li>
-<li><p><a href="http://www.nofuture.tv/diary/20140530.html">packer-windowsテンプレートを使ってWindows 8.1 update(日本語版)評価版のVagrant Boxができた</a></p></li>
-<li><p><a href="https://github.com/joefitzgerald/packer-windows">packer-windows</a></p>
-
-<ul>
-<li>このテンプレートを Fork して使ってみる</li>
-</ul>
-</li>
-<li><p><a href="http://unattended.sourceforge.net/timezones.php">Index numbers for GuiUnattended/TimeZone</a></p></li>
-<li><p><a href="https://github.com/develersrl/packer-windows-vm.git">packer-windows-vm</a></p></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="2">&larr; Older</a>
@@ -2547,15 +2514,19 @@ NETMASK=255.255.255.192</p>
 </section>
 <section>
   <h1>Categories</h1>
-    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/kvm/'>kvm (1)</a></li><li><a href='/blog/categories/nat/'>nat (1)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/sample-post/'>sample post (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (3)</a></li><li><a href='/blog/categories/wakame-vdc/'>wakame-vdc (2)</a></li></ul>
+    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/kvm/'>kvm (2)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/openvswitch/'>openvswitch (1)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (3)</a></li><li><a href='/blog/categories/wakame-vdc/'>wakame-vdc (2)</a></li></ul>
 </section>
 <section>
   <h1>Tag Cloud</h1>
-    <span id="tag-cloud"><a href='/blog/tags/boot2docker' style='font-size: 130.0%'>boot2docker(1)</a> <a href='/blog/tags/chef-client' style='font-size: 130.0%'>chef-client(1)</a> <a href='/blog/tags/chef-repo' style='font-size: 160.0%'>chef-repo(2)</a> <a href='/blog/tags/chef-server' style='font-size: 160.0%'>chef-server(2)</a> <a href='/blog/tags/chef-solo' style='font-size: 130.0%'>chef-solo(1)</a> <a href='/blog/tags/hosted-chef' style='font-size: 130.0%'>hosted chef(1)</a> <a href='/blog/tags/kitchen-ec2' style='font-size: 130.0%'>kitchen-ec2(1)</a> <a href='/blog/tags/knife-ec2' style='font-size: 160.0%'>knife-ec2(2)</a> <a href='/blog/tags/knife-solo' style='font-size: 130.0%'>knife-solo(1)</a> <a href='/blog/tags/kvm' style='font-size: 130.0%'>kvm(1)</a> <a href='/blog/tags/windows' style='font-size: 130.0%'>windows(1)</a> </span>
+    <span id="tag-cloud"><a href='/blog/tags/boot2docker' style='font-size: 120.0%'>boot2docker(1)</a> <a href='/blog/tags/chef-client' style='font-size: 120.0%'>chef-client(1)</a> <a href='/blog/tags/chef-repo' style='font-size: 140.0%'>chef-repo(2)</a> <a href='/blog/tags/chef-server' style='font-size: 140.0%'>chef-server(2)</a> <a href='/blog/tags/chef-solo' style='font-size: 120.0%'>chef-solo(1)</a> <a href='/blog/tags/hosted-chef' style='font-size: 120.0%'>hosted chef(1)</a> <a href='/blog/tags/kitchen-ec2' style='font-size: 120.0%'>kitchen-ec2(1)</a> <a href='/blog/tags/knife-ec2' style='font-size: 140.0%'>knife-ec2(2)</a> <a href='/blog/tags/knife-solo' style='font-size: 120.0%'>knife-solo(1)</a> <a href='/blog/tags/kvm' style='font-size: 160.0%'>kvm(3)</a> <a href='/blog/tags/network' style='font-size: 140.0%'>network(2)</a> <a href='/blog/tags/windows' style='font-size: 120.0%'>windows(1)</a> </span>
 </section>
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2015/02/19/openvswitch/">openvswitch のインストールと初期セットアップ</a>
+      </li>
     
       <li class="post">
         <a href="/2015/02/19/wakame-vdc/">Wakame 用 カスタム KVM イメージ作成</a>
@@ -2570,11 +2541,7 @@ NETMASK=255.255.255.192</p>
       </li>
     
       <li class="post">
-        <a href="/2015/02/06/wakame-vdc-kvm/">Wakame-vdc のカスタムイメージ作成手順</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2015/01/23/vagrant/">Vagrant Box を Atlas で管理</a>
+        <a href="/2015/02/07/wakame-vdc/">wakame-vdc ( OpenVZ 版 HVA ) インストールメモ</a>
       </li>
     
   </ul>
