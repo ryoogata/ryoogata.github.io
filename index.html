@@ -1,10 +1,248 @@
 <!DOCTYPE html>
+<<<<<<< HEAD
 <html>
 
   <head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="description" content="Ryoogata.github.io : ">
+=======
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>YggdrasillNetwork Blog</title>
+  <meta name="author" content="Ryo Ogata">
+
+  
+  <meta name="description" content="yum 経由のインストール レポジトリの追加 1
+2
+3
+# yum install http://rdo.fedorapeople.org/openstack-icehouse/rdo-release-icehouse.rpm openvswitch x86_64 2.1.2-1.el6 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://ryoogata.github.io/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/stylesheets/data-table.css" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="YggdrasillNetwork Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">YggdrasillNetwork Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:ryoogata.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2015/02/19/openvswitch/">Openvswitch のインストールと初期セットアップ</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-02-19T23:58:33+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>yum 経由のインストール</h1>
+
+<h2>レポジトリの追加</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># yum install http://rdo.fedorapeople.org/openstack-icehouse/rdo-release-icehouse.rpm
+</span><span class='line'>
+</span><span class='line'>openvswitch x86_64 2.1.2-1.el6 openstack-icehouse 2.2 M</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>パッケージのインストール</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># yum install openvswitch</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>bridge kernel module の削除</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># /sbin/rmmod bridge</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>blacklist.conf への追加</h2>
+
+<p>kernel module の bridge をロードしてほしくないので、/etc/modprobe.d/blacklist.conf に記述</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>install bridge /bin/false</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Service の起動</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># service openvswitch start</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>interface の設定</h2>
+
+<h3>ifcfg-br0</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>DEVICE=br0
+</span><span class='line'>ONBOOT=yes
+</span><span class='line'>DEVICETYPE=ovs
+</span><span class='line'>TYPE=OVSBridge
+</span><span class='line'>BOOTPROTO=static
+</span><span class='line'>IPADDR=A.B.C.D
+</span><span class='line'>NETMASK=X.Y.Z.0
+</span><span class='line'>HOTPLUG=no</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>ifcfg-eth1</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>DEVICE=eth1
+</span><span class='line'>DEVICETYPE=ovs
+</span><span class='line'>HWADDR=40:A8:F0:39:96:A9
+</span><span class='line'>TYPE=OVSPort
+</span><span class='line'>UUID=22ff31c5-1d59-478d-8fa4-55f2984a94d8
+</span><span class='line'>ONBOOT=yes
+</span><span class='line'>NM_CONTROLLED=no
+</span><span class='line'>BRIDGE=br0</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Tips</h1>
+
+<h2>bridge kernel module の追加方法</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># insmod /lib/modules/2.6.32-504.el6.x86_64/kernel/net/bridge/bridge.ko</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>bridge kernel module の削除方法</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/sbin/rmmod bridge</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>br0 の作成と eth0 の追加</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ovs-vsctl add-br br0
+</span><span class='line'># ovs-vsctl add-port br0 eth0</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Memo</h1>
+
+<p>yum install <a href="http://rdo.fedorapeople.org/rdo-release.rpm">http://rdo.fedorapeople.org/rdo-release.rpm</a> <br/>
+↑これはダメ。レポジトリ先が存在していない…</p>
+
+<p>yum erase rdo-release で削除</p>
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="http://qunisaki.blog.fc2.com/blog-entry-6.html">CentOS 6.4 で openvswitch を使ってみる</a></li>
+<li><a href="http://blog.hirokikana.com/?p=533">Open vSwitchとRyuを使った最も単純なOpenFlowネットワークの構築</a></li>
+<li><a href="https://wiki.archlinux.org/index.php/Kernel_modules_%28%E6%97%A5%E6%9C%AC%E8%AA%9E%29">Kernel modules (日本語)</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2015/02/19/wakame-vdc/">Wakame 用 カスタム KVM イメージ作成</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+>>>>>>> 07b2862aa85c1d65f5f8b68e429d652315a6e313
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
@@ -18,6 +256,7 @@
         <header class="inner">
           <a id="forkme_banner" href="https://github.com/ryoogata">View on GitHub</a>
 
+<<<<<<< HEAD
           <h1 id="project_title">Ryoogata.github.io</h1>
           <h2 id="project_tagline"></h2>
 
@@ -41,13 +280,2089 @@ $ git checkout gh-pages
 
 <h3>
 <a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+=======
+  
+
+
+<time datetime="2015-02-19T23:49:08+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>作成手順</h1>
+
+<h2>yum update の実行</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># yum update -y</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>selinux 設定</h2>
+
+<p>selinux Permissive</p>
+
+<h2>必要なパッケージのインストール</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>yum install -y telnet tcpdump wget man man-pages ntpdate bind-utils openssh-clients</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>ipv6 disable 設定</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># chkconfig ip6tables off</span></code></pre></td></tr></table></div></figure>
+
+
+<p>/etc/sysconfig/network に NETWORKING_IPV6=no を追加</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># echo 'options ipv6 disable=1' &gt; /etc/modprobe.d/disable-ipv6.conf</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>ssh 設定</h2>
+
+<p>/etc/ssh/sshd_config
+Port 2442</p>
+
+<h2>wakame-init の Download</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># cd /etc
+</span><span class='line'># wget https://raw.githubusercontent.com/axsh/wakame-vdc/master/wakame-init/rhel/6/wakame-init</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>rc.local の編集</h2>
+
+<p>/etc/rc.local に設定追加</p>
+
+<h2>root-device の UUID の確認</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># blkid
+</span><span class='line'>   :
+</span><span class='line'>/dev/vda3: UUID="893013b4-bf1e-47b6-baf3-495193b76238" TYPE="ext4" </span></code></pre></td></tr></table></div></figure>
+
+
+<h2>vdc へイメージの登録</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>backupobject add \
+</span><span class='line'> --uuid 20150213_1_cent_base \
+</span><span class='line'> --display-name "CentOS 6.6" \
+</span><span class='line'> --storage-id bkst-local \
+</span><span class='line'> --object-key 20150213_1_cent_base.img.gz \
+</span><span class='line'> --size              492162200 \
+</span><span class='line'> --allocation-size 17179869184 \
+</span><span class='line'> --container-format gz \
+</span><span class='line'> --checksum 9f4089bd93fcb48a90a0a22b0d0be04d
+</span><span class='line'>
+</span><span class='line'>image add local bo-20150213_1_cent_base \
+</span><span class='line'> --account-id a-shpoolxx \
+</span><span class='line'> --uuid wmi-20150213_1_cent_base \
+</span><span class='line'> --root-device uuid:893013b4-bf1e-47b6-baf3-495193b76238 \
+</span><span class='line'> --display-name "CentOS 6.6"</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="https://github.com/axsh/wakame-vdc/wiki/Custom-images">Custom images</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2015/02/19/nat/">Iptables を利用した NAT Router</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-02-19T23:43:56+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>NAT 設定追加</h1>
+
+<h2>内部から外部への通信を NAT する設定</h2>
+
+<p>例: 内部 IP アドレスレンジ ( 10.1.0.0/24 ) から外部への通信を NAT する</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># iptables -t nat -F
+</span><span class='line'># iptables -t nat -A POSTROUTING -s 10.1.0.0/24 -j MASQUERADE</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>外部から内部への通信を NAT する設定</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># iptables -t nat -I PREROUTING -d 172.16.1.36 -p tcp -m tcp --dport 1022 -j DNAT --to-destination "10.1.0.10:2442"
+</span><span class='line'># iptables -t nat -I PREROUTING -d 172.16.1.36 -p tcp -m tcp --dport 1122 -j DNAT --to-destination "10.1.0.11:2442"
+</span><span class='line'># iptables -t nat -I PREROUTING -d 172.16.1.36 -p tcp -m tcp --dport 1222 -j DNAT --to-destination "10.1.0.12:2442"
+</span><span class='line'># iptables -t nat -I PREROUTING -d 172.16.1.36 -p tcp -m tcp --dport 1322 -j DNAT --to-destination "10.1.0.13:2442"
+</span><span class='line'># iptables -t nat -I PREROUTING -d 172.16.1.36 -p tcp -m tcp --dport 1422 -j DNAT --to-destination "10.1.0.14:2442"
+</span><span class='line'># iptables -t nat -I PREROUTING -d 172.16.1.36 -p tcp -m tcp --dport 1080 -j DNAT --to-destination "10.1.0.10:80"</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>NAT 設定削除方法</h1>
+
+<h2>1. 行番号確認</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># iptables -t nat -L --line-numbers</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>2. 行数を指定して削除</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># iptables -t nat -D PREROUTING 3</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>iptable 設定保存</h1>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># service iptables save</span></code></pre></td></tr></table></div></figure>
+
+
+<p>/etc/sysconfig/iptables に保存される</p>
+
+<h1>パケットフォワード設定</h1>
+
+<h2>net.ipv4.ip_forward の設定</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># sysctl -w net.ipv4.ip_forward=1</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>設定の保存</h2>
+
+<p>/etc/sysctl.conf に下記の記述を追加</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>net.ipv4.ip_forward=1</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="http://aidemoire.hatenablog.com/entry/2013/10/04/184507">LinuxでNATルータを構成するメモ</a></li>
+<li><a href="http://d.hatena.ne.jp/nosa1/20120313/1331618377">ipTablesのルールの削除</a></li>
+<li><a href="http://safe-linux.homeip.net/network/Gateway_Server-06.html">IPv4 フォワーディングを有効にするには</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2015/02/19/kvm/">KVM Tips</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-02-19T23:23:43+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>概要</h1>
+
+<p>KVM 操作の際の Tips</p>
+
+<h1>virsh コマンド</h1>
+
+<h2>ドメイン一覧表示 ( 停止中を含む )</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># virsh list --all</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>ドメインの起動</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># virsh start centos66</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>ドメインの強制停止</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># virsh destroy pc2</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>ドメインの削除</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># virsh undefine centos66</span></code></pre></td></tr></table></div></figure>
+
+
+<p>※ 停止中のドメインのみ実行可能</p>
+
+<h2>ゲストのコンソールに接続</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># virsh console 5</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>ゲストのコンソールから抜ける</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>^] </span></code></pre></td></tr></table></div></figure>
+
+
+<h2>VM の設定ファイルを編集</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># virsh edit &lt;vm-name&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>NIC の追加</h1>
+
+<p>VM が起動している状態で実行可能</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># virsh attach-interface --type bridge --source br0 --model e1000 nat</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>VM に Disk の追加</h1>
+
+<p>VM が Down している状態で実行する</p>
+
+<h2>1. Disk Image の作成</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># cd /var/lib/libvirt/images
+</span><span class='line'># qemu-img create -f qcow2 disk_Maria-1.img 40G</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>2. 設定の追加</h2>
+
+<p>virsh edit コマンドを利用して設定を追記</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># virsh edit Maria-1</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>追加分 Config</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;disk type='file' device='disk'&gt;
+</span><span class='line'>  &lt;driver name='qemu' type='qcow2' cache='none'/&gt;
+</span><span class='line'>  &lt;source file='/var/lib/libvirt/images/disk_Maria-1.img'/&gt;
+</span><span class='line'>  &lt;target dev='vdb' bus='virtio'/&gt;
+</span><span class='line'>&lt;/disk&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>VM のクローン</h1>
+
+<h2>1. クローンコマンドの実行</h2>
+
+<p>VM が Down している状態で実行</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># virt-clone --original cent_base --name Maria-1 --file /var/lib/libvirt/images/Maria-1.img</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>2. MAC Address のメモ</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># virsh dumpxml Maria-1 | grep mac
+</span><span class='line'>    &lt;type arch='x86_64' machine='rhel6.6.0'&gt;hvm&lt;/type&gt;
+</span><span class='line'>      &lt;mac address='52:54:00:64:df:4f'/&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>3. vnc port の編集</h2>
+
+<p>既存の VM とかぶらない VNC の Port 番号に変更</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># virsh edit Maria-1</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>4. VM の起動</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>virsh start Maria-1</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>5. 70-persistent-net.rules の編集</h2>
+
+<p>ここから VNC 経由で接続して作業</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/etc/udev/rules.d/70-persistent-net.rules</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>6. ifcfg-eth0 の編集</h2>
+
+<p>UUID
+BOOTPROTO=dchp</p>
+
+<p>BOOTPROTO=none
+IPADDR=211.14.1.11
+NETMASK=255.255.255.192</p>
+
+<h2>7. VM の再起動</h2>
+
+<h2>8. Interface のアドレス設定</h2>
+
+<p>手動で IP アドレスを付与</p>
+
+<h2>9. resolv.conf の編集</h2>
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="http://www.agilegroup.co.jp/technote/kvm-guest-clone.html">KVMのクローンを利用して新規仮想マシンを作成する</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2015/02/06/wakame-vdc-kvm/">Wakame-vdc のカスタムイメージ作成手順</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-02-06T23:02:07+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>概要</h1>
+
+<p>Wakame-vdc ( KVM 環境 ) で利用可能なカスタムイメージを作成する</p>
+
+<h1>CentOS 6.6 の場合</h1>
+
+<h2>仮想HDDイメージファイルの作成</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># dd if=/dev/zero of=/var/lib/libvirt/images/centos66.img bs=1M count=10240</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>インストール開始</h2>
+
+<p>VNC経由もしくはテキストモードにてインストールを実施する</p>
+
+<h3>VNC 経由の場合</h3>
+
+<p>VNC 経由で作業を実施するために、<code>virt-viewr</code> を事前にインストールしておく</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># yum install virt-viewer</span></code></pre></td></tr></table></div></figure>
+
+
+<p>下記のコマンドを実行し、インストールを実施</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># virt-install \
+</span><span class='line'> --virt-type=kvm \
+</span><span class='line'> --hvm \
+</span><span class='line'> --connect qemu:///system \
+</span><span class='line'> --vcpus 1 \
+</span><span class='line'> --ram=1024 \
+</span><span class='line'> --os-type=linux \
+</span><span class='line'> --os-variant=rhel6 \
+</span><span class='line'> --network bridge=br0 \
+</span><span class='line'> --vnc --vncport=29741 --vnclisten=0.0.0.0 \
+</span><span class='line'> --name centos66 \
+</span><span class='line'> --disk=/var/lib/libvirt/images/centos66.img \
+</span><span class='line'> --location='/var/lib/libvirt/images/CentOS-6.6-x86_64-bin-DVD1.iso' \
+</span><span class='line'> --accelerate</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>テキストモードの場合</h3>
+
+<p>テキストモードインストールでは、GUIインストールとは異なり、パーティション等の編集メニューが出てこない。
+インストール時に指定したい場合には、キックスタートを利用してインストールすればよい。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># virt-install \
+</span><span class='line'> --virt-type=kvm \
+</span><span class='line'> --hvm \
+</span><span class='line'> --connect qemu:///system \
+</span><span class='line'> --vcpus 1 \
+</span><span class='line'> --ram=1024 \
+</span><span class='line'> --os-type=linux \
+</span><span class='line'> --os-variant=rhel6 \
+</span><span class='line'> --network bridge=br0 \
+</span><span class='line'> --nographics \
+</span><span class='line'> --extra-args='console=tty0 console=ttyS0, 115200n8' \
+</span><span class='line'> --name centos66 \
+</span><span class='line'> --disk=/var/lib/libvirt/images/centos.img \
+</span><span class='line'> --location='/var/lib/libvirt/images/CentOS-6.6-x86_64-bin-DVD1.iso' \
+</span><span class='line'> --accelerate \</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>ドメインの起動</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># virsh start centos66</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>OS のカスタマイズ</h2>
+
+<h3>selinux の disable</h3>
+
+<p>selinux は disable にしておく</p>
+
+<h3>不要ファイル削除</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rm -rf /root/.bash_history
+</span><span class='line'>rm -rf /etc/ssh/ssh_host*
+</span><span class='line'>rm -rf /etc/udev/rules.d/70-persistent-net.rules</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>root パーティションの UUID を調べておく</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[root@localhost ssh]# blkid
+</span><span class='line'>/dev/vda1: UUID="60dbb3b6-a9d8-4550-82f1-e9acdf40b3f8" TYPE="ext4"
+</span><span class='line'>/dev/vda2: UUID="6204d842-2c5d-498a-93a5-ff8bd105a1db" TYPE="swap"</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>カスタマイズ後</h3>
+
+<p>必要なカスタマイズが完了したのち、OS を shutdown する</p>
+
+<h2>OS イメージの圧縮と移動</h2>
+
+<p>OS イメージ圧縮前のファイルサイズを控えておく</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ls -al centos66.img</span></code></pre></td></tr></table></div></figure>
+
+
+<p>/var/lib/libvirt/images</p>
+
+<p>圧縮の実行</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># gzip -c centos66.img &gt; /var/lib/wakame-vdc/images/20150203_1_centos66.img.gz</span></code></pre></td></tr></table></div></figure>
+
+
+<p>OS イメージ圧縮後のファイルサイズを控えておく</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ls -al 20150203_1_centos66.img.gz</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>OS イメージの md5 の取得</h2>
+
+<p>OS イメージの md5 checksum 値を控えておく</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># md5sum 20150203_2_centos66.img.gz</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Wakame-vdc にカスタムイメージを登録</h2>
+
+<p>vdc-manage コマンドを実行</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># /opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage</span></code></pre></td></tr></table></div></figure>
+
+
+<p>事前に控えていた下記の情報を基にカスタムイメージを DB に登録</p>
+
+<ul>
+<li>圧縮前 OS イメージファイルサイズ</li>
+<li>圧縮後 OS イメージファイルサイズ</li>
+<li>OS イメージの md5 checksum</li>
+<li>root パーティションの UUID</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>backupobject add \
+</span><span class='line'> --uuid 20150203_3_centos66 \
+</span><span class='line'> --display-name "CentOS 6.6" \
+</span><span class='line'> --storage-id bkst-local \
+</span><span class='line'> --object-key 20150203_3_centos66.img.gz \
+</span><span class='line'> --size              323502676 \
+</span><span class='line'> --allocation-size 10737418240 \
+</span><span class='line'> --container-format gz \
+</span><span class='line'> --checksum 3e28c4d4eef476319d63c936b3403c04
+</span><span class='line'>
+</span><span class='line'>image add local bo-20150203_3_centos66 \
+</span><span class='line'> --account-id a-shpoolxx \
+</span><span class='line'> --uuid wmi-20150203_3_centos66 \
+</span><span class='line'> --root-device uuid:60dbb3b6-a9d8-4550-82f1-e9acdf40b3f8 \
+</span><span class='line'> --display-name "CentOS 6.6"</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>ubuntu-14.04 の場合</h1>
+
+<p>作業途中で失敗する</p>
+
+<h2>仮想HDDイメージファイルの作成</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># dd if=/dev/zero of=/var/lib/libvirt/images/ubuntu.img bs=1M count=10240</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>ISO イメージをループバックマウント</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># mount --read-only --options loop ubuntu-14.04.1-server-amd64.iso ISO</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>インストール開始</h2>
+
+<h3>VNC 経由の場合</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># virt-install \
+</span><span class='line'> --name=TestMachine \
+</span><span class='line'> --ram=2048 \
+</span><span class='line'> --vcpus=1 \
+</span><span class='line'> --os-variant ubuntuprecise \
+</span><span class='line'> --hvm \
+</span><span class='line'> --connect qemu:///system \
+</span><span class='line'> --virt-type=kvm \
+</span><span class='line'> --disk=/var/lib/libvirt/images/ubuntu.img,format=qcow2 \
+</span><span class='line'> --network=bridge:br0 \
+</span><span class='line'> --keymap=ja \
+</span><span class='line'> --location /var/lib/libvirt/images/ISO/ \
+</span><span class='line'> --serial pty \
+</span><span class='line'> --extra-args=console=ttyS0</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Tips</h1>
+
+<h2>SSH PortFoward</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ssh -L 29741:localhost:29741 root@172.16.1.108 </span></code></pre></td></tr></table></div></figure>
+
+
+<h2>gzip 圧縮 ( 元ファイル残す )</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># gzip -c centos66.img &gt; 20150202_2_centos66.img.gz</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="http://www.maruko2.com/mw/CentOS/%E3%83%91%E3%83%BC%E3%83%86%E3%82%A3%E3%82%B7%E3%83%A7%E3%83%B3%E3%81%AE_UUID_%E3%82%92%E7%A2%BA%E8%AA%8D%E3%83%BB%E5%A4%89%E6%9B%B4%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95">CentOS/パーティションの UUID を確認・変更する方法</a></li>
+<li><a href="http://blog.osamu.habuka.jp/blog/2014/12/03/try-to-make-wakame-vdcs-image/">Wakame-VDC のマシンイメージを作ってみる</a></li>
+<li><a href="http://www.oss-d.net/virt/kvm/backup">KVMにおけるゲストOSのバックアップ/リストア </a></li>
+<li><a href="https://github.com/axsh/wakame-vdc/wiki/Custom-images">Custom images</a></li>
+<li><a href="http://blog.livedoor.jp/hide_system/archives/51888446.html">CentOS6.4(minimal) KVMによる仮想環境構築(テキストモード)</a></li>
+<li><a href="http://fishrimper.blogspot.jp/2014/01/kvm-os-ubuntu.html">KVM ゲスト OS としてコンソールから Ubuntu をインストール </a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2015/01/23/vagrant/">Vagrant Box を Atlas で管理</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-01-23T10:12:51+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>概要</h1>
+
+<p>Vagrant Box を Atlas by HashiCorp を利用して管理するフローをまとめる。</p>
+
+<h1>やりたいこと</h1>
+
+<ul>
+<li>Vagrant Box を一箇所で管理
+
+<ul>
+<li>test-kitchen の環境が会社と自宅にあり、それぞれ利用している Vagrant Box 異なってくる可能性があるため</li>
+</ul>
+</li>
+<li>Vagrant Box のバージョン管理
+
+<ul>
+<li>Vagrant Box に手を加える場合があるため</li>
+</ul>
+</li>
+</ul>
+
+
+<h1>必要なもの</h1>
+
+<ul>
+<li>Atlas アカウント</li>
+<li>AWS アカウント
+
+<ul>
+<li>S3 に Vagrant Box Image を保存するため</li>
+</ul>
+</li>
+<li>作業端末
+
+<ul>
+<li>Vagrant ver1.5.0 以上</li>
+</ul>
+</li>
+</ul>
+
+
+<h1>作業フロー</h1>
+
+<h2>ベースとなる Box の追加</h2>
+
+<p><code>vagrant box add</code> コマンドを利用して、ベースとなる Box を作業端末に追加する。</p>
+
+<ul>
+<li>chef/centos-6.6</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant box add chef/centos-6.6 
+</span><span class='line'>==&gt; box: Loading metadata for box 'chef/centos-6.6'
+</span><span class='line'>    box: URL: https://vagrantcloud.com/chef/centos-6.6
+</span><span class='line'>This box can work with multiple providers! The providers that it
+</span><span class='line'>can work with are listed below. Please review the list and choose
+</span><span class='line'>the provider you will be working with.
+</span><span class='line'>
+</span><span class='line'>1) virtualbox
+</span><span class='line'>2) vmware_desktop
+</span><span class='line'>
+</span><span class='line'>Enter your choice: 1
+</span><span class='line'>==&gt; box: Adding box 'chef/centos-6.6' (v1.0.0) for provider: virtualbox
+</span><span class='line'>    box: Downloading: https://vagrantcloud.com/chef/boxes/centos-6.6/versions/1.0.0/providers/virtualbox.box
+</span><span class='line'>==&gt; box: Successfully added box 'chef/centos-6.6' (v1.0.0) for 'virtualbox'!</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Vagrantfile の作成</h2>
+
+<p><code>vagrant init</code> コマンドを利用して、Vagrantfile を作成</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant init chef/centos-6.6
+</span><span class='line'>A `Vagrantfile` has been placed in this directory. You are now
+</span><span class='line'>ready to `vagrant up` your first virtual environment! Please read
+</span><span class='line'>the comments in the Vagrantfile as well as documentation on
+</span><span class='line'>`vagrantup.com` for more information on using Vagrant.</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>作成される Vagrantfile ( コメントアウト行は削除 )</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># -*- mode: ruby -*-
+</span><span class='line'># vi: set ft=ruby :
+</span><span class='line'>
+</span><span class='line'># Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+</span><span class='line'>VAGRANTFILE_API_VERSION = "2"
+</span><span class='line'>
+</span><span class='line'>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+</span><span class='line'>  config.vm.box = "chef/centos-6.6"
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Vagrantfile の修正</h2>
+
+<p>作成した Vagranfile の修正</p>
+
+<h3>追加必須</h3>
+
+<h4>synced_folder の disable</h4>
+
+<ul>
+<li>追加行</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>config.vm.synced_folder ".", "/vagrant", disabled: true</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Vagrantfile</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># -*- mode: ruby -*-
+</span><span class='line'># vi: set ft=ruby :
+</span><span class='line'>
+</span><span class='line'># Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+</span><span class='line'>VAGRANTFILE_API_VERSION = "2"
+</span><span class='line'>
+</span><span class='line'>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+</span><span class='line'>  config.vm.box = "chef/centos-6.6"
+</span><span class='line'>  config.vm.synced_folder ".", "/vagrant", disabled: true
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>任意で追加</h3>
+
+<h4>Docker 環境セットアップ</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>config.vm.provision "docker" do |d| 
+</span><span class='line'>  d.version = 'latest'
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>chef 環境セットアップ</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>config.omnibus.chef_version = :latest</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Vagrant Box の起動</h2>
+
+<p><code>vagrant up</code> コマンドで起動</p>
+
+<h2>Vagrant Box のパッケージ化</h2>
+
+<p><code>vagrant package</code> コマンドを利用して Box のパッケージを作成</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant package --output centos-6.6.box
+</span><span class='line'>WARNING: Could not load IOV methods. Check your GSSAPI C library for an update
+</span><span class='line'>WARNING: Could not load AEAD methods. Check your GSSAPI C library for an update
+</span><span class='line'>==&gt; default: Attempting graceful shutdown of VM...
+</span><span class='line'>==&gt; default: Clearing any previously set forwarded ports...
+</span><span class='line'>==&gt; default: Exporting VM...
+</span><span class='line'>==&gt; default: Compressing package to: /private/tmp/centos-6.6.box</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>S3 へのアップロード</h2>
+
+<p>S3 の任意の場所に作成したパッケージファイル ( e.g. centos-6.6.box ) をアップロード。</p>
+
+<p>アップロード後、ファイルの <code>Everyone</code> へのパーミッションに <code>Open/Download</code> を付加する。</p>
+
+<p>Atlas 上に登録するために、Link の URL を控えておく</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>https://s3-ap-northeast-1.amazonaws.com/ryoogata.ap-northease-1.tech-dev.info/centos-6.6.box</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Atlas 上で新しい Box を作成 </h2>
+
+<h3>1. Atlas にログイン後、新規 Box 追加</h3>
+
+<p>Atlas ログイン直後の Development の Tab から create a box here. をクリックするか、下記の URL にアクセスして新規 Box 追加画面へ移る。</p>
+
+<p><a href="https://atlas.hashicorp.com/boxes/new">https://atlas.hashicorp.com/boxes/new</a></p>
+
+<h3>2. Create a new box</h3>
+
+<h4>Name</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>centos-6.6</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Short description</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>chef/centos-6.6 ( v1.0.0 ) base customized image</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Description</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>chef/centos-6.6 ( v1.0.0 ) をベースに下記のアプリケーションをインストール済みイメージ
+</span><span class='line'>
+</span><span class='line'>* Virtualbox Guest Additions
+</span><span class='line'>* Chef
+</span><span class='line'>* Docker</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>3. New Box Version</h3>
+
+<h4>Version</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>1.0.0</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Description</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>下記のバージョンのアプリケーションをインストール済みイメージ
+</span><span class='line'>
+</span><span class='line'>* Virtualbox Guest Additions
+</span><span class='line'>  * 4.3.20
+</span><span class='line'>* Chef
+</span><span class='line'>  * 12.0.3
+</span><span class='line'>* Docker
+</span><span class='line'>  * 1.3.2</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>4. New Box Provider</h3>
+
+<h4>Provider</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>virtualbox</span></code></pre></td></tr></table></div></figure>
+
+
+<p>`</p>
+
+<h4>URL</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>https://s3-ap-northeast-1.amazonaws.com/*******/centos-6.6.box</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>5. Release version</h3>
+
+<p><code>Release version</code> ボタンを押下し、リリースする</p>
+
+<h1>Vagrant トラブルシュート</h1>
+
+<h2>error: No such device</h2>
+
+<p>vagrant up 時、下記のエラーメッセージを吐いて起動に失敗する場合がある。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>==&gt; default: Mounting shared folders...
+</span><span class='line'>    default: /vagrant =&gt; /private/tmp
+</span><span class='line'>Vagrant::Errors::LinuxMountFailed: Failed to mount folders in Linux guest. This is usually because
+</span><span class='line'>the "vboxsf" file system is not available. Please verify that
+</span><span class='line'>the guest additions are properly installed in the guest and
+</span><span class='line'>can work properly. The command attempted was:
+</span><span class='line'>
+</span><span class='line'>mount -t vboxsf -o uid=`id -u vagrant`,gid=`getent group vagrant | cut -d: -f3` vagrant /vagrant
+</span><span class='line'>mount -t vboxsf -o uid=`id -u vagrant`,gid=`id -g vagrant` vagrant /vagrant
+</span><span class='line'>
+</span><span class='line'>The error output from the last command was:
+</span><span class='line'>
+</span><span class='line'>/sbin/mount.vboxsf: mounting failed with the error: No such device</span></code></pre></td></tr></table></div></figure>
+
+
+<p>sync folder が正常に mount できずにエラーになる。Vagrant box に Virtualbox Guest Additions がインストールされていなかったり、Vagrant のバージョンとの乖離がありすぎると問題になるみたい。</p>
+
+<p>Vagrant up 時に sync folder を mount しないように Vagrantfile に
+<code>config.vm.synced_folder ".", "/vagrant", disabled: true</code> の記述を追加して回避。</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2014/11/02/chef-knife-ec2/">Knife-ec2 や Kitchen-ec2 のための環境変数設定</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-11-02T22:37:31+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>概要</h1>
+
+<p>test-kitchen の dirver に ec2 を利用する際や、knife ec2 コマンド、AWS CLI を利用する際に環境変数から設定値を読み込む設定等のまとめ。</p>
+
+<p>git で管理している設定ファイルに直接 AWS の Access Key や Secret Access Key などを記述しなくても済む方法。</p>
+
+<h1>.bash_profile</h1>
+
+<p>knife-ec2 および kitchen-ec2 の環境変数関連の挙動から、<code>.bash_profile</code> に設定する環境変数。</p>
+
+<ul>
+<li>.bash_profile</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>export EC2_SSH_KEY_PATH=~/.ssh/********.pem
+</span><span class='line'>export AWS_ACCESS_KEY_ID=********************
+</span><span class='line'>export AWS_SECRET_ACCESS_KEY=********************
+</span><span class='line'>export AWS_SSH_KEY_ID=********************</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>knife-ec2</h1>
+
+<h2>knife.rb に環境変数から設定値を読み込む設定を行っている項目</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>knife[:identity_file] = ENV['EC2_SSH_KEY_PATH']
+</span><span class='line'>knife[:aws_access_key_id] = ENV['AWS_ACCESS_KEY_ID']
+</span><span class='line'>knife[:aws_secret_access_key] = ENV['AWS_SECRET_ACCESS_KEY']
+</span><span class='line'>knife[:aws_ssh_key_id] = ENV['AWS_SSH_KEY_ID']</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>kitchen-ec2</h1>
+
+<p>.kitchen.yml に設定項目を記述しなくても、環境変数に特定の値が設定されている場合には自動的に設定値を設定してくれる項目</p>
+
+<table>
+<thead>
+<tr>
+<th>設定項目</th>
+<th>設定のための環境変数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>aws_access_key_id</td>
+<td><code>AWS_ACCESS_KEY</code> or <code>AWS_ACCESS_KEY_ID</code></td>
+</tr>
+<tr>
+<td>aws_secret_access_key</td>
+<td><code>AWS_SECRET_KEY</code> or <code>AWS_SECRET_ACCESS_KEY</code></td>
+</tr>
+<tr>
+<td>aws_session_token</td>
+<td><code>AWS_SESSION_TOKEN</code> or <code>AWS_TOKEN</code></td>
+</tr>
+<tr>
+<td>aws_ssh_key_id</td>
+<td><code>AWS_SSH_KEY_ID</code></td>
+</tr>
+</tbody>
+</table>
+
+
+<h2>.kitchen.yml に環境変数から設定値を読み込む設定を行っている項目</h2>
+
+<ul>
+<li>EC2_SSH_KEY_PATH</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>driver:
+</span><span class='line'>  name: ec2
+</span><span class='line'>  security_group_ids: ["sg-6744b502"]
+</span><span class='line'>  ssh_key: &lt;%= ENV['EC2_SSH_KEY_PATH'] %&gt;
+</span><span class='line'>  region: ap-northeast-1
+</span><span class='line'>  availability_zone: ap-northeast-1a
+</span><span class='line'>  interface: public</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>.aws/config</h1>
+
+<ul>
+<li>環境変数から設定値を読み込む
+
+<ul>
+<li>AWS_ACCESS_KEY_ID</li>
+<li>AWS_SECRET_ACCESS_KEY</li>
+</ul>
+</li>
+</ul>
+
+
+<h1>Tips</h1>
+
+<h2>knife.rb に設定可能な項目 List</h2>
+
+<table>
+<thead>
+<tr>
+<th>設定項目</th>
+<th>default 設定値</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>knife[:aws_credential_file]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:aws_access_key_id]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:aws_secret_access_key]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:region]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:use_iam_profile]</td>
+<td>false</td>
+</tr>
+<tr>
+<td>knife[:flavor]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:image]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:placement_group]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:availability_zone]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:chef_node_name]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:aws_ssh_key_id]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:ssh_port]</td>
+<td>22</td>
+</tr>
+<tr>
+<td>knife[:ssh_gateway]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:ssh_gateway_identity]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:bootstrap_version]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:bootstrap_proxy]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:distro]</td>
+<td>chef-full</td>
+</tr>
+<tr>
+<td>knife[:template_file]</td>
+<td>false</td>
+</tr>
+<tr>
+<td>knife[:secret]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:secret_file]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:s3_secret]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:subnet_id]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:private_ip_address]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:bootstrap_protocol]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:fqdn]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:aws_user_data]</td>
+<td>-</td>
+</tr>
+<tr>
+<td>knife[:ebs_volume_type]</td>
+<td>standard</td>
+</tr>
+<tr>
+<td>knife[:provisioned_iops]</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2014/11/01/chef-knife-ec2/">Knife-ec2 を利用したインスタンス操作</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-11-01T22:09:37+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>概要</h1>
+
+<p>chef-server との連携を前提とした knife ec2 のオペレーションのまとめ</p>
+
+<h1>knife ec2 オペレーション</h1>
+
+<h2>インスタンスの作成</h2>
+
+<p><code>$ knife ec2 server create --node-name chef_test --ssh-user ec2-user --security-group-ids sg-6744b502</code></p>
+
+<ul>
+<li>ec2 インスタンスの作成
+
+<ul>
+<li>&ndash;node-name
+
+<ul>
+<li>Chef-Server に登録する際の Node の名前</li>
+</ul>
+</li>
+<li>&ndash;ssh-user
+
+<ul>
+<li>SSH ログインユーザ名</li>
+</ul>
+</li>
+<li>&ndash;security-group-ids
+
+<ul>
+<li>VPC セキュリティグループ</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>chef client のインストール</li>
+<li><code>chef server への node の追加</code></li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ knife ec2 server create --node-name chef_test --ssh-user ec2-user --security-group-ids sg-6744b502</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>インスタンスの削除</h2>
+
+<p><code>$ knife ec2 server delete i-xxxxxxxx --purge</code></p>
+
+<ul>
+<li>インスタンスの削除</li>
+<li>chef server 上に登録された Node の情報の削除</li>
+<li>chef server 上に登録された Client の情報の削除</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ knife ec2 server delete i-5effb8ac --purge</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="https://github.com/opscode/knife-ec2">opscode/knife-ec2</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2014/10/27/docker-boot2docker/">Docker Boot2docker</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-27T22:43:43+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>概要</h1>
+
+<p>Mac OSX Yosemite (ver. 10.10 ) に boot2docker をインストールした際のメモ</p>
+
+<h1>インストール</h1>
+
+<p><a href="https://github.com/boot2docker/osx-installer/releases/tag/v1.3.0">https://github.com/boot2docker/osx-installer/releases/tag/v1.3.0</a></p>
+
+<h2>初期設定</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ boot2docker init
+</span><span class='line'>
+</span><span class='line'>Latest release for boot2docker/boot2docker is v1.3.0
+</span><span class='line'>Downloading boot2docker ISO image...
+</span><span class='line'>Success: downloaded https://github.com/boot2docker/boot2docker/releases/download/v1.3.0/boot2docker.iso
+</span><span class='line'>  to /Users/ryo/.boot2docker/boot2docker.iso
+</span><span class='line'>Generating public/private rsa key pair.
+</span><span class='line'>Your identification has been saved in /Users/ryo/.ssh/id_boot2docker.
+</span><span class='line'>Your public key has been saved in /Users/ryo/.ssh/id_boot2docker.pub.
+</span><span class='line'>The key fingerprint is:
+</span><span class='line'>38:85:1a:95:36:4d:a2:d0:9c:f2:23:61:f3:6b:89:52 ryo@MacBook-Air.local
+</span><span class='line'>The key's randomart image is:
+</span><span class='line'>+--[ RSA 2048]----+
+</span><span class='line'>|  .o .o+.        |
+</span><span class='line'>|  =.+o+o.        |
+</span><span class='line'>| . *o....        |
+</span><span class='line'>|  E +o o         |
+</span><span class='line'>| . o.+o S        |
+</span><span class='line'>|. . +  .         |
+</span><span class='line'>| . .             |
+</span><span class='line'>|                 |
+</span><span class='line'>|                 |
+</span><span class='line'>+-----------------+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ boot2docker start
+</span><span class='line'>
+</span><span class='line'>Waiting for VM and Docker daemon to start...
+</span><span class='line'>...........................oooooooooooooooooooooooooooo
+</span><span class='line'>Started.
+</span><span class='line'>Writing /Users/ryo/.boot2docker/certs/boot2docker-vm/ca.pem
+</span><span class='line'>Writing /Users/ryo/.boot2docker/certs/boot2docker-vm/cert.pem
+</span><span class='line'>Writing /Users/ryo/.boot2docker/certs/boot2docker-vm/key.pem
+</span><span class='line'>
+</span><span class='line'>To connect the Docker client to the Docker daemon, please set:
+</span><span class='line'>    export DOCKER_TLS_VERIFY=1
+</span><span class='line'>    export DOCKER_HOST=tcp://192.168.59.103:2376
+</span><span class='line'>    export DOCKER_CERT_PATH=/Users/ryo/.boot2docker/certs/boot2docker-vm</span></code></pre></td></tr></table></div></figure>
+
+
+<p>.bashrc</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>export DOCKER_TLS_VERIFY=1
+</span><span class='line'>export DOCKER_HOST=tcp://192.168.59.103:2376
+</span><span class='line'>export DOCKER_CERT_PATH=/Users/ryo/.boot2docker/certs/boot2docker-vm</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ $(boot2docker shellinit)
+</span><span class='line'>Writing /Users/ryo/.boot2docker/certs/boot2docker-vm/ca.pem
+</span><span class='line'>Writing /Users/ryo/.boot2docker/certs/boot2docker-vm/cert.pem
+</span><span class='line'>Writing /Users/ryo/.boot2docker/certs/boot2docker-vm/key.pem    </span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ boot2docker socket
+</span><span class='line'>
+</span><span class='line'>   export DOCKER_HOST=tcp://192.168.59.103:2376
+</span><span class='line'>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>動作検証</h2>
+
+<h3>boot2docker へのログイン</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ boot2docker ssh
+</span><span class='line'>                        ##        .
+</span><span class='line'>                  ## ## ##       ==
+</span><span class='line'>               ## ## ## ##      ===
+</span><span class='line'>           /""""""""""""""""\___/ ===
+</span><span class='line'>      ~~~ {~~ ~~~~ ~~~ ~~~~ ~~ ~ /  ===- ~~~
+</span><span class='line'>           \______ o          __/
+</span><span class='line'>             \    \        __/
+</span><span class='line'>              \____\______/
+</span><span class='line'> _                 _   ____     _            _
+</span><span class='line'>| |__   ___   ___ | |_|___ \ __| | ___   ___| | _____ _ __
+</span><span class='line'>| '_ \ / _ \ / _ \| __| __) / _` |/ _ \ / __| |/ / _ \ '__|
+</span><span class='line'>| |_) | (_) | (_) | |_ / __/ (_| | (_) | (__|   &lt;  __/ |
+</span><span class='line'>|_.__/ \___/ \___/ \__|_____\__,_|\___/ \___|_|\_\___|_|
+</span><span class='line'>boot2docker: 1.3.0
+</span><span class='line'>             master : a083df4 - Thu Oct 16 17:05:03 UTC 2014
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ docker run hello-world
+</span><span class='line'>Unable to find image 'hello-world' locally
+</span><span class='line'>hello-world:latest: The image you are pulling has been verified
+</span><span class='line'>
+</span><span class='line'>511136ea3c5a: Pull complete 
+</span><span class='line'>7fa0dcdc88de: Pull complete 
+</span><span class='line'>ef872312fe1b: Pull complete 
+</span><span class='line'>Status: Downloaded newer image for hello-world:latest
+</span><span class='line'>Hello from Docker.
+</span><span class='line'>This message shows that your installation appears to be working correctly.
+</span><span class='line'>
+</span><span class='line'>To generate this message, Docker took the following steps:
+</span><span class='line'> 1. The Docker client contacted the Docker daemon.
+</span><span class='line'> 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+</span><span class='line'>    (Assuming it was not already locally available.)
+</span><span class='line'> 3. The Docker daemon created a new container from that image which runs the
+</span><span class='line'>    executable that produces the output you are currently reading.
+</span><span class='line'> 4. The Docker daemon streamed that output to the Docker client, which sent it
+</span><span class='line'>    to your terminal.
+</span><span class='line'>
+</span><span class='line'>To try something more ambitious, you can run an Ubuntu container with:
+</span><span class='line'> $ docker run -it ubuntu bash
+</span><span class='line'>
+</span><span class='line'>For more examples and ideas, visit:
+</span><span class='line'> http://docs.docker.com/userguide/</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ docker pull ubuntu
+</span><span class='line'>ubuntu:latest: The image you are pulling has been verified
+</span><span class='line'>d497ad3926c8: Pull complete 
+</span><span class='line'>ccb62158e970: Pull complete 
+</span><span class='line'>e791be0477f2: Pull complete 
+</span><span class='line'>3680052c0f5c: Pull complete 
+</span><span class='line'>22093c35d77b: Pull complete 
+</span><span class='line'>5506de2b643b: Pull complete 
+</span><span class='line'>511136ea3c5a: Already exists 
+</span><span class='line'>Status: Downloaded newer image for ubuntu:latest</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ docker run ubuntu /bin/echo hello world
+</span><span class='line'>hello world</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>2 回目以降</h1>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ boot2docker start
+</span><span class='line'>
+</span><span class='line'>Waiting for VM and Docker daemon to start...
+</span><span class='line'>.................oooo
+</span><span class='line'>Started.
+</span><span class='line'>Writing /Users/ryo/.boot2docker/certs/boot2docker-vm/ca.pem
+</span><span class='line'>Writing /Users/ryo/.boot2docker/certs/boot2docker-vm/cert.pem
+</span><span class='line'>Writing /Users/ryo/.boot2docker/certs/boot2docker-vm/key.pem
+</span><span class='line'>Your environment variables are already set correctly.</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Memo</h1>
+
+<p>Dockerfile</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>FROM ubuntu:12.04
+</span><span class='line'>
+</span><span class='line'>RUN apt-get -qq update
+</span><span class='line'>RUN apt-get install -yqq apache2
+</span><span class='line'>ENV APACHE_RUN_USER www-data
+</span><span class='line'>ENV APACHE_RUN_GROUP www-data
+</span><span class='line'>ENV APACHE_LOG_DIR /var/log/apache2
+</span><span class='line'>
+</span><span class='line'>CMD ["/usr/sbin/apache2", "-D", "FOREGROUND"]</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>参照 URL</h1>
+
+<p><a href="http://qiita.com/AH_korikori/items/8a165c081e8eb699deb3">http://qiita.com/AH_korikori/items/8a165c081e8eb699deb3</a>
+/</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2014/10/24/docker/">Docker のバージョンを追っかける</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-24T23:58:09+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>概要</h1>
+
+<p>Docker のバージョンアップを追っかける</p>
+
+<h1>バージョン履歴</h1>
+
+<table>
+<thead>
+<tr>
+<th>バージョン</th>
+<th>リリース日  </th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.4.1   </td>
+<td>2014/12/17</td>
+<td><a href="http://bit.ly/1GRTIae">http://bit.ly/1GRTIae</a></td>
+</tr>
+<tr>
+<td>1.4.0   </td>
+<td>2014/12/11</td>
+<td><a href="http://bit.ly/1wn3igI">http://bit.ly/1wn3igI</a></td>
+</tr>
+<tr>
+<td>1.3.3   </td>
+<td>2014/12/11</td>
+<td><a href="http://bit.ly/1wn3igI">http://bit.ly/1wn3igI</a></td>
+</tr>
+<tr>
+<td>1.3.2   </td>
+<td>2014/11/24</td>
+<td><a href="http://bit.ly/1vIYXke">http://bit.ly/1vIYXke</a></td>
+</tr>
+<tr>
+<td>1.3.1   </td>
+<td>2014/11/05</td>
+<td><a href="http://bit.ly/11dAEUE">http://bit.ly/11dAEUE</a></td>
+</tr>
+<tr>
+<td>1.3.0   </td>
+<td>2014/10/16</td>
+<td><a href="http://bit.ly/1vnovr9">http://bit.ly/1vnovr9</a></td>
+</tr>
+<tr>
+<td>1.2.0   </td>
+<td>2014/08/22</td>
+<td><a href="http://bit.ly/1z4tQ9B">http://bit.ly/1z4tQ9B</a></td>
+</tr>
+<tr>
+<td>1.1.0   </td>
+<td>2014/07/03</td>
+<td><a href="http://bit.ly/U5ar6k">http://bit.ly/U5ar6k</a></td>
+</tr>
+<tr>
+<td>1.0.0   </td>
+<td>2014/06/09</td>
+<td><a href="http://bit.ly/1wleJYt">http://bit.ly/1wleJYt</a></td>
+</tr>
+<tr>
+<td>0.11.0  </td>
+<td>2014/05/07</td>
+<td><a href="http://bit.ly/1woNMRd">http://bit.ly/1woNMRd</a></td>
+</tr>
+<tr>
+<td>0.10.0  </td>
+<td>2014/04/08</td>
+<td><a href="http://bit.ly/1ts2FC4">http://bit.ly/1ts2FC4</a></td>
+</tr>
+<tr>
+<td>0.9.0   </td>
+<td>2014/03/10</td>
+<td><a href="http://bit.ly/1pIceIe">http://bit.ly/1pIceIe</a></td>
+</tr>
+<tr>
+<td>0.8.0   </td>
+<td>2014/02/04</td>
+<td><a href="http://bit.ly/1tjF1sI">http://bit.ly/1tjF1sI</a></td>
+</tr>
+<tr>
+<td>0.7.0   </td>
+<td>2013/11/26</td>
+<td><a href="http://bit.ly/1uQ8B4A">http://bit.ly/1uQ8B4A</a></td>
+</tr>
+<tr>
+<td>0.6.0   </td>
+<td>2013/08/23</td>
+<td><a href="http://bit.ly/1zoRsXy">http://bit.ly/1zoRsXy</a></td>
+</tr>
+<tr>
+<td>0.5.0   </td>
+<td>2013/07/18</td>
+<td><a href="http://bit.ly/10rC7Gs">http://bit.ly/10rC7Gs</a></td>
+</tr>
+<tr>
+<td>0.4.0   </td>
+<td>2013/06/03</td>
+<td><a href="http://bit.ly/1ts30F0">http://bit.ly/1ts30F0</a></td>
+</tr>
+<tr>
+<td>0.3.0   </td>
+<td>2013/05/06</td>
+<td><a href="http://bit.ly/1D7dcnw">http://bit.ly/1D7dcnw</a></td>
+</tr>
+<tr>
+<td>0.2.0   </td>
+<td>2013/04/25</td>
+<td><a href="http://bit.ly/1wlfdO5">http://bit.ly/1wlfdO5</a></td>
+</tr>
+<tr>
+<td>0.1.0   </td>
+<td>2013/03/20</td>
+<td><a href="http://bit.ly/1vZeQYd">http://bit.ly/1vZeQYd</a></td>
+</tr>
+</tbody>
+</table>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="2">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+  <p>A little something about me.</p>
+</section>
+<section>
+  <h1>Categories</h1>
+    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/kvm/'>kvm (1)</a></li><li><a href='/blog/categories/nat/'>nat (1)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/openvswitch/'>openvswitch (1)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/sample-post/'>sample post (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (3)</a></li><li><a href='/blog/categories/wakame-vdc/'>wakame-vdc (2)</a></li></ul>
+</section>
+<section>
+  <h1>Tag Cloud</h1>
+    <span id="tag-cloud"><a href='/blog/tags/boot2docker' style='font-size: 130.0%'>boot2docker(1)</a> <a href='/blog/tags/chef-client' style='font-size: 130.0%'>chef-client(1)</a> <a href='/blog/tags/chef-repo' style='font-size: 160.0%'>chef-repo(2)</a> <a href='/blog/tags/chef-server' style='font-size: 160.0%'>chef-server(2)</a> <a href='/blog/tags/chef-solo' style='font-size: 130.0%'>chef-solo(1)</a> <a href='/blog/tags/hosted-chef' style='font-size: 130.0%'>hosted chef(1)</a> <a href='/blog/tags/kitchen-ec2' style='font-size: 130.0%'>kitchen-ec2(1)</a> <a href='/blog/tags/knife-ec2' style='font-size: 160.0%'>knife-ec2(2)</a> <a href='/blog/tags/knife-solo' style='font-size: 130.0%'>knife-solo(1)</a> <a href='/blog/tags/kvm' style='font-size: 130.0%'>kvm(1)</a> <a href='/blog/tags/network' style='font-size: 130.0%'>network(1)</a> <a href='/blog/tags/windows' style='font-size: 130.0%'>windows(1)</a> </span>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2015/02/19/openvswitch/">openvswitch のインストールと初期セットアップ</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/19/wakame-vdc/">Wakame 用 カスタム KVM イメージ作成</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/19/nat/">iptables を利用した NAT Router</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/19/kvm/">KVM Tips</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/06/wakame-vdc-kvm/">Wakame-vdc のカスタムイメージ作成手順</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+  <h1>Twitter Timeline</h1>
+  <p><a class="twitter-timeline" href="https://twitter.com/rfrv_ryo" data-widget-id="531634940299841536">@rfrv_ryo からのツイート</a>
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Ryo Ogata -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  - <span class="credit">Theme by <a href="http://www.gehaxelt.in">Gehaxelt</a></span>
+  <span class="credit">and <a href="http://www.it-solutions-neef.de">IT Solutions Neef</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+>>>>>>> 07b2862aa85c1d65f5f8b68e429d652315a6e313
 
 <p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
 
 <h3>
 <a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
 
+<<<<<<< HEAD
 <p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+=======
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+>>>>>>> 07b2862aa85c1d65f5f8b68e429d652315a6e313
 
 <h3>
 <a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>

@@ -1,0 +1,377 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>openvswitch のインストールと初期セットアップ - YggdrasillNetwork Blog</title>
+  <meta name="author" content="Ryo Ogata">
+
+  
+  <meta name="description" content="yum 経由のインストール レポジトリの追加 1
+2
+3
+# yum install http://rdo.fedorapeople.org/openstack-icehouse/rdo-release-icehouse.rpm openvswitch x86_64 2.1.2-1.el6 &hellip;">
+  <meta name="keywords" content="openvswitch">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://ryoogata.github.io/2015/02/19/openvswitch/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/stylesheets/data-table.css" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="YggdrasillNetwork Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">YggdrasillNetwork Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:ryoogata.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Openvswitch のインストールと初期セットアップ</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-02-19T23:58:33+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h1>yum 経由のインストール</h1>
+
+<h2>レポジトリの追加</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># yum install http://rdo.fedorapeople.org/openstack-icehouse/rdo-release-icehouse.rpm
+</span><span class='line'>
+</span><span class='line'>openvswitch x86_64 2.1.2-1.el6 openstack-icehouse 2.2 M</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>パッケージのインストール</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># yum install openvswitch</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>bridge kernel module の削除</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># /sbin/rmmod bridge</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>blacklist.conf への追加</h2>
+
+<p>kernel module の bridge をロードしてほしくないので、/etc/modprobe.d/blacklist.conf に記述</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>install bridge /bin/false</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Service の起動</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># service openvswitch start</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>interface の設定</h2>
+
+<h3>ifcfg-br0</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>DEVICE=br0
+</span><span class='line'>ONBOOT=yes
+</span><span class='line'>DEVICETYPE=ovs
+</span><span class='line'>TYPE=OVSBridge
+</span><span class='line'>BOOTPROTO=static
+</span><span class='line'>IPADDR=A.B.C.D
+</span><span class='line'>NETMASK=X.Y.Z.0
+</span><span class='line'>HOTPLUG=no</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>ifcfg-eth1</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>DEVICE=eth1
+</span><span class='line'>DEVICETYPE=ovs
+</span><span class='line'>HWADDR=40:A8:F0:39:96:A9
+</span><span class='line'>TYPE=OVSPort
+</span><span class='line'>UUID=22ff31c5-1d59-478d-8fa4-55f2984a94d8
+</span><span class='line'>ONBOOT=yes
+</span><span class='line'>NM_CONTROLLED=no
+</span><span class='line'>BRIDGE=br0</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Tips</h1>
+
+<h2>bridge kernel module の追加方法</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># insmod /lib/modules/2.6.32-504.el6.x86_64/kernel/net/bridge/bridge.ko</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>bridge kernel module の削除方法</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>/sbin/rmmod bridge</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>br0 の作成と eth0 の追加</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ovs-vsctl add-br br0
+</span><span class='line'># ovs-vsctl add-port br0 eth0</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Memo</h1>
+
+<p>yum install <a href="http://rdo.fedorapeople.org/rdo-release.rpm">http://rdo.fedorapeople.org/rdo-release.rpm</a> <br/>
+↑これはダメ。レポジトリ先が存在していない…</p>
+
+<p>yum erase rdo-release で削除</p>
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="http://qunisaki.blog.fc2.com/blog-entry-6.html">CentOS 6.4 で openvswitch を使ってみる</a></li>
+<li><a href="http://blog.hirokikana.com/?p=533">Open vSwitchとRyuを使った最も単純なOpenFlowネットワークの構築</a></li>
+<li><a href="https://wiki.archlinux.org/index.php/Kernel_modules_%28%E6%97%A5%E6%9C%AC%E8%AA%9E%29">Kernel modules (日本語)</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ryo Ogata</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-02-19T23:58:33+09:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/openvswitch/'>openvswitch</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ryoogata.github.io/2015/02/19/openvswitch/" data-via="" data-counturl="http://ryoogata.github.io/2015/02/19/openvswitch/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2015/02/19/wakame-vdc/" title="Previous Post: Wakame 用 カスタム KVM イメージ作成">&laquo; Wakame 用 カスタム KVM イメージ作成</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+  <p>A little something about me.</p>
+</section>
+<section>
+  <h1>Categories</h1>
+    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/kvm/'>kvm (1)</a></li><li><a href='/blog/categories/nat/'>nat (1)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/openvswitch/'>openvswitch (1)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/sample-post/'>sample post (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (3)</a></li><li><a href='/blog/categories/wakame-vdc/'>wakame-vdc (2)</a></li></ul>
+</section>
+<section>
+  <h1>Tag Cloud</h1>
+    <span id="tag-cloud"><a href='/blog/tags/boot2docker' style='font-size: 130.0%'>boot2docker(1)</a> <a href='/blog/tags/chef-client' style='font-size: 130.0%'>chef-client(1)</a> <a href='/blog/tags/chef-repo' style='font-size: 160.0%'>chef-repo(2)</a> <a href='/blog/tags/chef-server' style='font-size: 160.0%'>chef-server(2)</a> <a href='/blog/tags/chef-solo' style='font-size: 130.0%'>chef-solo(1)</a> <a href='/blog/tags/hosted-chef' style='font-size: 130.0%'>hosted chef(1)</a> <a href='/blog/tags/kitchen-ec2' style='font-size: 130.0%'>kitchen-ec2(1)</a> <a href='/blog/tags/knife-ec2' style='font-size: 160.0%'>knife-ec2(2)</a> <a href='/blog/tags/knife-solo' style='font-size: 130.0%'>knife-solo(1)</a> <a href='/blog/tags/kvm' style='font-size: 130.0%'>kvm(1)</a> <a href='/blog/tags/network' style='font-size: 130.0%'>network(1)</a> <a href='/blog/tags/windows' style='font-size: 130.0%'>windows(1)</a> </span>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2015/02/19/openvswitch/">openvswitch のインストールと初期セットアップ</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/19/wakame-vdc/">Wakame 用 カスタム KVM イメージ作成</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/19/nat/">iptables を利用した NAT Router</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/19/kvm/">KVM Tips</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/06/wakame-vdc-kvm/">Wakame-vdc のカスタムイメージ作成手順</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+  <h1>Twitter Timeline</h1>
+  <p><a class="twitter-timeline" href="https://twitter.com/rfrv_ryo" data-widget-id="531634940299841536">@rfrv_ryo からのツイート</a>
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Ryo Ogata -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  - <span class="credit">Theme by <a href="http://www.gehaxelt.in">Gehaxelt</a></span>
+  <span class="credit">and <a href="http://www.it-solutions-neef.de">IT Solutions Neef</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

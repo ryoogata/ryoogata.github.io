@@ -2,19 +2,192 @@
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   
+  <url>
+    <loc>http://ryoogata.github.io/2015/02/19/openvswitch/</loc>
+    
+    <lastmod>2015-02-19T23:58:33+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
   
   <url>
-    <loc>http://ryoogata.github.io/blog/archives/</loc>
-    <lastmod>2014-10-15T23:34:25+09:00</lastmod>
+    <loc>http://ryoogata.github.io/2015/02/19/wakame-vdc/</loc>
+    
+    <lastmod>2015-02-19T23:49:08+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/2015/02/19/nat/</loc>
+    
+    <lastmod>2015-02-19T23:43:56+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/2015/02/19/kvm/</loc>
+    
+    <lastmod>2015-02-19T23:23:43+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/2015/02/06/wakame-vdc-kvm/</loc>
+    
+    <lastmod>2015-02-06T23:02:07+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/2015/01/23/vagrant/</loc>
+    
+    <lastmod>2015-01-23T10:12:51+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/2014/11/02/chef-knife-ec2/</loc>
+    
+    <lastmod>2014-11-02T22:37:31+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/2014/11/01/chef-knife-ec2/</loc>
+    
+    <lastmod>2014-11-01T22:09:37+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/2014/10/27/docker-boot2docker/</loc>
+    
+    <lastmod>2014-10-27T22:43:43+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/2014/10/24/docker/</loc>
+    
+    <lastmod>2014-10-24T23:58:09+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/2014/10/23/packer-windows/</loc>
+    
+    <lastmod>2014-10-23T23:44:46+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/2014/10/22/chef-chef-repo/</loc>
+    
+    <lastmod>2014-10-22T22:05:02+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/2014/10/22/chef-chef-solo-knife-solo-chef-client/</loc>
+    
+    <lastmod>2014-10-22T13:57:56+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/2014/10/22/chef/</loc>
+    
+    <lastmod>2014-10-22T09:08:02+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/2014/10/20/vagrant-chef-server/</loc>
+    
+    <lastmod>2014-10-20T15:35:34+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/2014/10/20/chef-chef-repo/</loc>
+    
+    <lastmod>2014-10-20T10:53:18+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/2014/10/16/vagrant/</loc>
+    
+    <lastmod>2014-10-16T16:41:05+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/2014/10/16/octopress/</loc>
+    
+    <lastmod>2014-10-16T12:20:15+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/2014/04/22/a-sample-post/</loc>
+    
+    <lastmod>2014-04-22T14:40:00+09:00</lastmod>
+    
+    <priority>0.8</priority>
+  </url>
+  
+  
+  <url>
+    <loc>http://ryoogata.github.io/archives/</loc>
+    <lastmod>2015-02-20T00:05:19+09:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/blog/</loc>
+    <lastmod>2015-02-20T00:05:19+09:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>http://ryoogata.github.io/</loc>
-    <lastmod>2014-10-15T23:34:25+09:00</lastmod>
+    <lastmod>2015-02-20T00:05:19+09:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/blog/archives/</loc>
+    <lastmod>2015-02-20T00:05:19+09:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>http://ryoogata.github.io/about/</loc>
+    <lastmod>2015-02-20T00:05:19+09:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
   </url>
   
   

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: Hosted Chef | YggdrasillNetwork Blog]]></title>
+  <link href="http://ryoogata.github.io/blog/tags/hosted-chef/atom.xml" rel="self"/>
+  <link href="http://ryoogata.github.io/"/>
+  <updated>2015-02-20T00:05:19+09:00</updated>
+  <id>http://ryoogata.github.io/</id>
+  <author>
+    <name><![CDATA[Ryo Ogata]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Vagrant と Hosted Chef との連携]]></title>
+    <link href="http://ryoogata.github.io/2014/10/20/vagrant-chef-server/"/>
+    <updated>2014-10-20T15:35:34+09:00</updated>
+    <id>http://ryoogata.github.io/2014/10/20/vagrant-chef-server</id>
+    <content type="html"><![CDATA[<h1>概要</h1>
+
+<p>Vagrant の Provisioner に Chef Client を利用し、Chef Server に Hosted Chef を利用する</p>
+
+<h2>Vagrantfile</h2>
+
+<pre><code>config.vm.provision "chef_client" do |chef|
+  chef.chef_server_url = "https://api.opscode.com/organizations/tech-sales"
+  chef.validation_client_name = "tech-sales-validator"
+  chef.validation_key_path = "../../hosted-chef-repo/.chef/tech-sales-validator.pem"
+  chef.environment = "setup"
+  chef.node_name = "chef-test"
+  chef.delete_node = true
+  chef.delete_client = true
+end
+</code></pre>
+
+<ul>
+<li><p>chef_server_url</p>
+
+<ul>
+<li>Organizations 毎に変わる</li>
+</ul>
+</li>
+<li><p>validation_client_name</p>
+
+<ul>
+<li>Hosted Chef Server に Node を登録する際に使用するユーザ名</li>
+<li>Hosted Chef の Organization の Client で、<code>Validation Client</code> として利用する Client 名を指定する
+
+<ul>
+<li>default の <code>chef-validator</code> ではダメ</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

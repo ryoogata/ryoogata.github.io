@@ -1,0 +1,1688 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>YggdrasillNetwork Blog</title>
+  <meta name="author" content="Ryo Ogata">
+
+  
+  <meta name="description" content="概要 Packer を利用して VirtualBox で利用可能な Windows7 のイメージを作成する packer 実行の流れ 1. Packer の Download 設置 下記の Packer Download URL から Packer 本体を Download し解凍後、 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://ryoogata.github.io/posts/2/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/stylesheets/data-table.css" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="YggdrasillNetwork Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">YggdrasillNetwork Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:ryoogata.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2014/10/23/packer-windows/">Packer を利用して Windows7 の仮想イメージを作成する</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-23T23:44:46+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>概要</h1>
+
+<p>Packer を利用して VirtualBox で利用可能な Windows7 のイメージを作成する</p>
+
+<h1>packer 実行の流れ</h1>
+
+<h2>1. Packer の Download 設置</h2>
+
+<p>下記の Packer Download URL から Packer 本体を Download し解凍後、Directory を ~/ 以下に packer に名前を変更して設置</p>
+
+<ul>
+<li><a href="https://www.packer.io/downloads.html">Packer Download URL</a></li>
+</ul>
+
+
+<h2>2. Packer の実行ファイルの Download</h2>
+
+<p>本家から Fork した Packer 実行ファイルを git clone</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git clone https://github.com/ryoogata/packer-windows.git</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>3. Windows iso イメージの設置</h2>
+
+<p>利用する Windows iso イメージの md5 の値を取得し、必要に応じて windows_7.json を修正</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ md5 windows7.iso 
+</span><span class='line'>MD5 (windows7.iso) = 69cc2d20bd2c15490f40d34e52d79290</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>windows_7.json</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>:
+</span><span class='line'>"iso_url": "iso/windows7.iso",
+</span><span class='line'>"iso_checksum_type": "md5",
+</span><span class='line'>"iso_checksum": "69cc2d20bd2c15490f40d34e52d79290",
+</span><span class='line'>:</span></code></pre></td></tr></table></div></figure>
+
+
+<p>clone した packer-windows Directory 内の iso Directory に Windows の iso イメージを設置</p>
+
+<h2>4. image の作成</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ export PATH=~/packer:$PATH
+</span><span class='line'>$ cd packer-windows
+</span><span class='line'>$ packer build -only=virtualbox-iso windows_7.json </span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>実行ログ</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>:
+</span><span class='line'>
+</span><span class='line'>==&gt; virtualbox-iso (vagrant): Creating Vagrant box for 'virtualbox' provider
+</span><span class='line'>    virtualbox-iso (vagrant): Copying from artifact: output-virtualbox-iso/packer-virtualbox-iso-1413034723-disk1.vmdk
+</span><span class='line'>    virtualbox-iso (vagrant): Copying from artifact: output-virtualbox-iso/packer-virtualbox-iso-1413034723.ovf
+</span><span class='line'>    virtualbox-iso (vagrant): Renaming the OVF to box.ovf...
+</span><span class='line'>    virtualbox-iso (vagrant): Using custom Vagrantfile: vagrantfile-windows_7.template
+</span><span class='line'>    virtualbox-iso (vagrant): Compressing: Vagrantfile
+</span><span class='line'>    virtualbox-iso (vagrant): Compressing: box.ovf
+</span><span class='line'>    virtualbox-iso (vagrant): Compressing: metadata.json
+</span><span class='line'>    virtualbox-iso (vagrant): Compressing: packer-virtualbox-iso-1413034723-disk1.vmdk
+</span><span class='line'>Build 'virtualbox-iso' finished.
+</span><span class='line'>
+</span><span class='line'>==&gt; Builds finished. The artifacts of successful builds are:
+</span><span class='line'>--&gt; virtualbox-iso: 'virtualbox' provider box: windows_7_virtualbox.box</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Tips</h1>
+
+<h2>packer コマンド実行中に実行される Script</h2>
+
+<p>packer コマンド実行中、windows_7.json に記載がある下記の script が実行される</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>"scripts": [
+</span><span class='line'>  "./scripts/vm-guest-tools.bat",
+</span><span class='line'>  "./scripts/chef.bat",
+</span><span class='line'>  "./scripts/vagrant-ssh.bat",
+</span><span class='line'>  "./scripts/disable-auto-logon.bat",
+</span><span class='line'>  "./scripts/enable-rdp.bat",
+</span><span class='line'>  "./scripts/compile-dotnet-assemblies.bat",
+</span><span class='line'>  "./scripts/compact.bat"
+</span><span class='line'>]</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>TimeZone の変更</h2>
+
+<p>answer_files/7/Autounattend.xml の修正</p>
+
+<ul>
+<li>修正前</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;TimeZone&gt;Pacific Standard Time&lt;/TimeZone&gt;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>修正後</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;TimeZone&gt;Tokyo Standard Time&lt;/TimeZone&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>ComputerName の変更</h2>
+
+<p>answer_files/7/Autounattend.xml の修正</p>
+
+<ul>
+<li>修正前</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;ComputerName&gt;vagrant-2012&lt;/ComputerName&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>修正後</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;ComputerName&gt;vagrant-win7&lt;/ComputerName&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ComputerName は <code>15 文字以内</code> で指定する</p>
+
+<h2>Headless の設定</h2>
+
+<p>Packer 実行ファイルのデバック時などは VirtualBox の Window が表示される方が便利。Default では Headless なので、必要に応じて変更する。</p>
+
+<p>windows_7.json の修正</p>
+
+<ul>
+<li>修正前</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>"headless": true,</span></code></pre></td></tr></table></div></figure>
+
+
+<p>true の場合、Headless になり、packer 実行中の VirtualBox の Window が表示されない</p>
+
+<ul>
+<li>修正後</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>"headless": false,</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Windows の日本語化</h2>
+
+<p>answer_files/7/Autounattend.xml の修正</p>
+
+<p>en-US の箇所を ja-JP に変更</p>
+
+<ul>
+<li>修正前</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;UILanguage&gt;en-US&lt;/UILanguage&gt;
+</span><span class='line'>&lt;InputLocale&gt;en-US&lt;/InputLocale&gt;
+</span><span class='line'>&lt;SystemLocale&gt;en-US&lt;/SystemLocale&gt;
+</span><span class='line'>&lt;UILanguage&gt;en-US&lt;/UILanguage&gt;
+</span><span class='line'>&lt;UILanguageFallback&gt;en-US&lt;/UILanguageFallback&gt;
+</span><span class='line'>&lt;UserLocale&gt;en-US&lt;/UserLocale&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>修正前</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;UILanguage&gt;ja-JP&lt;/UILanguage&gt;
+</span><span class='line'>&lt;InputLocale&gt;ja-JP&lt;/InputLocale&gt;
+</span><span class='line'>&lt;SystemLocale&gt;ja-JP&lt;/SystemLocale&gt;
+</span><span class='line'>&lt;UILanguage&gt;ja-JP&lt;/UILanguage&gt;
+</span><span class='line'>&lt;UILanguageFallback&gt;ja-JP&lt;/UILanguageFallback&gt;
+</span><span class='line'>&lt;UserLocale&gt;ja-JP&lt;/UserLocale&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Image 作成中の Windows Update の停止</h2>
+
+<p>Packer 実行中、Windows Update を実施しないようにする</p>
+
+<p>answer_files/7/Autounattend.xml の修正</p>
+
+<ul>
+<li>修正前</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;!-- WITHOUT WINDOWS UPDATES --&gt;
+</span><span class='line'>&lt;!--
+</span><span class='line'>    :
+</span><span class='line'>--&gt;
+</span><span class='line'>&lt;!-- END WITHOUT WINDOWS UPDATES --&gt;
+</span><span class='line'>&lt;!-- WITH WINDOWS UPDATES --&gt;
+</span><span class='line'>    :
+</span><span class='line'>&lt;!-- END WITH WINDOWS UPDATES --&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>修正後</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;!-- WITHOUT WINDOWS UPDATES --&gt;
+</span><span class='line'>    :
+</span><span class='line'>&lt;!-- END WITHOUT WINDOWS UPDATES --&gt;
+</span><span class='line'>&lt;!-- WITH WINDOWS UPDATES --&gt;
+</span><span class='line'>&lt;!--
+</span><span class='line'>    :
+</span><span class='line'>--&gt;
+</span><span class='line'>&lt;!-- END WITH WINDOWS UPDATES --&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>トラブルシュート</h1>
+
+<h2>「応答ファイルは無効です」エラー</h2>
+
+<h3>エラーログ</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>パス[specialize]の無人応答ファイル[C:\Windows\Panther\unattend.xml]を解析または処理できませんでした。応答ファイルは無効です。</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>原因</h3>
+
+<p>ComputerName が文字数制限の <code>15 文字</code> を超えている文字列を指定していた。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Autounattend.xml
+</span><span class='line'>
+</span><span class='line'>&lt;ComputerName&gt;vagrant-windows7&lt;/ComputerName&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Error uploading guest additions</h2>
+
+<h3>エラーログ</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Build 'virtualbox-iso' errored: Error uploading guest additions: Process exited with: 1. Reason was:  ()
+</span><span class='line'>
+</span><span class='line'>==&gt; Some builds didn't complete successfully and had errors:
+</span><span class='line'>--&gt; virtualbox-iso: Error uploading guest additions: Process exited with: 1. Reason was:  ()</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>原因</h3>
+
+<p>仮想メディアマネージャの光学ディスクのところに VBoxWindowsAdditions が入っていないとダメかも。適当な Windows OS に VBoxWindowsAdditions を Mount して、再度 packer コマンドを実行したらとりあえず解決できた。</p>
+
+<h2>compact.bat の sdelete.exe コマンド実行後に固まる</h2>
+
+<h3>エラーログ</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cmd /c C:\Windows\Temp\sdelete.exe -z C:
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    virtualbox-iso: SDelete - Secure Delete v1.61
+</span><span class='line'>    virtualbox-iso: Copyright (C) 1999-2012 Mark Russinovich
+</span><span class='line'>    virtualbox-iso: Sysinternals - www.sysinternals.com
+</span><span class='line'>    virtualbox-iso:
+</span><span class='line'>    virtualbox-iso: SDelete is set for 1 pass.
+</span><span class='line'>    virtualbox-iso: Zeroing free space on C:\: 0%
+</span><span class='line'>==&gt; virtualbox-iso: Provisioning with shell script: /var/folders/c0/mrt_fmsx6l1b_kjl7pbstr2h0000gn/T/packer-shell022007924
+</span><span class='line'>    virtualbox-iso: rm: cannot remove `/tmp/TMP0000000149D9D38AB494459F': Device or resource busy
+</span><span class='line'>==&gt; virtualbox-iso: Unregistering and deleting virtual machine...
+</span><span class='line'>==&gt; virtualbox-iso: Deleting output directory...
+</span><span class='line'>Build 'virtualbox-iso' errored: Script exited with non-zero exit status: 1
+</span><span class='line'>
+</span><span class='line'>==&gt; Some builds didn't complete successfully and had errors:
+</span><span class='line'>--&gt; virtualbox-iso: Script exited with non-zero exit status: 1
+</span><span class='line'>
+</span><span class='line'>==&gt; Builds finished but no artifacts were created.
+</span><span class='line'>    :
+</span><span class='line'>    :</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>原因</h3>
+
+<p>packer-windows 実行ファイルの ver 1.23 で修正済み。 1.22 以前のバージョンでは修正の必要あり</p>
+
+<p><a href="https://github.com/joefitzgerald/packer-windows">本家 packer-windows URL</a></p>
+
+<p>windows_7.json の下記を修正</p>
+
+<ul>
+<li>修正前</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> "type": "shell",
+</span><span class='line'>  "inline": [
+</span><span class='line'>    "rm -rf /tmp/*"
+</span><span class='line'>  ]
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>修正後</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> "type": "shell",
+</span><span class='line'>  "inline": [
+</span><span class='line'>    "rm -rf /tmp/* || ! false"
+</span><span class='line'>  ]
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><p><a href="http://qiita.com/hnakamur/items/da0ed14192a18405f704">OSXでpackerでCentOS6.4のVirtualBox VMを作成する</a></p></li>
+<li><p><a href="http://azukipochette.hatenablog.com/entry/2014/05/16/212551">Packer で Windows の Box (vmware-iso) を作成するまで</a></p></li>
+<li><p><a href="http://www.nofuture.tv/diary/20140530.html">packer-windowsテンプレートを使ってWindows 8.1 update(日本語版)評価版のVagrant Boxができた</a></p></li>
+<li><p><a href="https://github.com/joefitzgerald/packer-windows">packer-windows</a></p>
+
+<ul>
+<li>このテンプレートを Fork して使ってみる</li>
+</ul>
+</li>
+<li><p><a href="http://unattended.sourceforge.net/timezones.php">Index numbers for GuiUnattended/TimeZone</a></p></li>
+<li><p><a href="https://github.com/develersrl/packer-windows-vm.git">packer-windows-vm</a></p></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2014/10/22/chef-chef-repo/">Chef 関連の Directory 構成を考える</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-22T22:05:02+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>概要</h1>
+
+<h1>やりたいこと</h1>
+
+<ul>
+<li>1 台の PC で複数の Workstation を扱いたい</li>
+<li>chef-server と chef-solo を併用したい</li>
+<li>chef-solo から将来的に chef-server へ移行する際の面倒を避けたい</li>
+</ul>
+
+
+<h1>Directory 全体像</h1>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>.
+</span><span class='line'>|-- berkshelf
+</span><span class='line'>|-- site-cookbooks
+</span><span class='line'>|-- workstation</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>site-cookbooks</h1>
+
+<ul>
+<li>自作 cookbook は同 Directory 以下に作成する</li>
+<li>各 chef-repo 以下には site-cookbooks を作成しない</li>
+</ul>
+
+
+<h1>workstations</h1>
+
+<ul>
+<li>workstations directory 以下に組織毎に chef-repo 用 directory を作成する</li>
+<li>組織は hosted chef の Organization と紐付けすることを想定</li>
+<li>chef-server/chef-solo どちらで利用するかに関係なく workstations directory 以下に作成していく</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>.
+</span><span class='line'>`-- workstations
+</span><span class='line'>    |-- Organization_A
+</span><span class='line'>    |   |-- .chef
+</span><span class='line'>    |   |-- cookbooks
+</span><span class='line'>    |   |-- data_bags
+</span><span class='line'>    |   |-- environments
+</span><span class='line'>    |     :     
+</span><span class='line'>    |     :     
+</span><span class='line'>    |   `-- roles
+</span><span class='line'>    |-- Organization_B
+</span><span class='line'>      :
+</span><span class='line'>      :
+</span><span class='line'>    `-- Organization_Z
+</span><span class='line'>        |-- .chef
+</span><span class='line'>        |-- cookbooks
+</span><span class='line'>        |-- data_bags
+</span><span class='line'>        |-- environments
+</span><span class='line'>          :     
+</span><span class='line'>        `-- roles
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>.chef/knife.rb</h1>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>log_level                :info
+</span><span class='line'>log_location             STDOUT
+</span><span class='line'>node_name                'r-ogata'
+</span><span class='line'>client_key               'r-ogata.cer'
+</span><span class='line'>validation_client_name   'tech-sales-validator'
+</span><span class='line'>validation_key           'tech-sales-validator.cer'
+</span><span class='line'>chef_server_url          'https://api.opscode.com/organizations/tech-sales'
+</span><span class='line'>knife[:editor] =         '/usr/bin/vim'
+</span><span class='line'>cookbook_path            ['cookbooks', '../../site-cookbooks']</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2014/10/22/chef-chef-solo-knife-solo-chef-client/">Chef の登場人物をさらっとまとめてみる</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-22T13:57:56+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>概要</h1>
+
+<p>chef-solo とか knife-solo とか似たような chef 用語が色々とあるので、整理をかねて簡単にまとめてみる</p>
+
+<h2>chef-solo</h2>
+
+<p>chef-solo とは?</p>
+
+<ul>
+<li>chef-server を利用しない</li>
+<li>単一の node で完結</li>
+<li>chef-repo を node 自身に保持</li>
+</ul>
+
+
+<h2>knife-solo</h2>
+
+<p>knife-solo とは?</p>
+
+<ul>
+<li>下記の作業を自動化してくれるツール
+
+<ul>
+<li>手元の cookbook をリモート node に転送</li>
+<li>リモート node 上で chef-solo コマンド実行</li>
+</ul>
+</li>
+</ul>
+
+
+<h2>chef-client</h2>
+
+<p>chef-client とは?</p>
+
+<ul>
+<li>chef-server と連携して動作</li>
+<li>Node の収束を実施</li>
+<li>Node の情報収集</li>
+<li>etc</li>
+</ul>
+
+
+<h3>chef-client ローカルモード</h3>
+
+<p>chef-client ローカルモードとは?</p>
+
+<ul>
+<li>Chef 11.x から追加されたモード</li>
+<li>Chef-Client/Server環境の簡易版</li>
+<li>chef-solo の代わり</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2014/10/22/chef/">Windows 関連 Cookbook/recipe 命名規則</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-22T09:08:02+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>概要</h1>
+
+<p>Windows 関連の Cookbook を作成する際の命名規則のまとめ</p>
+
+<h1>cookbook 命名規則</h1>
+
+<h2>アプリケーションインストール</h2>
+
+<p>Wondows にアプリケーションをインストールする Cookbook を作成する際の命名規則</p>
+
+<p>命名規則:<br/>
+<code>アプリケーション名-windows</code></p>
+
+<p>例:<br/>
+<code>apache2-windows</code></p>
+
+<h2>Windows 設定関連</h2>
+
+<p>Windows OS の設定を変更する Cookbook を作成する際の命名規則</p>
+
+<p>命名規則:<br/>
+<code>windows_設定</code></p>
+
+<p>例:<br/>
+<code>windows_firewall</code></p>
+
+<h1>recipe 命名規則</h1>
+
+<h2>アプリケーションインストール</h2>
+
+<p>Wondows にアプリケーションをインストールする recipe を作成する際の命名規則</p>
+
+<h3>アプリケーションのインストール recipe</h3>
+
+<p>命名規則:<br/>
+<code>default.rb</code></p>
+
+<h3>アプリケーションのアップデート recipe</h3>
+
+<p>命名規則:<br/>
+<code>update.rb</code></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2014/10/20/vagrant-chef-server/">Vagrant と Hosted Chef との連携</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-20T15:35:34+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>概要</h1>
+
+<p>Vagrant の Provisioner に Chef Client を利用し、Chef Server に Hosted Chef を利用する</p>
+
+<h2>Vagrantfile</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>config.vm.provision "chef_client" do |chef|
+</span><span class='line'>  chef.chef_server_url = "https://api.opscode.com/organizations/tech-sales"
+</span><span class='line'>  chef.validation_client_name = "tech-sales-validator"
+</span><span class='line'>  chef.validation_key_path = "../../hosted-chef-repo/.chef/tech-sales-validator.pem"
+</span><span class='line'>  chef.environment = "setup"
+</span><span class='line'>  chef.node_name = "chef-test"
+</span><span class='line'>  chef.delete_node = true
+</span><span class='line'>  chef.delete_client = true
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><p>chef_server_url</p>
+
+<ul>
+<li>Organizations 毎に変わる</li>
+</ul>
+</li>
+<li><p>validation_client_name</p>
+
+<ul>
+<li>Hosted Chef Server に Node を登録する際に使用するユーザ名</li>
+<li>Hosted Chef の Organization の Client で、<code>Validation Client</code> として利用する Client 名を指定する
+
+<ul>
+<li>default の <code>chef-validator</code> ではダメ</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2014/10/20/chef-chef-repo/">Chef-repo をみなおしてみる</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-20T10:53:18+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>概要</h1>
+
+<p>chef を使い始めてから chef-repo がだいぶ汚れて(?)きたので整理してみる</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git clone git://github.com/opscode/chef-repo.git hosted-chef-repo
+</span><span class='line'>$ cd hosted-chef-repo
+</span><span class='line'>$ rm -rf .git
+</span><span class='line'>$ mkdir .chef
+</span><span class='line'>$ mkdir .berkshelf</span></code></pre></td></tr></table></div></figure>
+
+
+<p>organization の starter-kit を Download</p>
+
+<p>psg-validator.pem と r-ogata.pem を .chef にコピー</p>
+
+<p>knife.rb</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>log_level                :info
+</span><span class='line'>log_location             STDOUT
+</span><span class='line'>node_name                ''
+</span><span class='line'>client_key               ''
+</span><span class='line'>validation_client_name   ''
+</span><span class='line'>validation_key           ''
+</span><span class='line'>chef_server_url          ''
+</span><span class='line'>knife[:editor] =         '/usr/bin/vim'
+</span><span class='line'>cookbook_path            ['cookbooks', '../../site-cookbooks/']</span></code></pre></td></tr></table></div></figure>
+
+
+<p>config.json</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{
+</span><span class='line'>  "chef": {
+</span><span class='line'>    "node_name": "",
+</span><span class='line'>    "client_key": "",
+</span><span class='line'>    "validation_client_name": "",
+</span><span class='line'>    "validation_key_path": "",
+</span><span class='line'>    "chef_server_url": ""
+</span><span class='line'>  },
+</span><span class='line'>  "ssl":{
+</span><span class='line'>    "verify": false
+</span><span class='line'>  }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p><a href="https://manage.opscode.com/login">https://manage.opscode.com/login</a></p>
+
+<p><a href="https://manage.opscode.com/starter-kit">https://manage.opscode.com/starter-kit</a></p>
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="https://docs.getchef.com/essentials_repository_create.html">Create the chef-repo</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2014/10/16/vagrant/">Vagrant の Provisioner に Chef Client を利用する際に遭遇したトラブルとその解決策</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-16T16:41:05+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>概要</h1>
+
+<p>Vagrant の Provisioner に Chef Client を利用する際に遭遇したトラブルとその解決策</p>
+
+<h3>内容</h3>
+
+<p>Hosted Chef を Chef Server として利用し、下記の設定がされている状態で、vagrant destory を実行すると VM は削除されるが、Hosted Chef 上の Nodes/Clients から情報が削除されない。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>chef.chef_server_url = "https://api.opscode.com/organizations/tech-sales"
+</span><span class='line'>chef.validation_client_name = "tech-sales-validator"
+</span><span class='line'>chef.validation_key_path = "../../hosted-chef-repo/.chef/tech-sales-validator.pem"
+</span><span class='line'>chef.environment = "setup"
+</span><span class='line'>chef.node_name = "chef-test"
+</span><span class='line'>chef.delete_node = true
+</span><span class='line'>chef.delete_client = true</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>エラーログ</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>==&gt; default: Running cleanup tasks for 'chef_client' provisioner...
+</span><span class='line'>==&gt; default: Deleting client "chef-test" from Chef server...
+</span><span class='line'>==&gt; default: Cleaning up the 'client' for Chef failed. The stdout and
+</span><span class='line'>==&gt; default: stderr are shown below. Vagrant will continue destroying the machine,
+</span><span class='line'>==&gt; default: so please clean up these resources manually.
+</span><span class='line'>==&gt; default: 
+</span><span class='line'>==&gt; default: stdout: Response: Cannot load client chef-test
+</span><span class='line'>==&gt; default: 
+</span><span class='line'>==&gt; default: 
+</span><span class='line'>==&gt; default: stderr: ERROR: The object you are looking for could not be found
+</span><span class='line'>==&gt; default: Deleting node "chef-test" from Chef server...
+</span><span class='line'>==&gt; default: Cleaning up the 'node' for Chef failed. The stdout and
+</span><span class='line'>==&gt; default: stderr are shown below. Vagrant will continue destroying the machine,
+</span><span class='line'>==&gt; default: so please clean up these resources manually.
+</span><span class='line'>==&gt; default: 
+</span><span class='line'>==&gt; default: stdout: Response: node 'chef-test' not found
+</span><span class='line'>==&gt; default: 
+</span><span class='line'>==&gt; default: 
+</span><span class='line'>==&gt; default: stderr: ERROR: The object you are looking for could not be found</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>対応策</h3>
+
+<p>未解決</p>
+
+<h2>chef is not part of the bundle エラー</h2>
+
+<h3>内容</h3>
+
+<p>下記の設定がされている状態で、vagrant destory を実行すると VM は削除されるが、chef server 上の Nodes/Clients から情報が削除されない。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>chef.node_name = "vagrant-win7"
+</span><span class='line'>chef.delete_node = true</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>chef is not part of the bundle. Add it to Gemfile. (Gem::LoadError)</code> のエラーを吐いて処理が終了してしまう。</p>
+
+<h3>エラーログ</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant destroy -f
+</span><span class='line'>WARNING: Could not load IOV methods. Check your GSSAPI C library for an update
+</span><span class='line'>WARNING: Could not load AEAD methods. Check your GSSAPI C library for an update
+</span><span class='line'>==&gt; default: Forcing shutdown of VM...
+</span><span class='line'>==&gt; default: Destroying VM and associated drives...
+</span><span class='line'>==&gt; default: Running cleanup tasks for 'chef_client' provisioner...
+</span><span class='line'>==&gt; default: Deleting client "vagrant-win7.example.local" from Chef server...
+</span><span class='line'>==&gt; default: Cleaning up the 'client' for Chef failed. The stdout and
+</span><span class='line'>==&gt; default: stderr are shown below. Vagrant will continue destroying the machine,
+</span><span class='line'>==&gt; default: so please clean up these resources manually.
+</span><span class='line'>==&gt; default: 
+</span><span class='line'>==&gt; default: stdout: 
+</span><span class='line'>==&gt; default: 
+</span><span class='line'>==&gt; default: stderr: /Applications/Vagrant/embedded/gems/gems/bundler-1.6.2/lib/bundler/rubygems_integration.rb:252:in `block in replace_gem': chef is not part of the bundle. Add it to Gemfile. (Gem::LoadError)
+</span><span class='line'>==&gt; default:   from /Users/ryo/.rvm/gems/ruby-2.0.0-p451@railstutorial_rails_4_0/bin/knife:22:in `&lt;main&gt;'
+</span><span class='line'>==&gt; default:   from /Users/ryo/.rvm/gems/ruby-2.0.0-p451@railstutorial_rails_4_0/bin/ruby_executable_hooks:15:in `eval'
+</span><span class='line'>==&gt; default:   from /Users/ryo/.rvm/gems/ruby-2.0.0-p451@railstutorial_rails_4_0/bin/ruby_executable_hooks:15:in `&lt;main&gt;'
+</span><span class='line'>==&gt; default: Deleting node "vagrant-win7.example.local" from Chef server...
+</span><span class='line'>==&gt; default: Cleaning up the 'node' for Chef failed. The stdout and
+</span><span class='line'>==&gt; default: stderr are shown below. Vagrant will continue destroying the machine,
+</span><span class='line'>==&gt; default: so please clean up these resources manually.
+</span><span class='line'>==&gt; default: 
+</span><span class='line'>==&gt; default: stdout: 
+</span><span class='line'>==&gt; default: 
+</span><span class='line'>==&gt; default: stderr: /Applications/Vagrant/embedded/gems/gems/bundler-1.6.2/lib/bundler/rubygems_integration.rb:252:in `block in replace_gem': chef is not part of the bundle. Add it to Gemfile. (Gem::LoadError)
+</span><span class='line'>==&gt; default:   from /Users/ryo/.rvm/gems/ruby-2.0.0-p451@railstutorial_rails_4_0/bin/knife:22:in `&lt;main&gt;'
+</span><span class='line'>==&gt; default:   from /Users/ryo/.rvm/gems/ruby-2.0.0-p451@railstutorial_rails_4_0/bin/ruby_executable_hooks:15:in `eval'
+</span><span class='line'>==&gt; default:   from /Users/ryo/.rvm/gems/ruby-2.0.0-p451@railstutorial_rails_4_0/bin/ruby_executable_hooks:15:in `&lt;main&gt;'</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>対応策</h3>
+
+<p>Vagrant の Version を 1.6.5 に上げる</p>
+
+<p>Vagrant 1.6.3 だとエラーが出るが、 1.6.5 だとエラーが出ず、Chef Server 上から Nodes/Clients から情報が削除される。</p>
+
+<h2>NameError</h2>
+
+<h3>内容</h3>
+
+<p>下記の設定がされている状態で、vagrant destory を実行すると VM は削除されるが、chef server 上の Nodes/Clients から情報が削除されない。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>chef.delete_node = true</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>uninitialized constant Berkshelf::BerkshelfError (NameError)</code> のエラーを吐いて処理が終了してしまう。</p>
+
+<h3>エラーログ</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant destroy -f
+</span><span class='line'>
+</span><span class='line'>WARNING: Could not load IOV methods. Check your GSSAPI C library for an update
+</span><span class='line'>WARNING: Could not load AEAD methods. Check your GSSAPI C library for an update
+</span><span class='line'>==&gt; default: Forcing shutdown of VM...
+</span><span class='line'>==&gt; default: Destroying VM and associated drives...
+</span><span class='line'>==&gt; default: Running cleanup tasks for 'chef_client' provisioner...
+</span><span class='line'>==&gt; default: Deleting client "" from Chef server...
+</span><span class='line'>/Users/ryo/.vagrant.d/gems/gems/vagrant-berkshelf-3.0.1/lib/berkshelf/vagrant/action/clean.rb:21:in `rescue in call': uninitialized constant Berkshelf::BerkshelfError (NameError)</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>対応策</h3>
+
+<p>Chef Server 上のどの Node を削除するのか指定できないので、エラーで止まるみたい。</p>
+
+<p>Vagrantfile に下記の記述を追加して対応</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>chef.node_name = "vagrant-win7"</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2014/10/16/octopress/">Octopress 入門してみた</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-16T12:20:15+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>概要</h1>
+
+<p>Octopress を使って Blog を公開してみようと思い立ってから、あれこれ調べたこと。</p>
+
+<h2>参照 URL</h2>
+
+<ul>
+<li><a href="http://www.slideshare.net/yizawa/octopress">Octpress簡単スタートガイド</a></li>
+</ul>
+
+
+<h1>Octopress セットアップ</h1>
+
+<h2>Octopress を持ってくる</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git clone git://github.com/imathis/octopress.git octopress</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>bundler の実行</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ bundle install --path vendor/bundle --binstubs vendor/binstubs</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Default テーマの設定</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake install</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>static サイトの生成</h2>
+
+<h3>サイトの生成</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake generate</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Preview の表示</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake preview</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>手元の octpress Directory と github の master ブランチを連携させる</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake setup_github_pages
+</span><span class='line'>Enter the read/write url for your repository
+</span><span class='line'>(For example, 'git@github.com:your_username/your_username.github.io.git)
+</span><span class='line'>           or 'https://github.com/your_username/your_username.github.io')
+</span><span class='line'>Repository url: https://github.com/ryoogata/ryoogata.github.io.git
+</span><span class='line'>Added remote https://github.com/ryoogata/ryoogata.github.io.git as origin
+</span><span class='line'>Set origin as default remote
+</span><span class='line'>Master branch renamed to 'source' for committing your blog source files
+</span><span class='line'>rm -rf _deploy
+</span><span class='line'>mkdir _deploy
+</span><span class='line'>cd _deploy
+</span><span class='line'>Initialized empty Git repository in /Users/ryo/Dropbox/octopress/_deploy/.git/
+</span><span class='line'>[master (root-commit) 9208c45] Octopress init
+</span><span class='line'> 1 file changed, 1 insertion(+)
+</span><span class='line'> create mode 100644 index.html
+</span><span class='line'>cd -
+</span><span class='line'>
+</span><span class='line'>---
+</span><span class='line'>## Now you can deploy to https://github.com/ryoogata/ryoogata.github.io.git with `rake deploy` ##</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>octpress Directory 自体 を source ブランチに登録する</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git add .
+</span><span class='line'>$ git commit -m "first commit"
+</span><span class='line'>$ git push origin source
+</span><span class='line'>
+</span><span class='line'>Counting objects: 4901, done.
+</span><span class='line'>Delta compression using up to 4 threads.
+</span><span class='line'>Compressing objects: 100% (2181/2181), done.
+</span><span class='line'>Writing objects: 100% (4901/4901), 1.34 MiB | 231.00 KiB/s, done.
+</span><span class='line'>Total 4901 (delta 2366), reused 4871 (delta 2338)
+</span><span class='line'>To https://github.com/ryoogata/ryoogata.github.io.git
+</span><span class='line'> * [new branch]      source -&gt; source</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>記事の作成</h1>
+
+<h2>記事の準備</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake new_post['vagrant chef-Server']</span></code></pre></td></tr></table></div></figure>
+
+
+<p>rake new_post[&lsquo;&rsquo;]の引数として、空白区切りで 最初の単語をcategory、後の単語を全てtagsとして登録する</p>
+
+<h2>記事を複数のカテゴリに含める</h2>
+
+<p>category の箇所に複数のカテゴリを記述する</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>layout: post
+</span><span class='line'>title: "Vagrant の Provisioner に Chef Client を利用する際に遭遇したトラブルとその解決策" 
+</span><span class='line'>date: 2014-10-16 16:41:05 +0900
+</span><span class='line'>comments: true
+</span><span class='line'>category: ["vagrant", "chef"]
+</span><span class='line'>tags: ["Chef-Server"]
+</span><span class='line'>keywords: Chef, Chef-Server, vagrant
+</span><span class='line'>published: true </span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Customize</h1>
+
+<h2>記事のパーマリンク変更</h2>
+
+<p>_config.yml</p>
+
+<ul>
+<li><p>修正前
+permalink: /blog/:year/:month/:day/:title/</p></li>
+<li><p>修正後
+permalink: /blog/:categories/:title/</p></li>
+</ul>
+
+
+<h2>タグクラウド</h2>
+
+<p><a href="http://rcmdnk.github.io/blog/2013/03/23/octopress/#section-4">Octopress Tips</a></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cd /tmp
+</span><span class='line'>$ git clone https://github.com/tokkonopapa/octopress-tagcloud
+</span><span class='line'>$ cd octopress-tagcloud/
+</span><span class='line'>$ cp tag_cloud.rb ~/Dropbox/ryoogata.github.io/plugins/
+</span><span class='line'>$ cp source/_includes/custom/asides/tag_cloud.html ~/Dropbox/octopress/source/_includes/custom/asides/
+</span><span class='line'>$ cp source/_includes/custom/asides/category_list.html ~/Dropbox/octopress/source/_includes/custom/asides/</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>記事の下書き設定</h2>
+
+<p>Rakefile に <code>published: false</code> を追加</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>111   open(filename, 'w') do |post|
+</span><span class='line'>112     post.puts "---"
+</span><span class='line'>113     post.puts "layout: post"
+</span><span class='line'>114     post.puts "title: \"#{title.gsub(/&/,'&amp;')}\""
+</span><span class='line'>115     post.puts "date: #{Time.now.strftime('%Y-%m-%d %H:%M:%S %z')}"
+</span><span class='line'>116     post.puts "comments: true"
+</span><span class='line'>117     post.puts "categories: "
+</span><span class='line'>118     post.puts "published: false"
+</span><span class='line'>119     post.puts "---"
+</span><span class='line'>120   end</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Tips</h1>
+
+<h2>rake deploy について</h2>
+
+<ul>
+<li>master ブランチ
+
+<ul>
+<li>static サイト用コンテンツ</li>
+<li>手元の octpress directory で generate したファイルが commit される</li>
+</ul>
+</li>
+<li>source ブランチ
+
+<ul>
+<li>octpress 用の記事のソース</li>
+</ul>
+</li>
+</ul>
+
+
+<p>github には master ブランチのファイルを元にページが作成される</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2014/04/22/a-sample-post/">This Is a Sample Post</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-22T14:40:00+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/2014/04/22/a-sample-post/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="1">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+  <p>A little something about me.</p>
+</section>
+<section>
+  <h1>Categories</h1>
+    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/kvm/'>kvm (1)</a></li><li><a href='/blog/categories/nat/'>nat (1)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/openvswitch/'>openvswitch (1)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/sample-post/'>sample post (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (3)</a></li><li><a href='/blog/categories/wakame-vdc/'>wakame-vdc (2)</a></li></ul>
+</section>
+<section>
+  <h1>Tag Cloud</h1>
+    <span id="tag-cloud"><a href='/blog/tags/boot2docker' style='font-size: 130.0%'>boot2docker(1)</a> <a href='/blog/tags/chef-client' style='font-size: 130.0%'>chef-client(1)</a> <a href='/blog/tags/chef-repo' style='font-size: 160.0%'>chef-repo(2)</a> <a href='/blog/tags/chef-server' style='font-size: 160.0%'>chef-server(2)</a> <a href='/blog/tags/chef-solo' style='font-size: 130.0%'>chef-solo(1)</a> <a href='/blog/tags/hosted-chef' style='font-size: 130.0%'>hosted chef(1)</a> <a href='/blog/tags/kitchen-ec2' style='font-size: 130.0%'>kitchen-ec2(1)</a> <a href='/blog/tags/knife-ec2' style='font-size: 160.0%'>knife-ec2(2)</a> <a href='/blog/tags/knife-solo' style='font-size: 130.0%'>knife-solo(1)</a> <a href='/blog/tags/kvm' style='font-size: 130.0%'>kvm(1)</a> <a href='/blog/tags/network' style='font-size: 130.0%'>network(1)</a> <a href='/blog/tags/windows' style='font-size: 130.0%'>windows(1)</a> </span>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2015/02/19/openvswitch/">openvswitch のインストールと初期セットアップ</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/19/wakame-vdc/">Wakame 用 カスタム KVM イメージ作成</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/19/nat/">iptables を利用した NAT Router</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/19/kvm/">KVM Tips</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/06/wakame-vdc-kvm/">Wakame-vdc のカスタムイメージ作成手順</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+  <h1>Twitter Timeline</h1>
+  <p><a class="twitter-timeline" href="https://twitter.com/rfrv_ryo" data-widget-id="531634940299841536">@rfrv_ryo からのツイート</a>
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Ryo Ogata -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  - <span class="credit">Theme by <a href="http://www.gehaxelt.in">Gehaxelt</a></span>
+  <span class="credit">and <a href="http://www.it-solutions-neef.de">IT Solutions Neef</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

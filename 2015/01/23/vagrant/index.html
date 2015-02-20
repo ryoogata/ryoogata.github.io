@@ -1,0 +1,602 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Vagrant Box を Atlas で管理 - YggdrasillNetwork Blog</title>
+  <meta name="author" content="Ryo Ogata">
+
+  
+  <meta name="description" content="概要 Vagrant Box を Atlas by HashiCorp を利用して管理するフローをまとめる。 やりたいこと Vagrant Box を一箇所で管理 test-kitchen の環境が会社と自宅にあり、それぞれ利用している Vagrant Box 異なってくる可能性があるため &hellip;">
+  <meta name="keywords" content="vagrant">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://ryoogata.github.io/2015/01/23/vagrant/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/stylesheets/data-table.css" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="YggdrasillNetwork Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">YggdrasillNetwork Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:ryoogata.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Vagrant Box を Atlas で管理</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-01-23T10:12:51+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h1>概要</h1>
+
+<p>Vagrant Box を Atlas by HashiCorp を利用して管理するフローをまとめる。</p>
+
+<h1>やりたいこと</h1>
+
+<ul>
+<li>Vagrant Box を一箇所で管理
+
+<ul>
+<li>test-kitchen の環境が会社と自宅にあり、それぞれ利用している Vagrant Box 異なってくる可能性があるため</li>
+</ul>
+</li>
+<li>Vagrant Box のバージョン管理
+
+<ul>
+<li>Vagrant Box に手を加える場合があるため</li>
+</ul>
+</li>
+</ul>
+
+
+<h1>必要なもの</h1>
+
+<ul>
+<li>Atlas アカウント</li>
+<li>AWS アカウント
+
+<ul>
+<li>S3 に Vagrant Box Image を保存するため</li>
+</ul>
+</li>
+<li>作業端末
+
+<ul>
+<li>Vagrant ver1.5.0 以上</li>
+</ul>
+</li>
+</ul>
+
+
+<h1>作業フロー</h1>
+
+<h2>ベースとなる Box の追加</h2>
+
+<p><code>vagrant box add</code> コマンドを利用して、ベースとなる Box を作業端末に追加する。</p>
+
+<ul>
+<li>chef/centos-6.6</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant box add chef/centos-6.6 
+</span><span class='line'>==&gt; box: Loading metadata for box 'chef/centos-6.6'
+</span><span class='line'>    box: URL: https://vagrantcloud.com/chef/centos-6.6
+</span><span class='line'>This box can work with multiple providers! The providers that it
+</span><span class='line'>can work with are listed below. Please review the list and choose
+</span><span class='line'>the provider you will be working with.
+</span><span class='line'>
+</span><span class='line'>1) virtualbox
+</span><span class='line'>2) vmware_desktop
+</span><span class='line'>
+</span><span class='line'>Enter your choice: 1
+</span><span class='line'>==&gt; box: Adding box 'chef/centos-6.6' (v1.0.0) for provider: virtualbox
+</span><span class='line'>    box: Downloading: https://vagrantcloud.com/chef/boxes/centos-6.6/versions/1.0.0/providers/virtualbox.box
+</span><span class='line'>==&gt; box: Successfully added box 'chef/centos-6.6' (v1.0.0) for 'virtualbox'!</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Vagrantfile の作成</h2>
+
+<p><code>vagrant init</code> コマンドを利用して、Vagrantfile を作成</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant init chef/centos-6.6
+</span><span class='line'>A `Vagrantfile` has been placed in this directory. You are now
+</span><span class='line'>ready to `vagrant up` your first virtual environment! Please read
+</span><span class='line'>the comments in the Vagrantfile as well as documentation on
+</span><span class='line'>`vagrantup.com` for more information on using Vagrant.</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>作成される Vagrantfile ( コメントアウト行は削除 )</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># -*- mode: ruby -*-
+</span><span class='line'># vi: set ft=ruby :
+</span><span class='line'>
+</span><span class='line'># Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+</span><span class='line'>VAGRANTFILE_API_VERSION = "2"
+</span><span class='line'>
+</span><span class='line'>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+</span><span class='line'>  config.vm.box = "chef/centos-6.6"
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Vagrantfile の修正</h2>
+
+<p>作成した Vagranfile の修正</p>
+
+<h3>追加必須</h3>
+
+<h4>synced_folder の disable</h4>
+
+<ul>
+<li>追加行</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>config.vm.synced_folder ".", "/vagrant", disabled: true</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Vagrantfile</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># -*- mode: ruby -*-
+</span><span class='line'># vi: set ft=ruby :
+</span><span class='line'>
+</span><span class='line'># Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+</span><span class='line'>VAGRANTFILE_API_VERSION = "2"
+</span><span class='line'>
+</span><span class='line'>Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+</span><span class='line'>  config.vm.box = "chef/centos-6.6"
+</span><span class='line'>  config.vm.synced_folder ".", "/vagrant", disabled: true
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>任意で追加</h3>
+
+<h4>Docker 環境セットアップ</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>config.vm.provision "docker" do |d| 
+</span><span class='line'>  d.version = 'latest'
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>chef 環境セットアップ</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>config.omnibus.chef_version = :latest</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Vagrant Box の起動</h2>
+
+<p><code>vagrant up</code> コマンドで起動</p>
+
+<h2>Vagrant Box のパッケージ化</h2>
+
+<p><code>vagrant package</code> コマンドを利用して Box のパッケージを作成</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant package --output centos-6.6.box
+</span><span class='line'>WARNING: Could not load IOV methods. Check your GSSAPI C library for an update
+</span><span class='line'>WARNING: Could not load AEAD methods. Check your GSSAPI C library for an update
+</span><span class='line'>==&gt; default: Attempting graceful shutdown of VM...
+</span><span class='line'>==&gt; default: Clearing any previously set forwarded ports...
+</span><span class='line'>==&gt; default: Exporting VM...
+</span><span class='line'>==&gt; default: Compressing package to: /private/tmp/centos-6.6.box</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>S3 へのアップロード</h2>
+
+<p>S3 の任意の場所に作成したパッケージファイル ( e.g. centos-6.6.box ) をアップロード。</p>
+
+<p>アップロード後、ファイルの <code>Everyone</code> へのパーミッションに <code>Open/Download</code> を付加する。</p>
+
+<p>Atlas 上に登録するために、Link の URL を控えておく</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>https://s3-ap-northeast-1.amazonaws.com/ryoogata.ap-northease-1.tech-dev.info/centos-6.6.box</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Atlas 上で新しい Box を作成 </h2>
+
+<h3>1. Atlas にログイン後、新規 Box 追加</h3>
+
+<p>Atlas ログイン直後の Development の Tab から create a box here. をクリックするか、下記の URL にアクセスして新規 Box 追加画面へ移る。</p>
+
+<p><a href="https://atlas.hashicorp.com/boxes/new">https://atlas.hashicorp.com/boxes/new</a></p>
+
+<h3>2. Create a new box</h3>
+
+<h4>Name</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>centos-6.6</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Short description</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>chef/centos-6.6 ( v1.0.0 ) base customized image</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Description</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>chef/centos-6.6 ( v1.0.0 ) をベースに下記のアプリケーションをインストール済みイメージ
+</span><span class='line'>
+</span><span class='line'>* Virtualbox Guest Additions
+</span><span class='line'>* Chef
+</span><span class='line'>* Docker</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>3. New Box Version</h3>
+
+<h4>Version</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>1.0.0</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Description</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>下記のバージョンのアプリケーションをインストール済みイメージ
+</span><span class='line'>
+</span><span class='line'>* Virtualbox Guest Additions
+</span><span class='line'>  * 4.3.20
+</span><span class='line'>* Chef
+</span><span class='line'>  * 12.0.3
+</span><span class='line'>* Docker
+</span><span class='line'>  * 1.3.2</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>4. New Box Provider</h3>
+
+<h4>Provider</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>virtualbox</span></code></pre></td></tr></table></div></figure>
+
+
+<p>`</p>
+
+<h4>URL</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>https://s3-ap-northeast-1.amazonaws.com/*******/centos-6.6.box</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>5. Release version</h3>
+
+<p><code>Release version</code> ボタンを押下し、リリースする</p>
+
+<h1>Vagrant トラブルシュート</h1>
+
+<h2>error: No such device</h2>
+
+<p>vagrant up 時、下記のエラーメッセージを吐いて起動に失敗する場合がある。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>==&gt; default: Mounting shared folders...
+</span><span class='line'>    default: /vagrant =&gt; /private/tmp
+</span><span class='line'>Vagrant::Errors::LinuxMountFailed: Failed to mount folders in Linux guest. This is usually because
+</span><span class='line'>the "vboxsf" file system is not available. Please verify that
+</span><span class='line'>the guest additions are properly installed in the guest and
+</span><span class='line'>can work properly. The command attempted was:
+</span><span class='line'>
+</span><span class='line'>mount -t vboxsf -o uid=`id -u vagrant`,gid=`getent group vagrant | cut -d: -f3` vagrant /vagrant
+</span><span class='line'>mount -t vboxsf -o uid=`id -u vagrant`,gid=`id -g vagrant` vagrant /vagrant
+</span><span class='line'>
+</span><span class='line'>The error output from the last command was:
+</span><span class='line'>
+</span><span class='line'>/sbin/mount.vboxsf: mounting failed with the error: No such device</span></code></pre></td></tr></table></div></figure>
+
+
+<p>sync folder が正常に mount できずにエラーになる。Vagrant box に Virtualbox Guest Additions がインストールされていなかったり、Vagrant のバージョンとの乖離がありすぎると問題になるみたい。</p>
+
+<p>Vagrant up 時に sync folder を mount しないように Vagrantfile に
+<code>config.vm.synced_folder ".", "/vagrant", disabled: true</code> の記述を追加して回避。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Ryo Ogata</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-01-23T10:12:51+09:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/vagrant/'>vagrant</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://ryoogata.github.io/2015/01/23/vagrant/" data-via="" data-counturl="http://ryoogata.github.io/2015/01/23/vagrant/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2014/11/02/chef-knife-ec2/" title="Previous Post: knife-ec2 や kitchen-ec2 のための環境変数設定">&laquo; knife-ec2 や kitchen-ec2 のための環境変数設定</a>
+      
+      
+        <a class="basic-alignment right" href="/2015/02/06/wakame-vdc-kvm/" title="Next Post: Wakame-vdc のカスタムイメージ作成手順">Wakame-vdc のカスタムイメージ作成手順 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+  <p>A little something about me.</p>
+</section>
+<section>
+  <h1>Categories</h1>
+    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/kvm/'>kvm (1)</a></li><li><a href='/blog/categories/nat/'>nat (1)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/openvswitch/'>openvswitch (1)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/sample-post/'>sample post (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (3)</a></li><li><a href='/blog/categories/wakame-vdc/'>wakame-vdc (2)</a></li></ul>
+</section>
+<section>
+  <h1>Tag Cloud</h1>
+    <span id="tag-cloud"><a href='/blog/tags/boot2docker' style='font-size: 130.0%'>boot2docker(1)</a> <a href='/blog/tags/chef-client' style='font-size: 130.0%'>chef-client(1)</a> <a href='/blog/tags/chef-repo' style='font-size: 160.0%'>chef-repo(2)</a> <a href='/blog/tags/chef-server' style='font-size: 160.0%'>chef-server(2)</a> <a href='/blog/tags/chef-solo' style='font-size: 130.0%'>chef-solo(1)</a> <a href='/blog/tags/hosted-chef' style='font-size: 130.0%'>hosted chef(1)</a> <a href='/blog/tags/kitchen-ec2' style='font-size: 130.0%'>kitchen-ec2(1)</a> <a href='/blog/tags/knife-ec2' style='font-size: 160.0%'>knife-ec2(2)</a> <a href='/blog/tags/knife-solo' style='font-size: 130.0%'>knife-solo(1)</a> <a href='/blog/tags/kvm' style='font-size: 130.0%'>kvm(1)</a> <a href='/blog/tags/network' style='font-size: 130.0%'>network(1)</a> <a href='/blog/tags/windows' style='font-size: 130.0%'>windows(1)</a> </span>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2015/02/19/openvswitch/">openvswitch のインストールと初期セットアップ</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/19/wakame-vdc/">Wakame 用 カスタム KVM イメージ作成</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/19/nat/">iptables を利用した NAT Router</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/19/kvm/">KVM Tips</a>
+      </li>
+    
+      <li class="post">
+        <a href="/2015/02/06/wakame-vdc-kvm/">Wakame-vdc のカスタムイメージ作成手順</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+  <h1>Twitter Timeline</h1>
+  <p><a class="twitter-timeline" href="https://twitter.com/rfrv_ryo" data-widget-id="531634940299841536">@rfrv_ryo からのツイート</a>
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Ryo Ogata -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  - <span class="credit">Theme by <a href="http://www.gehaxelt.in">Gehaxelt</a></span>
+  <span class="credit">and <a href="http://www.it-solutions-neef.de">IT Solutions Neef</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

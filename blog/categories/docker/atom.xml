@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: docker | YggdrasillNetwork Blog]]></title>
+  <link href="http://ryoogata.github.io/blog/categories/docker/atom.xml" rel="self"/>
+  <link href="http://ryoogata.github.io/"/>
+  <updated>2015-02-20T00:05:19+09:00</updated>
+  <id>http://ryoogata.github.io/</id>
+  <author>
+    <name><![CDATA[Ryo Ogata]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[docker boot2docker]]></title>
+    <link href="http://ryoogata.github.io/2014/10/27/docker-boot2docker/"/>
+    <updated>2014-10-27T22:43:43+09:00</updated>
+    <id>http://ryoogata.github.io/2014/10/27/docker-boot2docker</id>
+    <content type="html"><![CDATA[<h1>概要</h1>
+
+<p>Mac OSX Yosemite (ver. 10.10 ) に boot2docker をインストールした際のメモ</p>
+
+<h1>インストール</h1>
+
+<p><a href="https://github.com/boot2docker/osx-installer/releases/tag/v1.3.0">https://github.com/boot2docker/osx-installer/releases/tag/v1.3.0</a></p>
+
+<h2>初期設定</h2>
+
+<pre><code>$ boot2docker init
+
+Latest release for boot2docker/boot2docker is v1.3.0
+Downloading boot2docker ISO image...
+Success: downloaded https://github.com/boot2docker/boot2docker/releases/download/v1.3.0/boot2docker.iso
+    to /Users/ryo/.boot2docker/boot2docker.iso
+Generating public/private rsa key pair.
+Your identification has been saved in /Users/ryo/.ssh/id_boot2docker.
+Your public key has been saved in /Users/ryo/.ssh/id_boot2docker.pub.
+The key fingerprint is:
+38:85:1a:95:36:4d:a2:d0:9c:f2:23:61:f3:6b:89:52 ryo@MacBook-Air.local
+The key's randomart image is:
++--[ RSA 2048]----+
+|  .o .o+.        |
+|  =.+o+o.        |
+| . *o....        |
+|  E +o o         |
+| . o.+o S        |
+|. . +  .         |
+| . .             |
+|                 |
+|                 |
++-----------------+
+</code></pre>
+
+<pre><code>$ boot2docker start
+
+Waiting for VM and Docker daemon to start...
+...........................oooooooooooooooooooooooooooo
+Started.
+Writing /Users/ryo/.boot2docker/certs/boot2docker-vm/ca.pem
+Writing /Users/ryo/.boot2docker/certs/boot2docker-vm/cert.pem
+Writing /Users/ryo/.boot2docker/certs/boot2docker-vm/key.pem
+
+To connect the Docker client to the Docker daemon, please set:
+    export DOCKER_TLS_VERIFY=1
+    export DOCKER_HOST=tcp://192.168.59.103:2376
+    export DOCKER_CERT_PATH=/Users/ryo/.boot2docker/certs/boot2docker-vm
+</code></pre>
+
+<p>.bashrc</p>
+
+<pre><code>export DOCKER_TLS_VERIFY=1
+export DOCKER_HOST=tcp://192.168.59.103:2376
+export DOCKER_CERT_PATH=/Users/ryo/.boot2docker/certs/boot2docker-vm
+</code></pre>
+
+<pre><code>$ $(boot2docker shellinit)
+Writing /Users/ryo/.boot2docker/certs/boot2docker-vm/ca.pem
+Writing /Users/ryo/.boot2docker/certs/boot2docker-vm/cert.pem
+Writing /Users/ryo/.boot2docker/certs/boot2docker-vm/key.pem    
+</code></pre>
+
+<pre><code>$ boot2docker socket
+
+     export DOCKER_HOST=tcp://192.168.59.103:2376
+</code></pre>
+
+<h2>動作検証</h2>
+
+<h3>boot2docker へのログイン</h3>
+
+<pre><code>$ boot2docker ssh
+                        ##        .
+                  ## ## ##       ==
+               ## ## ## ##      ===
+           /""""""""""""""""\___/ ===
+      ~~~ {~~ ~~~~ ~~~ ~~~~ ~~ ~ /  ===- ~~~
+           \______ o          __/
+             \    \        __/
+              \____\______/
+ _                 _   ____     _            _
+| |__   ___   ___ | |_|___ \ __| | ___   ___| | _____ _ __
+| '_ \ / _ \ / _ \| __| __) / _` |/ _ \ / __| |/ / _ \ '__|
+| |_) | (_) | (_) | |_ / __/ (_| | (_) | (__|   &lt;  __/ |
+|_.__/ \___/ \___/ \__|_____\__,_|\___/ \___|_|\_\___|_|
+boot2docker: 1.3.0
+             master : a083df4 - Thu Oct 16 17:05:03 UTC 2014
+</code></pre>
+
+<pre><code>$ docker run hello-world
+Unable to find image 'hello-world' locally
+hello-world:latest: The image you are pulling has been verified
+
+511136ea3c5a: Pull complete 
+7fa0dcdc88de: Pull complete 
+ef872312fe1b: Pull complete 
+Status: Downloaded newer image for hello-world:latest
+Hello from Docker.
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+    (Assuming it was not already locally available.)
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+
+To try something more ambitious, you can run an Ubuntu container with:
+ $ docker run -it ubuntu bash
+
+For more examples and ideas, visit:
+ http://docs.docker.com/userguide/
+</code></pre>
+
+<pre><code>$ docker pull ubuntu
+ubuntu:latest: The image you are pulling has been verified
+d497ad3926c8: Pull complete 
+ccb62158e970: Pull complete 
+e791be0477f2: Pull complete 
+3680052c0f5c: Pull complete 
+22093c35d77b: Pull complete 
+5506de2b643b: Pull complete 
+511136ea3c5a: Already exists 
+Status: Downloaded newer image for ubuntu:latest
+</code></pre>
+
+<pre><code>$ docker run ubuntu /bin/echo hello world
+hello world
+</code></pre>
+
+<h1>2 回目以降</h1>
+
+<pre><code>$ boot2docker start
+
+Waiting for VM and Docker daemon to start...
+.................oooo
+Started.
+Writing /Users/ryo/.boot2docker/certs/boot2docker-vm/ca.pem
+Writing /Users/ryo/.boot2docker/certs/boot2docker-vm/cert.pem
+Writing /Users/ryo/.boot2docker/certs/boot2docker-vm/key.pem
+Your environment variables are already set correctly.
+</code></pre>
+
+<h1>Memo</h1>
+
+<p>Dockerfile</p>
+
+<pre><code>FROM ubuntu:12.04
+
+RUN apt-get -qq update
+RUN apt-get install -yqq apache2
+ENV APACHE_RUN_USER www-data
+ENV APACHE_RUN_GROUP www-data
+ENV APACHE_LOG_DIR /var/log/apache2
+
+CMD ["/usr/sbin/apache2", "-D", "FOREGROUND"]
+</code></pre>
+
+<h1>参照 URL</h1>
+
+<p><a href="http://qiita.com/AH_korikori/items/8a165c081e8eb699deb3">http://qiita.com/AH_korikori/items/8a165c081e8eb699deb3</a>
+/</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Docker のバージョンを追っかける]]></title>
+    <link href="http://ryoogata.github.io/2014/10/24/docker/"/>
+    <updated>2014-10-24T23:58:09+09:00</updated>
+    <id>http://ryoogata.github.io/2014/10/24/docker</id>
+    <content type="html"><![CDATA[<h1>概要</h1>
+
+<p>Docker のバージョンアップを追っかける</p>
+
+<h1>バージョン履歴</h1>
+
+<table>
+<thead>
+<tr>
+<th>バージョン</th>
+<th>リリース日  </th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.4.1   </td>
+<td>2014/12/17</td>
+<td><a href="http://bit.ly/1GRTIae">http://bit.ly/1GRTIae</a></td>
+</tr>
+<tr>
+<td>1.4.0   </td>
+<td>2014/12/11</td>
+<td><a href="http://bit.ly/1wn3igI">http://bit.ly/1wn3igI</a></td>
+</tr>
+<tr>
+<td>1.3.3   </td>
+<td>2014/12/11</td>
+<td><a href="http://bit.ly/1wn3igI">http://bit.ly/1wn3igI</a></td>
+</tr>
+<tr>
+<td>1.3.2   </td>
+<td>2014/11/24</td>
+<td><a href="http://bit.ly/1vIYXke">http://bit.ly/1vIYXke</a></td>
+</tr>
+<tr>
+<td>1.3.1   </td>
+<td>2014/11/05</td>
+<td><a href="http://bit.ly/11dAEUE">http://bit.ly/11dAEUE</a></td>
+</tr>
+<tr>
+<td>1.3.0   </td>
+<td>2014/10/16</td>
+<td><a href="http://bit.ly/1vnovr9">http://bit.ly/1vnovr9</a></td>
+</tr>
+<tr>
+<td>1.2.0   </td>
+<td>2014/08/22</td>
+<td><a href="http://bit.ly/1z4tQ9B">http://bit.ly/1z4tQ9B</a></td>
+</tr>
+<tr>
+<td>1.1.0   </td>
+<td>2014/07/03</td>
+<td><a href="http://bit.ly/U5ar6k">http://bit.ly/U5ar6k</a></td>
+</tr>
+<tr>
+<td>1.0.0   </td>
+<td>2014/06/09</td>
+<td><a href="http://bit.ly/1wleJYt">http://bit.ly/1wleJYt</a></td>
+</tr>
+<tr>
+<td>0.11.0  </td>
+<td>2014/05/07</td>
+<td><a href="http://bit.ly/1woNMRd">http://bit.ly/1woNMRd</a></td>
+</tr>
+<tr>
+<td>0.10.0  </td>
+<td>2014/04/08</td>
+<td><a href="http://bit.ly/1ts2FC4">http://bit.ly/1ts2FC4</a></td>
+</tr>
+<tr>
+<td>0.9.0   </td>
+<td>2014/03/10</td>
+<td><a href="http://bit.ly/1pIceIe">http://bit.ly/1pIceIe</a></td>
+</tr>
+<tr>
+<td>0.8.0   </td>
+<td>2014/02/04</td>
+<td><a href="http://bit.ly/1tjF1sI">http://bit.ly/1tjF1sI</a></td>
+</tr>
+<tr>
+<td>0.7.0   </td>
+<td>2013/11/26</td>
+<td><a href="http://bit.ly/1uQ8B4A">http://bit.ly/1uQ8B4A</a></td>
+</tr>
+<tr>
+<td>0.6.0   </td>
+<td>2013/08/23</td>
+<td><a href="http://bit.ly/1zoRsXy">http://bit.ly/1zoRsXy</a></td>
+</tr>
+<tr>
+<td>0.5.0   </td>
+<td>2013/07/18</td>
+<td><a href="http://bit.ly/10rC7Gs">http://bit.ly/10rC7Gs</a></td>
+</tr>
+<tr>
+<td>0.4.0   </td>
+<td>2013/06/03</td>
+<td><a href="http://bit.ly/1ts30F0">http://bit.ly/1ts30F0</a></td>
+</tr>
+<tr>
+<td>0.3.0   </td>
+<td>2013/05/06</td>
+<td><a href="http://bit.ly/1D7dcnw">http://bit.ly/1D7dcnw</a></td>
+</tr>
+<tr>
+<td>0.2.0   </td>
+<td>2013/04/25</td>
+<td><a href="http://bit.ly/1wlfdO5">http://bit.ly/1wlfdO5</a></td>
+</tr>
+<tr>
+<td>0.1.0   </td>
+<td>2013/03/20</td>
+<td><a href="http://bit.ly/1vZeQYd">http://bit.ly/1vZeQYd</a></td>
+</tr>
+</tbody>
+</table>
+
+]]></content>
+  </entry>
+  
+</feed>

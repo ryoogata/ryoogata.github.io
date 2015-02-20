@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Tag: Chef-repo | YggdrasillNetwork Blog]]></title>
+  <link href="http://ryoogata.github.io/blog/tags/chef-repo/atom.xml" rel="self"/>
+  <link href="http://ryoogata.github.io/"/>
+  <updated>2015-02-20T00:05:19+09:00</updated>
+  <id>http://ryoogata.github.io/</id>
+  <author>
+    <name><![CDATA[Ryo Ogata]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Chef 関連の Directory 構成を考える]]></title>
+    <link href="http://ryoogata.github.io/2014/10/22/chef-chef-repo/"/>
+    <updated>2014-10-22T22:05:02+09:00</updated>
+    <id>http://ryoogata.github.io/2014/10/22/chef-chef-repo</id>
+    <content type="html"><![CDATA[<h1>概要</h1>
+
+<h1>やりたいこと</h1>
+
+<ul>
+<li>1 台の PC で複数の Workstation を扱いたい</li>
+<li>chef-server と chef-solo を併用したい</li>
+<li>chef-solo から将来的に chef-server へ移行する際の面倒を避けたい</li>
+</ul>
+
+
+<h1>Directory 全体像</h1>
+
+<pre><code>.
+|-- berkshelf
+|-- site-cookbooks
+|-- workstation
+</code></pre>
+
+<h1>site-cookbooks</h1>
+
+<ul>
+<li>自作 cookbook は同 Directory 以下に作成する</li>
+<li>各 chef-repo 以下には site-cookbooks を作成しない</li>
+</ul>
+
+
+<h1>workstations</h1>
+
+<ul>
+<li>workstations directory 以下に組織毎に chef-repo 用 directory を作成する</li>
+<li>組織は hosted chef の Organization と紐付けすることを想定</li>
+<li>chef-server/chef-solo どちらで利用するかに関係なく workstations directory 以下に作成していく</li>
+</ul>
+
+
+<pre><code>.
+`-- workstations
+    |-- Organization_A
+    |   |-- .chef
+    |   |-- cookbooks
+    |   |-- data_bags
+    |   |-- environments
+    |     :     
+    |     :     
+    |   `-- roles
+    |-- Organization_B
+      :
+      :
+    `-- Organization_Z
+        |-- .chef
+        |-- cookbooks
+        |-- data_bags
+        |-- environments
+          :     
+        `-- roles
+</code></pre>
+
+<h1>.chef/knife.rb</h1>
+
+<pre><code>log_level                :info
+log_location             STDOUT
+node_name                'r-ogata'
+client_key               'r-ogata.cer'
+validation_client_name   'tech-sales-validator'
+validation_key           'tech-sales-validator.cer'
+chef_server_url          'https://api.opscode.com/organizations/tech-sales'
+knife[:editor] =         '/usr/bin/vim'
+cookbook_path            ['cookbooks', '../../site-cookbooks']
+</code></pre>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Chef-repo をみなおしてみる]]></title>
+    <link href="http://ryoogata.github.io/2014/10/20/chef-chef-repo/"/>
+    <updated>2014-10-20T10:53:18+09:00</updated>
+    <id>http://ryoogata.github.io/2014/10/20/chef-chef-repo</id>
+    <content type="html"><![CDATA[<h1>概要</h1>
+
+<p>chef を使い始めてから chef-repo がだいぶ汚れて(?)きたので整理してみる</p>
+
+<pre><code>$ git clone git://github.com/opscode/chef-repo.git hosted-chef-repo
+$ cd hosted-chef-repo
+$ rm -rf .git
+$ mkdir .chef
+$ mkdir .berkshelf
+</code></pre>
+
+<p>organization の starter-kit を Download</p>
+
+<p>psg-validator.pem と r-ogata.pem を .chef にコピー</p>
+
+<p>knife.rb</p>
+
+<pre><code>log_level                :info
+log_location             STDOUT
+node_name                ''
+client_key               ''
+validation_client_name   ''
+validation_key           ''
+chef_server_url          ''
+knife[:editor] =         '/usr/bin/vim'
+cookbook_path            ['cookbooks', '../../site-cookbooks/']
+</code></pre>
+
+<p>config.json</p>
+
+<pre><code>{
+  "chef": {
+    "node_name": "",
+    "client_key": "",
+    "validation_client_name": "",
+    "validation_key_path": "",
+    "chef_server_url": ""
+  },
+  "ssl":{
+    "verify": false
+  }
+}
+</code></pre>
+
+<p><a href="https://manage.opscode.com/login">https://manage.opscode.com/login</a></p>
+
+<p><a href="https://manage.opscode.com/starter-kit">https://manage.opscode.com/starter-kit</a></p>
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="https://docs.getchef.com/essentials_repository_create.html">Create the chef-repo</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

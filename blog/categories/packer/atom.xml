@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: packer | YggdrasillNetwork Blog]]></title>
+  <link href="http://ryoogata.github.io/blog/categories/packer/atom.xml" rel="self"/>
+  <link href="http://ryoogata.github.io/"/>
+  <updated>2015-02-20T00:05:19+09:00</updated>
+  <id>http://ryoogata.github.io/</id>
+  <author>
+    <name><![CDATA[Ryo Ogata]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Packer を利用して Windows7 の仮想イメージを作成する]]></title>
+    <link href="http://ryoogata.github.io/2014/10/23/packer-windows/"/>
+    <updated>2014-10-23T23:44:46+09:00</updated>
+    <id>http://ryoogata.github.io/2014/10/23/packer-windows</id>
+    <content type="html"><![CDATA[<h1>概要</h1>
+
+<p>Packer を利用して VirtualBox で利用可能な Windows7 のイメージを作成する</p>
+
+<h1>packer 実行の流れ</h1>
+
+<h2>1. Packer の Download 設置</h2>
+
+<p>下記の Packer Download URL から Packer 本体を Download し解凍後、Directory を ~/ 以下に packer に名前を変更して設置</p>
+
+<ul>
+<li><a href="https://www.packer.io/downloads.html">Packer Download URL</a></li>
+</ul>
+
+
+<h2>2. Packer の実行ファイルの Download</h2>
+
+<p>本家から Fork した Packer 実行ファイルを git clone</p>
+
+<pre><code>$ git clone https://github.com/ryoogata/packer-windows.git
+</code></pre>
+
+<h2>3. Windows iso イメージの設置</h2>
+
+<p>利用する Windows iso イメージの md5 の値を取得し、必要に応じて windows_7.json を修正</p>
+
+<pre><code>$ md5 windows7.iso 
+MD5 (windows7.iso) = 69cc2d20bd2c15490f40d34e52d79290
+</code></pre>
+
+<ul>
+<li>windows_7.json</li>
+</ul>
+
+
+<pre><code>    :
+"iso_url": "iso/windows7.iso",
+"iso_checksum_type": "md5",
+"iso_checksum": "69cc2d20bd2c15490f40d34e52d79290",
+    :
+</code></pre>
+
+<p>clone した packer-windows Directory 内の iso Directory に Windows の iso イメージを設置</p>
+
+<h2>4. image の作成</h2>
+
+<pre><code>$ export PATH=~/packer:$PATH
+$ cd packer-windows
+$ packer build -only=virtualbox-iso windows_7.json 
+</code></pre>
+
+<ul>
+<li>実行ログ</li>
+</ul>
+
+
+<pre><code class="">:
+
+==&gt; virtualbox-iso (vagrant): Creating Vagrant box for 'virtualbox' provider
+    virtualbox-iso (vagrant): Copying from artifact: output-virtualbox-iso/packer-virtualbox-iso-1413034723-disk1.vmdk
+    virtualbox-iso (vagrant): Copying from artifact: output-virtualbox-iso/packer-virtualbox-iso-1413034723.ovf
+    virtualbox-iso (vagrant): Renaming the OVF to box.ovf...
+    virtualbox-iso (vagrant): Using custom Vagrantfile: vagrantfile-windows_7.template
+    virtualbox-iso (vagrant): Compressing: Vagrantfile
+    virtualbox-iso (vagrant): Compressing: box.ovf
+    virtualbox-iso (vagrant): Compressing: metadata.json
+    virtualbox-iso (vagrant): Compressing: packer-virtualbox-iso-1413034723-disk1.vmdk
+Build 'virtualbox-iso' finished.
+
+==&gt; Builds finished. The artifacts of successful builds are:
+--&gt; virtualbox-iso: 'virtualbox' provider box: windows_7_virtualbox.box
+</code></pre>
+
+<h1>Tips</h1>
+
+<h2>packer コマンド実行中に実行される Script</h2>
+
+<p>packer コマンド実行中、windows_7.json に記載がある下記の script が実行される</p>
+
+<pre><code>"scripts": [
+  "./scripts/vm-guest-tools.bat",
+  "./scripts/chef.bat",
+  "./scripts/vagrant-ssh.bat",
+  "./scripts/disable-auto-logon.bat",
+  "./scripts/enable-rdp.bat",
+  "./scripts/compile-dotnet-assemblies.bat",
+  "./scripts/compact.bat"
+]
+</code></pre>
+
+<h2>TimeZone の変更</h2>
+
+<p>answer_files/7/Autounattend.xml の修正</p>
+
+<ul>
+<li>修正前</li>
+</ul>
+
+
+<pre><code>&lt;TimeZone&gt;Pacific Standard Time&lt;/TimeZone&gt;
+</code></pre>
+
+<ul>
+<li>修正後</li>
+</ul>
+
+
+<pre><code>&lt;TimeZone&gt;Tokyo Standard Time&lt;/TimeZone&gt;
+</code></pre>
+
+<h2>ComputerName の変更</h2>
+
+<p>answer_files/7/Autounattend.xml の修正</p>
+
+<ul>
+<li>修正前</li>
+</ul>
+
+
+<pre><code>&lt;ComputerName&gt;vagrant-2012&lt;/ComputerName&gt;
+</code></pre>
+
+<ul>
+<li>修正後</li>
+</ul>
+
+
+<pre><code>&lt;ComputerName&gt;vagrant-win7&lt;/ComputerName&gt;
+</code></pre>
+
+<p>ComputerName は <code>15 文字以内</code> で指定する</p>
+
+<h2>Headless の設定</h2>
+
+<p>Packer 実行ファイルのデバック時などは VirtualBox の Window が表示される方が便利。Default では Headless なので、必要に応じて変更する。</p>
+
+<p>windows_7.json の修正</p>
+
+<ul>
+<li>修正前</li>
+</ul>
+
+
+<pre><code>"headless": true,
+</code></pre>
+
+<p>true の場合、Headless になり、packer 実行中の VirtualBox の Window が表示されない</p>
+
+<ul>
+<li>修正後</li>
+</ul>
+
+
+<pre><code>"headless": false,
+</code></pre>
+
+<h2>Windows の日本語化</h2>
+
+<p>answer_files/7/Autounattend.xml の修正</p>
+
+<p>en-US の箇所を ja-JP に変更</p>
+
+<ul>
+<li>修正前</li>
+</ul>
+
+
+<pre><code>&lt;UILanguage&gt;en-US&lt;/UILanguage&gt;
+&lt;InputLocale&gt;en-US&lt;/InputLocale&gt;
+&lt;SystemLocale&gt;en-US&lt;/SystemLocale&gt;
+&lt;UILanguage&gt;en-US&lt;/UILanguage&gt;
+&lt;UILanguageFallback&gt;en-US&lt;/UILanguageFallback&gt;
+&lt;UserLocale&gt;en-US&lt;/UserLocale&gt;
+</code></pre>
+
+<ul>
+<li>修正前</li>
+</ul>
+
+
+<pre><code>&lt;UILanguage&gt;ja-JP&lt;/UILanguage&gt;
+&lt;InputLocale&gt;ja-JP&lt;/InputLocale&gt;
+&lt;SystemLocale&gt;ja-JP&lt;/SystemLocale&gt;
+&lt;UILanguage&gt;ja-JP&lt;/UILanguage&gt;
+&lt;UILanguageFallback&gt;ja-JP&lt;/UILanguageFallback&gt;
+&lt;UserLocale&gt;ja-JP&lt;/UserLocale&gt;
+</code></pre>
+
+<h2>Image 作成中の Windows Update の停止</h2>
+
+<p>Packer 実行中、Windows Update を実施しないようにする</p>
+
+<p>answer_files/7/Autounattend.xml の修正</p>
+
+<ul>
+<li>修正前</li>
+</ul>
+
+
+<pre><code>    &lt;!-- WITHOUT WINDOWS UPDATES --&gt;
+    &lt;!--
+        :
+    --&gt;
+    &lt;!-- END WITHOUT WINDOWS UPDATES --&gt;
+    &lt;!-- WITH WINDOWS UPDATES --&gt;
+        :
+    &lt;!-- END WITH WINDOWS UPDATES --&gt;
+</code></pre>
+
+<ul>
+<li>修正後</li>
+</ul>
+
+
+<pre><code>    &lt;!-- WITHOUT WINDOWS UPDATES --&gt;
+        :
+    &lt;!-- END WITHOUT WINDOWS UPDATES --&gt;
+    &lt;!-- WITH WINDOWS UPDATES --&gt;
+    &lt;!--
+        :
+    --&gt;
+    &lt;!-- END WITH WINDOWS UPDATES --&gt;
+</code></pre>
+
+<h1>トラブルシュート</h1>
+
+<h2>「応答ファイルは無効です」エラー</h2>
+
+<h3>エラーログ</h3>
+
+<pre><code>パス[specialize]の無人応答ファイル[C:\Windows\Panther\unattend.xml]を解析または処理できませんでした。応答ファイルは無効です。
+</code></pre>
+
+<h3>原因</h3>
+
+<p>ComputerName が文字数制限の <code>15 文字</code> を超えている文字列を指定していた。</p>
+
+<pre><code class="">Autounattend.xml
+
+&lt;ComputerName&gt;vagrant-windows7&lt;/ComputerName&gt;
+</code></pre>
+
+<h2>Error uploading guest additions</h2>
+
+<h3>エラーログ</h3>
+
+<pre><code>Build 'virtualbox-iso' errored: Error uploading guest additions: Process exited with: 1. Reason was:  ()
+
+==&gt; Some builds didn't complete successfully and had errors:
+--&gt; virtualbox-iso: Error uploading guest additions: Process exited with: 1. Reason was:  ()
+</code></pre>
+
+<h3>原因</h3>
+
+<p>仮想メディアマネージャの光学ディスクのところに VBoxWindowsAdditions が入っていないとダメかも。適当な Windows OS に VBoxWindowsAdditions を Mount して、再度 packer コマンドを実行したらとりあえず解決できた。</p>
+
+<h2>compact.bat の sdelete.exe コマンド実行後に固まる</h2>
+
+<h3>エラーログ</h3>
+
+<pre><code>cmd /c C:\Windows\Temp\sdelete.exe -z C:
+
+
+    virtualbox-iso: SDelete - Secure Delete v1.61
+    virtualbox-iso: Copyright (C) 1999-2012 Mark Russinovich
+    virtualbox-iso: Sysinternals - www.sysinternals.com
+    virtualbox-iso:
+    virtualbox-iso: SDelete is set for 1 pass.
+    virtualbox-iso: Zeroing free space on C:\: 0%
+==&gt; virtualbox-iso: Provisioning with shell script: /var/folders/c0/mrt_fmsx6l1b_kjl7pbstr2h0000gn/T/packer-shell022007924
+    virtualbox-iso: rm: cannot remove `/tmp/TMP0000000149D9D38AB494459F': Device or resource busy
+==&gt; virtualbox-iso: Unregistering and deleting virtual machine...
+==&gt; virtualbox-iso: Deleting output directory...
+Build 'virtualbox-iso' errored: Script exited with non-zero exit status: 1
+
+==&gt; Some builds didn't complete successfully and had errors:
+--&gt; virtualbox-iso: Script exited with non-zero exit status: 1
+
+==&gt; Builds finished but no artifacts were created.
+    :
+    :
+</code></pre>
+
+<h3>原因</h3>
+
+<p>packer-windows 実行ファイルの ver 1.23 で修正済み。 1.22 以前のバージョンでは修正の必要あり</p>
+
+<p><a href="https://github.com/joefitzgerald/packer-windows">本家 packer-windows URL</a></p>
+
+<p>windows_7.json の下記を修正</p>
+
+<ul>
+<li>修正前</li>
+</ul>
+
+
+<pre><code>     "type": "shell",
+      "inline": [
+        "rm -rf /tmp/*"
+      ]
+    }
+</code></pre>
+
+<ul>
+<li>修正後</li>
+</ul>
+
+
+<pre><code>     "type": "shell",
+      "inline": [
+        "rm -rf /tmp/* || ! false"
+      ]
+    }
+</code></pre>
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><p><a href="http://qiita.com/hnakamur/items/da0ed14192a18405f704">OSXでpackerでCentOS6.4のVirtualBox VMを作成する</a></p></li>
+<li><p><a href="http://azukipochette.hatenablog.com/entry/2014/05/16/212551">Packer で Windows の Box (vmware-iso) を作成するまで</a></p></li>
+<li><p><a href="http://www.nofuture.tv/diary/20140530.html">packer-windowsテンプレートを使ってWindows 8.1 update(日本語版)評価版のVagrant Boxができた</a></p></li>
+<li><p><a href="https://github.com/joefitzgerald/packer-windows">packer-windows</a></p>
+
+<ul>
+<li>このテンプレートを Fork して使ってみる</li>
+</ul>
+</li>
+<li><p><a href="http://unattended.sourceforge.net/timezones.php">Index numbers for GuiUnattended/TimeZone</a></p></li>
+<li><p><a href="https://github.com/develersrl/packer-windows-vm.git">packer-windows-vm</a></p></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>
