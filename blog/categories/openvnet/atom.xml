@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: openvnet | YggdrasillNetwork Blog]]></title>
+  <link href="http://ryoogata.github.io/blog/categories/openvnet/atom.xml" rel="self"/>
+  <link href="http://ryoogata.github.io/"/>
+  <updated>2015-02-20T12:25:24+09:00</updated>
+  <id>http://ryoogata.github.io/</id>
+  <author>
+    <name><![CDATA[Ryo Ogata]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[openvnet のインストール]]></title>
+    <link href="http://ryoogata.github.io/2015/02/20/openvnet/"/>
+    <updated>2015-02-20T12:11:16+09:00</updated>
+    <id>http://ryoogata.github.io/2015/02/20/openvnet</id>
+    <content type="html"><![CDATA[<h1>目的</h1>
+
+<p>openvnet のインストールと簡単なオペレーションのメモ</p>
+
+<h1>インストール</h1>
+
+<pre><code># curl -o /etc/yum.repos.d/openvnet.repo -R https://raw.githubusercontent.com/axsh/openvnet/master/openvnet.repo
+
+# curl -o /etc/yum.repos.d/openvnet-third-party.repo -R https://raw.githubusercontent.com/axsh/openvnet/master/openvnet-third-party.repo
+
+# yum install -y openvnet
+</code></pre>
+
+<h2>設定ファイル</h2>
+
+<h3>/etc/openvnet/vnmgr.conf</h3>
+
+<pre><code>node {
+  id "vnmgr"
+  addr {
+    protocol "tcp"
+    host "127.0.0.1"
+    port 9102
+  }
+  plugins [:vdc_vnet_plugin]
+}
+</code></pre>
+
+<h3>/etc/openvnet/vna.conf</h3>
+
+<pre><code>node {
+  id "vna"
+  addr {
+    protocol "tcp"
+    host "127.0.0.1"
+    port 9103
+  }
+}
+
+network {
+  uuid ""
+  gateway {
+    address ""
+  }
+}
+</code></pre>
+
+<h3>webapi.conf</h3>
+
+<pre><code>node {
+  id "webapi"
+  addr {
+    protocol "tcp"
+    host "127.0.0.1"
+    port 9101
+  }
+}
+</code></pre>
+
+<p>vnmgr/vna/webapi が同一 Host に同居する場合は ZeroMQ の port は被らないように設定が必要</p>
+
+<h3>common.conf</h3>
+
+<pre><code>registry {
+  adapter "redis"
+  host "127.0.0.1"
+  port 6379
+}
+
+db {
+  adapter "mysql2"
+  host "localhost"
+  database "vnet"
+  port 3306
+  user "root"
+  password ""
+}
+</code></pre>
+
+<h2>初期セットアップ</h2>
+
+<p>/opt/axsh/openvnet/vnet/README.md を参照して作業</p>
+
+<pre><code># mysqladmin -uroot create vnet
+
+# export PATH=/opt/axsh/openvnet/ruby/bin:$PATH
+
+# cd /opt/axsh/openvnet/vnet
+# gem install bundler
+# bundle exec rake db:init
+# service redis start
+</code></pre>
+
+<p>下記のくだりの作業は不要(みたい)</p>
+
+<pre><code>Copy the upstart scripts into their proper directories
+
+    cp /opt/axsh/openvnet/deployment/conf_files/etc/init/* /etc/init
+    cp /opt/axsh/openvnet/deployment/conf_files/etc/default/* /etc/default
+</code></pre>
+
+<h2>サービスの起動</h2>
+
+<pre><code>start vnet-vnmgr
+start vnet-vna
+start vnet-webapi
+</code></pre>
+
+<h2>vnctl コマンドのセットアップ</h2>
+
+<pre><code># bundle install
+Don't run Bundler as root. Bundler can ask for sudo if it is needed, and installing your bundle as root will break this application for all non-root users on
+this machine.
+Fetching gem metadata from http://rubygems.org/.......
+Installing fuguta 1.0.2
+Installing multi_json 1.8.0
+Installing multi_xml 0.5.5
+Installing httparty 0.11.0
+Installing thor 0.18.1
+Using bundler 1.7.12
+Your bundle is complete!
+Use `bundle show [gemname]` to see where a bundled gem is installed.
+Post-install message from httparty:
+When you HTTParty, you must party hard!
+</code></pre>
+
+<h1>1 Box OpenVNet</h1>
+
+<pre><code># curl -o /root/vnet-test-kvm.tgz -R http://dlc.openvnet.axsh.jp/tests/vnet-test-kvm.tgz
+# tar xvfz ./vnet-test-kvm.tgz
+# export PATH=/opt/axsh/openvnet/ruby/bin:$PATH
+# cd /root/vnet-test-kvm
+</code></pre>
+
+<p>db.sh の下記記述をコメントアウト</p>
+
+<pre><code># mysqladmin -uroot create vnet
+# (cd /opt/axsh/wakame-vnet/vnet; bundle exec rake db:init)
+</code></pre>
+
+<p>ip_node1 を opvbr0 に割り当てている IP に設定</p>
+
+<p>ip_node1=&lsquo;10.1.0.1&rsquo;</p>
+
+<p>nw-public の一部を下記のように編集</p>
+
+<p>&ndash;data-urlencode ipv4_network=10.1.0.0 \</p>
+
+<pre><code># ./db.sh
+</code></pre>
+
+<h1>ovs コマンド</h1>
+
+<pre><code># ovs-vsctl show
+</code></pre>
+
+<h1>vnctl コマンド</h1>
+
+<pre><code># ./vnctl datapaths network show dp-1
+</code></pre>
+
+<h1>OpenVNet の設定の流れ</h1>
+
+<ul>
+<li><p>datapath の設定</p></li>
+<li><p>network の設定</p></li>
+<li><p>interfaces の設定</p>
+
+<ul>
+<li>owner_datapath_uuid で datapaths との紐付けが必要</li>
+<li>network_uuid で networks との紐付けが必要</li>
+</ul>
+</li>
+<li><p>datapath と network の連携</p></li>
+<li><p>network_service 設定 ( 任意 )</p>
+
+<ul>
+<li>NFV</li>
+</ul>
+</li>
+</ul>
+
+
+<h1>Memo</h1>
+
+<p>メッセージキューに ZeroMQ を使っている
+Wakame-vdc だと RabbitMQ 使ってる</p>
+
+<p>vnet-vna は Controller という名前のプロセスで動作している</p>
+
+<h2>redis の警告の対策</h2>
+
+<p>/var/log/redis/redis.log に下記のログが吐かれる</p>
+
+<pre><code>[4271] 04 Feb 09:23:33 # WARNING overcommit_memory is set to 0! Background save may fail under low memory condition. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+</code></pre>
+
+<pre><code>echo "vm.overcommit_memory = 1" &gt;&gt; /etc/sysctl.conf
+sysctl -p
+</code></pre>
+
+<h2>:vdc_vnet_plugin</h2>
+
+<p>/etc/openvnet/vnmgr.conf の <code>plugins [:vdc_vnet_plugin]</code> は wakame-vdc との連携をさせる際に必要</p>
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="https://github.com/axsh/openvnet/blob/master/docs/InstallGuide.md">InstallGuide</a></li>
+<li><a href="http://giraffeforestg.blog.fc2.com/blog-entry-184.html">OpenVNetのインストールに挑戦(2)</a></li>
+<li><a href="http://qiita.com/akry/items/20125d908fb94fc30871">VagrantをつかってOpenVNetを触ってみよう</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

@@ -9,11 +9,7 @@
   <meta name="author" content="Ryo Ogata">
 
   
-  <meta name="description" content="概要 Mac OSX Yosemite (ver. 10.10 ) に boot2docker をインストールした際のメモ インストール https://github.com/boot2docker/osx-installer/releases/tag/v1.3.0 初期設定 1
-2
-3
-4
-5 &hellip;">
+  <meta name="description" content="概要 chef-server との連携を前提とした knife ec2 のオペレーションのまとめ knife ec2 オペレーション インスタンスの作成 $ knife ec2 server create --node-name chef_test --ssh-user ec2-user -- &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -70,6 +66,105 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2014/11/01/chef-knife-ec2/">Knife-ec2 を利用したインスタンス操作</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-11-01T22:09:37+09:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>概要</h1>
+
+<p>chef-server との連携を前提とした knife ec2 のオペレーションのまとめ</p>
+
+<h1>knife ec2 オペレーション</h1>
+
+<h2>インスタンスの作成</h2>
+
+<p><code>$ knife ec2 server create --node-name chef_test --ssh-user ec2-user --security-group-ids sg-6744b502</code></p>
+
+<ul>
+<li>ec2 インスタンスの作成
+
+<ul>
+<li>&ndash;node-name
+
+<ul>
+<li>Chef-Server に登録する際の Node の名前</li>
+</ul>
+</li>
+<li>&ndash;ssh-user
+
+<ul>
+<li>SSH ログインユーザ名</li>
+</ul>
+</li>
+<li>&ndash;security-group-ids
+
+<ul>
+<li>VPC セキュリティグループ</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>chef client のインストール</li>
+<li><code>chef server への node の追加</code></li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ knife ec2 server create --node-name chef_test --ssh-user ec2-user --security-group-ids sg-6744b502</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>インスタンスの削除</h2>
+
+<p><code>$ knife ec2 server delete i-xxxxxxxx --purge</code></p>
+
+<ul>
+<li>インスタンスの削除</li>
+<li>chef server 上に登録された Node の情報の削除</li>
+<li>chef server 上に登録された Client の情報の削除</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ knife ec2 server delete i-5effb8ac --purge</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="https://github.com/opscode/knife-ec2">opscode/knife-ec2</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1763,267 +1858,9 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/2014/10/16/octopress/">Octopress 入門してみた</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-10-16T12:20:15+09:00" pubdate data-updated="true"></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h1>概要</h1>
-
-<p>Octopress を使って Blog を公開してみようと思い立ってから、あれこれ調べたこと。</p>
-
-<h2>参照 URL</h2>
-
-<ul>
-<li><a href="http://www.slideshare.net/yizawa/octopress">Octpress簡単スタートガイド</a></li>
-</ul>
-
-
-<h1>Octopress セットアップ</h1>
-
-<h2>Octopress を持ってくる</h2>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ git clone git://github.com/imathis/octopress.git octopress</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>bundler の実行</h2>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ bundle install --path vendor/bundle --binstubs vendor/binstubs</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Default テーマの設定</h2>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake install</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>static サイトの生成</h2>
-
-<h3>サイトの生成</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake generate</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Preview の表示</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake preview</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>手元の octpress Directory と github の master ブランチを連携させる</h2>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake setup_github_pages
-</span><span class='line'>Enter the read/write url for your repository
-</span><span class='line'>(For example, 'git@github.com:your_username/your_username.github.io.git)
-</span><span class='line'>           or 'https://github.com/your_username/your_username.github.io')
-</span><span class='line'>Repository url: https://github.com/ryoogata/ryoogata.github.io.git
-</span><span class='line'>Added remote https://github.com/ryoogata/ryoogata.github.io.git as origin
-</span><span class='line'>Set origin as default remote
-</span><span class='line'>Master branch renamed to 'source' for committing your blog source files
-</span><span class='line'>rm -rf _deploy
-</span><span class='line'>mkdir _deploy
-</span><span class='line'>cd _deploy
-</span><span class='line'>Initialized empty Git repository in /Users/ryo/Dropbox/octopress/_deploy/.git/
-</span><span class='line'>[master (root-commit) 9208c45] Octopress init
-</span><span class='line'> 1 file changed, 1 insertion(+)
-</span><span class='line'> create mode 100644 index.html
-</span><span class='line'>cd -
-</span><span class='line'>
-</span><span class='line'>---
-</span><span class='line'>## Now you can deploy to https://github.com/ryoogata/ryoogata.github.io.git with `rake deploy` ##</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>octpress Directory 自体 を source ブランチに登録する</h2>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ git add .
-</span><span class='line'>$ git commit -m "first commit"
-</span><span class='line'>$ git push origin source
-</span><span class='line'>
-</span><span class='line'>Counting objects: 4901, done.
-</span><span class='line'>Delta compression using up to 4 threads.
-</span><span class='line'>Compressing objects: 100% (2181/2181), done.
-</span><span class='line'>Writing objects: 100% (4901/4901), 1.34 MiB | 231.00 KiB/s, done.
-</span><span class='line'>Total 4901 (delta 2366), reused 4871 (delta 2338)
-</span><span class='line'>To https://github.com/ryoogata/ryoogata.github.io.git
-</span><span class='line'> * [new branch]      source -&gt; source</span></code></pre></td></tr></table></div></figure>
-
-
-<h1>記事の作成</h1>
-
-<h2>記事の準備</h2>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake new_post['vagrant chef-Server']</span></code></pre></td></tr></table></div></figure>
-
-
-<p>rake new_post[&lsquo;&rsquo;]の引数として、空白区切りで 最初の単語をcategory、後の単語を全てtagsとして登録する</p>
-
-<h2>記事を複数のカテゴリに含める</h2>
-
-<p>category の箇所に複数のカテゴリを記述する</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>layout: post
-</span><span class='line'>title: "Vagrant の Provisioner に Chef Client を利用する際に遭遇したトラブルとその解決策" 
-</span><span class='line'>date: 2014-10-16 16:41:05 +0900
-</span><span class='line'>comments: true
-</span><span class='line'>category: ["vagrant", "chef"]
-</span><span class='line'>tags: ["Chef-Server"]
-</span><span class='line'>keywords: Chef, Chef-Server, vagrant
-</span><span class='line'>published: true </span></code></pre></td></tr></table></div></figure>
-
-
-<h1>Customize</h1>
-
-<h2>記事のパーマリンク変更</h2>
-
-<p>_config.yml</p>
-
-<ul>
-<li><p>修正前
-permalink: /blog/:year/:month/:day/:title/</p></li>
-<li><p>修正後
-permalink: /blog/:categories/:title/</p></li>
-</ul>
-
-
-<h2>タグクラウド</h2>
-
-<p><a href="http://rcmdnk.github.io/blog/2013/03/23/octopress/#section-4">Octopress Tips</a></p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ cd /tmp
-</span><span class='line'>$ git clone https://github.com/tokkonopapa/octopress-tagcloud
-</span><span class='line'>$ cd octopress-tagcloud/
-</span><span class='line'>$ cp tag_cloud.rb ~/Dropbox/ryoogata.github.io/plugins/
-</span><span class='line'>$ cp source/_includes/custom/asides/tag_cloud.html ~/Dropbox/octopress/source/_includes/custom/asides/
-</span><span class='line'>$ cp source/_includes/custom/asides/category_list.html ~/Dropbox/octopress/source/_includes/custom/asides/</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>記事の下書き設定</h2>
-
-<p>Rakefile に <code>published: false</code> を追加</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>111   open(filename, 'w') do |post|
-</span><span class='line'>112     post.puts "---"
-</span><span class='line'>113     post.puts "layout: post"
-</span><span class='line'>114     post.puts "title: \"#{title.gsub(/&/,'&amp;')}\""
-</span><span class='line'>115     post.puts "date: #{Time.now.strftime('%Y-%m-%d %H:%M:%S %z')}"
-</span><span class='line'>116     post.puts "comments: true"
-</span><span class='line'>117     post.puts "categories: "
-</span><span class='line'>118     post.puts "published: false"
-</span><span class='line'>119     post.puts "---"
-</span><span class='line'>120   end</span></code></pre></td></tr></table></div></figure>
-
-
-<h1>Tips</h1>
-
-<h2>rake deploy について</h2>
-
-<ul>
-<li>master ブランチ
-
-<ul>
-<li>static サイト用コンテンツ</li>
-<li>手元の octpress directory で generate したファイルが commit される</li>
-</ul>
-</li>
-<li>source ブランチ
-
-<ul>
-<li>octpress 用の記事のソース</li>
-</ul>
-</li>
-</ul>
-
-
-<p>github には master ブランチのファイルを元にページが作成される</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
+    
+      <a class="prev" href="3">&larr; Older</a>
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -2039,15 +1876,19 @@ permalink: /blog/:categories/:title/</p></li>
 </section>
 <section>
   <h1>Categories</h1>
-    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/kvm/'>kvm (2)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/openvswitch/'>openvswitch (2)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (3)</a></li><li><a href='/blog/categories/wakame-vdc/'>wakame-vdc (2)</a></li></ul>
+    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/kvm/'>kvm (2)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/openvnet/'>openvnet (1)</a></li><li><a href='/blog/categories/openvswitch/'>openvswitch (2)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (3)</a></li><li><a href='/blog/categories/wakame-vdc/'>wakame-vdc (2)</a></li></ul>
 </section>
 <section>
   <h1>Tag Cloud</h1>
-    <span id="tag-cloud"><a href='/blog/tags/boot2docker' style='font-size: 120.0%'>boot2docker(1)</a> <a href='/blog/tags/chef-client' style='font-size: 120.0%'>chef-client(1)</a> <a href='/blog/tags/chef-repo' style='font-size: 140.0%'>chef-repo(2)</a> <a href='/blog/tags/chef-server' style='font-size: 140.0%'>chef-server(2)</a> <a href='/blog/tags/chef-solo' style='font-size: 120.0%'>chef-solo(1)</a> <a href='/blog/tags/hosted-chef' style='font-size: 120.0%'>hosted chef(1)</a> <a href='/blog/tags/kitchen-ec2' style='font-size: 120.0%'>kitchen-ec2(1)</a> <a href='/blog/tags/knife-ec2' style='font-size: 140.0%'>knife-ec2(2)</a> <a href='/blog/tags/knife-solo' style='font-size: 120.0%'>knife-solo(1)</a> <a href='/blog/tags/kvm' style='font-size: 160.0%'>kvm(3)</a> <a href='/blog/tags/network' style='font-size: 160.0%'>network(3)</a> <a href='/blog/tags/windows' style='font-size: 120.0%'>windows(1)</a> </span>
+    <span id="tag-cloud"><a href='/blog/tags/boot2docker' style='font-size: 115.0%'>boot2docker(1)</a> <a href='/blog/tags/chef-client' style='font-size: 115.0%'>chef-client(1)</a> <a href='/blog/tags/chef-repo' style='font-size: 130.0%'>chef-repo(2)</a> <a href='/blog/tags/chef-server' style='font-size: 130.0%'>chef-server(2)</a> <a href='/blog/tags/chef-solo' style='font-size: 115.0%'>chef-solo(1)</a> <a href='/blog/tags/hosted-chef' style='font-size: 115.0%'>hosted chef(1)</a> <a href='/blog/tags/kitchen-ec2' style='font-size: 115.0%'>kitchen-ec2(1)</a> <a href='/blog/tags/knife-ec2' style='font-size: 130.0%'>knife-ec2(2)</a> <a href='/blog/tags/knife-solo' style='font-size: 115.0%'>knife-solo(1)</a> <a href='/blog/tags/kvm' style='font-size: 145.0%'>kvm(3)</a> <a href='/blog/tags/network' style='font-size: 160.0%'>network(4)</a> <a href='/blog/tags/windows' style='font-size: 115.0%'>windows(1)</a> </span>
 </section>
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/2015/02/20/openvnet/">openvnet のインストール</a>
+      </li>
     
       <li class="post">
         <a href="/2015/02/20/openvswitch/">openvswitch で bonding</a>
@@ -2063,10 +1904,6 @@ permalink: /blog/:categories/:title/</p></li>
     
       <li class="post">
         <a href="/2015/02/19/nat/">iptables を利用した NAT Router</a>
-      </li>
-    
-      <li class="post">
-        <a href="/2015/02/19/kvm/">KVM Tips</a>
       </li>
     
   </ul>

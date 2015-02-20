@@ -4,7 +4,7 @@
   <title><![CDATA[YggdrasillNetwork Blog]]></title>
   <link href="http://ryoogata.github.io/atom.xml" rel="self"/>
   <link href="http://ryoogata.github.io/"/>
-  <updated>2015-02-20T12:07:58+09:00</updated>
+  <updated>2015-02-20T12:25:24+09:00</updated>
   <id>http://ryoogata.github.io/</id>
   <author>
     <name><![CDATA[Ryo Ogata]]></name>
@@ -12,6 +12,321 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[openvnet のインストール]]></title>
+    <link href="http://ryoogata.github.io/2015/02/20/openvnet/"/>
+    <updated>2015-02-20T12:11:16+09:00</updated>
+    <id>http://ryoogata.github.io/2015/02/20/openvnet</id>
+    <content type="html"><![CDATA[<h1>目的</h1>
+
+<p>openvnet のインストールと簡単なオペレーションのメモ</p>
+
+<h1>インストール</h1>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># curl -o /etc/yum.repos.d/openvnet.repo -R https://raw.githubusercontent.com/axsh/openvnet/master/openvnet.repo
+</span><span class='line'>
+</span><span class='line'># curl -o /etc/yum.repos.d/openvnet-third-party.repo -R https://raw.githubusercontent.com/axsh/openvnet/master/openvnet-third-party.repo
+</span><span class='line'>
+</span><span class='line'># yum install -y openvnet</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>設定ファイル</h2>
+
+<h3>/etc/openvnet/vnmgr.conf</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>node {
+</span><span class='line'>  id "vnmgr"
+</span><span class='line'>  addr {
+</span><span class='line'>    protocol "tcp"
+</span><span class='line'>    host "127.0.0.1"
+</span><span class='line'>    port 9102
+</span><span class='line'>  }
+</span><span class='line'>  plugins [:vdc_vnet_plugin]
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>/etc/openvnet/vna.conf</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>node {
+</span><span class='line'>  id "vna"
+</span><span class='line'>  addr {
+</span><span class='line'>    protocol "tcp"
+</span><span class='line'>    host "127.0.0.1"
+</span><span class='line'>    port 9103
+</span><span class='line'>  }
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>network {
+</span><span class='line'>  uuid ""
+</span><span class='line'>  gateway {
+</span><span class='line'>    address ""
+</span><span class='line'>  }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>webapi.conf</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>node {
+</span><span class='line'>  id "webapi"
+</span><span class='line'>  addr {
+</span><span class='line'>    protocol "tcp"
+</span><span class='line'>    host "127.0.0.1"
+</span><span class='line'>    port 9101
+</span><span class='line'>  }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>vnmgr/vna/webapi が同一 Host に同居する場合は ZeroMQ の port は被らないように設定が必要</p>
+
+<h3>common.conf</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>registry {
+</span><span class='line'>  adapter "redis"
+</span><span class='line'>  host "127.0.0.1"
+</span><span class='line'>  port 6379
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>db {
+</span><span class='line'>  adapter "mysql2"
+</span><span class='line'>  host "localhost"
+</span><span class='line'>  database "vnet"
+</span><span class='line'>  port 3306
+</span><span class='line'>  user "root"
+</span><span class='line'>  password ""
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>初期セットアップ</h2>
+
+<p>/opt/axsh/openvnet/vnet/README.md を参照して作業</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># mysqladmin -uroot create vnet
+</span><span class='line'>
+</span><span class='line'># export PATH=/opt/axsh/openvnet/ruby/bin:$PATH
+</span><span class='line'>
+</span><span class='line'># cd /opt/axsh/openvnet/vnet
+</span><span class='line'># gem install bundler
+</span><span class='line'># bundle exec rake db:init
+</span><span class='line'># service redis start</span></code></pre></td></tr></table></div></figure>
+
+
+<p>下記のくだりの作業は不要(みたい)</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Copy the upstart scripts into their proper directories
+</span><span class='line'>
+</span><span class='line'>    cp /opt/axsh/openvnet/deployment/conf_files/etc/init/* /etc/init
+</span><span class='line'>    cp /opt/axsh/openvnet/deployment/conf_files/etc/default/* /etc/default</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>サービスの起動</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>start vnet-vnmgr
+</span><span class='line'>start vnet-vna
+</span><span class='line'>start vnet-webapi</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>vnctl コマンドのセットアップ</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># bundle install
+</span><span class='line'>Don't run Bundler as root. Bundler can ask for sudo if it is needed, and installing your bundle as root will break this application for all non-root users on
+</span><span class='line'>this machine.
+</span><span class='line'>Fetching gem metadata from http://rubygems.org/.......
+</span><span class='line'>Installing fuguta 1.0.2
+</span><span class='line'>Installing multi_json 1.8.0
+</span><span class='line'>Installing multi_xml 0.5.5
+</span><span class='line'>Installing httparty 0.11.0
+</span><span class='line'>Installing thor 0.18.1
+</span><span class='line'>Using bundler 1.7.12
+</span><span class='line'>Your bundle is complete!
+</span><span class='line'>Use `bundle show [gemname]` to see where a bundled gem is installed.
+</span><span class='line'>Post-install message from httparty:
+</span><span class='line'>When you HTTParty, you must party hard!</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>1 Box OpenVNet</h1>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># curl -o /root/vnet-test-kvm.tgz -R http://dlc.openvnet.axsh.jp/tests/vnet-test-kvm.tgz
+</span><span class='line'># tar xvfz ./vnet-test-kvm.tgz
+</span><span class='line'># export PATH=/opt/axsh/openvnet/ruby/bin:$PATH
+</span><span class='line'># cd /root/vnet-test-kvm</span></code></pre></td></tr></table></div></figure>
+
+
+<p>db.sh の下記記述をコメントアウト</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># mysqladmin -uroot create vnet
+</span><span class='line'># (cd /opt/axsh/wakame-vnet/vnet; bundle exec rake db:init)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ip_node1 を opvbr0 に割り当てている IP に設定</p>
+
+<p>ip_node1=&lsquo;10.1.0.1&rsquo;</p>
+
+<p>nw-public の一部を下記のように編集</p>
+
+<p>&ndash;data-urlencode ipv4_network=10.1.0.0 \</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ./db.sh</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>ovs コマンド</h1>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ovs-vsctl show</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>vnctl コマンド</h1>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ./vnctl datapaths network show dp-1</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>OpenVNet の設定の流れ</h1>
+
+<ul>
+<li><p>datapath の設定</p></li>
+<li><p>network の設定</p></li>
+<li><p>interfaces の設定</p>
+
+<ul>
+<li>owner_datapath_uuid で datapaths との紐付けが必要</li>
+<li>network_uuid で networks との紐付けが必要</li>
+</ul>
+</li>
+<li><p>datapath と network の連携</p></li>
+<li><p>network_service 設定 ( 任意 )</p>
+
+<ul>
+<li>NFV</li>
+</ul>
+</li>
+</ul>
+
+
+<h1>Memo</h1>
+
+<p>メッセージキューに ZeroMQ を使っている
+Wakame-vdc だと RabbitMQ 使ってる</p>
+
+<p>vnet-vna は Controller という名前のプロセスで動作している</p>
+
+<h2>redis の警告の対策</h2>
+
+<p>/var/log/redis/redis.log に下記のログが吐かれる</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[4271] 04 Feb 09:23:33 # WARNING overcommit_memory is set to 0! Background save may fail under low memory condition. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>echo "vm.overcommit_memory = 1" &gt;&gt; /etc/sysctl.conf
+</span><span class='line'>sysctl -p</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>:vdc_vnet_plugin</h2>
+
+<p>/etc/openvnet/vnmgr.conf の <code>plugins [:vdc_vnet_plugin]</code> は wakame-vdc との連携をさせる際に必要</p>
+
+<h1>参照 URL</h1>
+
+<ul>
+<li><a href="https://github.com/axsh/openvnet/blob/master/docs/InstallGuide.md">InstallGuide</a></li>
+<li><a href="http://giraffeforestg.blog.fc2.com/blog-entry-184.html">OpenVNetのインストールに挑戦(2)</a></li>
+<li><a href="http://qiita.com/akry/items/20125d908fb94fc30871">VagrantをつかってOpenVNetを触ってみよう</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[openvswitch で bonding]]></title>
@@ -3532,239 +3847,6 @@ NETMASK=255.255.255.192</p>
 
 
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Octopress 入門してみた]]></title>
-    <link href="http://ryoogata.github.io/2014/10/16/octopress/"/>
-    <updated>2014-10-16T12:20:15+09:00</updated>
-    <id>http://ryoogata.github.io/2014/10/16/octopress</id>
-    <content type="html"><![CDATA[<h1>概要</h1>
-
-<p>Octopress を使って Blog を公開してみようと思い立ってから、あれこれ調べたこと。</p>
-
-<h2>参照 URL</h2>
-
-<ul>
-<li><a href="http://www.slideshare.net/yizawa/octopress">Octpress簡単スタートガイド</a></li>
-</ul>
-
-
-<h1>Octopress セットアップ</h1>
-
-<h2>Octopress を持ってくる</h2>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ git clone git://github.com/imathis/octopress.git octopress</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>bundler の実行</h2>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ bundle install --path vendor/bundle --binstubs vendor/binstubs</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Default テーマの設定</h2>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake install</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>static サイトの生成</h2>
-
-<h3>サイトの生成</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake generate</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Preview の表示</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake preview</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>手元の octpress Directory と github の master ブランチを連携させる</h2>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake setup_github_pages
-</span><span class='line'>Enter the read/write url for your repository
-</span><span class='line'>(For example, 'git@github.com:your_username/your_username.github.io.git)
-</span><span class='line'>           or 'https://github.com/your_username/your_username.github.io')
-</span><span class='line'>Repository url: https://github.com/ryoogata/ryoogata.github.io.git
-</span><span class='line'>Added remote https://github.com/ryoogata/ryoogata.github.io.git as origin
-</span><span class='line'>Set origin as default remote
-</span><span class='line'>Master branch renamed to 'source' for committing your blog source files
-</span><span class='line'>rm -rf _deploy
-</span><span class='line'>mkdir _deploy
-</span><span class='line'>cd _deploy
-</span><span class='line'>Initialized empty Git repository in /Users/ryo/Dropbox/octopress/_deploy/.git/
-</span><span class='line'>[master (root-commit) 9208c45] Octopress init
-</span><span class='line'> 1 file changed, 1 insertion(+)
-</span><span class='line'> create mode 100644 index.html
-</span><span class='line'>cd -
-</span><span class='line'>
-</span><span class='line'>---
-</span><span class='line'>## Now you can deploy to https://github.com/ryoogata/ryoogata.github.io.git with `rake deploy` ##</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>octpress Directory 自体 を source ブランチに登録する</h2>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ git add .
-</span><span class='line'>$ git commit -m "first commit"
-</span><span class='line'>$ git push origin source
-</span><span class='line'>
-</span><span class='line'>Counting objects: 4901, done.
-</span><span class='line'>Delta compression using up to 4 threads.
-</span><span class='line'>Compressing objects: 100% (2181/2181), done.
-</span><span class='line'>Writing objects: 100% (4901/4901), 1.34 MiB | 231.00 KiB/s, done.
-</span><span class='line'>Total 4901 (delta 2366), reused 4871 (delta 2338)
-</span><span class='line'>To https://github.com/ryoogata/ryoogata.github.io.git
-</span><span class='line'> * [new branch]      source -&gt; source</span></code></pre></td></tr></table></div></figure>
-
-
-<h1>記事の作成</h1>
-
-<h2>記事の準備</h2>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake new_post['vagrant chef-Server']</span></code></pre></td></tr></table></div></figure>
-
-
-<p>rake new_post[&lsquo;&rsquo;]の引数として、空白区切りで 最初の単語をcategory、後の単語を全てtagsとして登録する</p>
-
-<h2>記事を複数のカテゴリに含める</h2>
-
-<p>category の箇所に複数のカテゴリを記述する</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>layout: post
-</span><span class='line'>title: "Vagrant の Provisioner に Chef Client を利用する際に遭遇したトラブルとその解決策" 
-</span><span class='line'>date: 2014-10-16 16:41:05 +0900
-</span><span class='line'>comments: true
-</span><span class='line'>category: ["vagrant", "chef"]
-</span><span class='line'>tags: ["Chef-Server"]
-</span><span class='line'>keywords: Chef, Chef-Server, vagrant
-</span><span class='line'>published: true </span></code></pre></td></tr></table></div></figure>
-
-
-<h1>Customize</h1>
-
-<h2>記事のパーマリンク変更</h2>
-
-<p>_config.yml</p>
-
-<ul>
-<li><p>修正前
-permalink: /blog/:year/:month/:day/:title/</p></li>
-<li><p>修正後
-permalink: /blog/:categories/:title/</p></li>
-</ul>
-
-
-<h2>タグクラウド</h2>
-
-<p><a href="http://rcmdnk.github.io/blog/2013/03/23/octopress/#section-4">Octopress Tips</a></p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ cd /tmp
-</span><span class='line'>$ git clone https://github.com/tokkonopapa/octopress-tagcloud
-</span><span class='line'>$ cd octopress-tagcloud/
-</span><span class='line'>$ cp tag_cloud.rb ~/Dropbox/ryoogata.github.io/plugins/
-</span><span class='line'>$ cp source/_includes/custom/asides/tag_cloud.html ~/Dropbox/octopress/source/_includes/custom/asides/
-</span><span class='line'>$ cp source/_includes/custom/asides/category_list.html ~/Dropbox/octopress/source/_includes/custom/asides/</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>記事の下書き設定</h2>
-
-<p>Rakefile に <code>published: false</code> を追加</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>111   open(filename, 'w') do |post|
-</span><span class='line'>112     post.puts "---"
-</span><span class='line'>113     post.puts "layout: post"
-</span><span class='line'>114     post.puts "title: \"#{title.gsub(/&/,'&amp;')}\""
-</span><span class='line'>115     post.puts "date: #{Time.now.strftime('%Y-%m-%d %H:%M:%S %z')}"
-</span><span class='line'>116     post.puts "comments: true"
-</span><span class='line'>117     post.puts "categories: "
-</span><span class='line'>118     post.puts "published: false"
-</span><span class='line'>119     post.puts "---"
-</span><span class='line'>120   end</span></code></pre></td></tr></table></div></figure>
-
-
-<h1>Tips</h1>
-
-<h2>rake deploy について</h2>
-
-<ul>
-<li>master ブランチ
-
-<ul>
-<li>static サイト用コンテンツ</li>
-<li>手元の octpress directory で generate したファイルが commit される</li>
-</ul>
-</li>
-<li>source ブランチ
-
-<ul>
-<li>octpress 用の記事のソース</li>
-</ul>
-</li>
-</ul>
-
-
-<p>github には master ブランチのファイルを元にページが作成される</p>
 ]]></content>
   </entry>
   
