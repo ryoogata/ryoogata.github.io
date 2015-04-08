@@ -4,7 +4,7 @@
   <title><![CDATA[Category: octopress | YggdrasillNetwork Blog]]></title>
   <link href="http://ryoogata.github.io/blog/categories/octopress/atom.xml" rel="self"/>
   <link href="http://ryoogata.github.io/"/>
-  <updated>2015-04-08T23:09:40+09:00</updated>
+  <updated>2015-04-08T23:14:09+09:00</updated>
   <id>http://ryoogata.github.io/</id>
   <author>
     <name><![CDATA[Ryo Ogata]]></name>
@@ -117,6 +117,12 @@ category: ["vagrant", "chef"]
 tags: ["Chef-Server"]
 keywords: Chef, Chef-Server, vagrant
 published: true 
+</code></pre>
+
+<h2>記事の更新からの Deploy</h2>
+
+<pre><code>$ rake generate
+$ rake deploy
 </code></pre>
 
 <h1>Customize</h1>
