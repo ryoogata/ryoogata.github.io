@@ -220,7 +220,9 @@
 <h2>port の削除</h2>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># ovs-vsctl del-port 0</span></code></pre></td></tr></table></div></figure>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ovs-vsctl del-port bond0
+</span><span class='line'># ovs-vsctl del-port eth2</span></code></pre></td></tr></table></div></figure>
 
 
 <h2>man ページ</h2>
@@ -307,6 +309,210 @@
 </span><span class='line'>        ovs_ports bond0</span></code></pre></td></tr></table></div></figure>
 
 
+<p>[root@kvm2 ~]# ovs-vsctl add-bond br2 bond2 eth2 eth5
+ovs-vsctl: cannot create an interface named eth2 because a port named eth2 already exists on bridge br2</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[root@kvm2 network-scripts]# cat ifcfg-bond2 
+</span><span class='line'>DEVICE=bond2
+</span><span class='line'>ONBOOT=yes
+</span><span class='line'>DEVICETYPE=ovs
+</span><span class='line'>TYPE=OVSBond
+</span><span class='line'>OVS_BRIDGE=br2
+</span><span class='line'>BOOTPROTO=none
+</span><span class='line'>BOND_IFACES="eth2 eth5"
+</span><span class='line'>HOTPLUG=no</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[root@kvm2 network-scripts]# cat ifcfg-eth2 
+</span><span class='line'>DEVICE=eth2
+</span><span class='line'>HWADDR=40:A8:F0:39:7B:AE
+</span><span class='line'>UUID=98cc7079-2517-4a15-ae0e-ca021d2a3f47
+</span><span class='line'>ONBOOT=yes
+</span><span class='line'>NM_CONTROLLED=yes
+</span><span class='line'>BOOTPROTO=none
+</span><span class='line'>HOTPLUG=no</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[root@kvm2 network-scripts]# cat ifcfg-br1 
+</span><span class='line'>DEVICE=br1
+</span><span class='line'>ONBOOT=yes
+</span><span class='line'>DEVICETYPE=ovs
+</span><span class='line'>TYPE=OVSBridge
+</span><span class='line'>BOOTPROTO=none
+</span><span class='line'>HOTPLUG=no</span></code></pre></td></tr></table></div></figure>
+
+
+<p>普通の ovs 設定と同じ</p>
+
+<h3>eth1 Link Down 時</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[root@kvm2 ~]# ovs-appctl bond/show bond1
+</span><span class='line'>---- bond1 ----
+</span><span class='line'>bond_mode: active-backup
+</span><span class='line'>bond-hash-basis: 0
+</span><span class='line'>updelay: 0 ms
+</span><span class='line'>downdelay: 0 ms
+</span><span class='line'>lacp_status: off
+</span><span class='line'>
+</span><span class='line'>slave eth1: disabled
+</span><span class='line'>  may_enable: false
+</span><span class='line'>
+</span><span class='line'>slave eth6: enabled
+</span><span class='line'>  active slave
+</span><span class='line'>  may_enable: true</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>eth1 Link Up 時</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[root@kvm2 ~]# ovs-appctl bond/show bond1
+</span><span class='line'>---- bond1 ----
+</span><span class='line'>bond_mode: active-backup
+</span><span class='line'>bond-hash-basis: 0
+</span><span class='line'>updelay: 0 ms
+</span><span class='line'>downdelay: 0 ms
+</span><span class='line'>lacp_status: off
+</span><span class='line'>
+</span><span class='line'>slave eth1: enabled
+</span><span class='line'>  may_enable: true
+</span><span class='line'>
+</span><span class='line'>slave eth6: enabled
+</span><span class='line'>  active slave
+</span><span class='line'>  may_enable: true</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>openvswitch 2.1.3 と 2.3.1 の違い</h2>
+
+<ul>
+<li>2.1.3</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ovs-appctl bond/show bond3
+</span><span class='line'>---- bond3 ----
+</span><span class='line'>bond_mode: active-backup
+</span><span class='line'>bond-hash-basis: 0
+</span><span class='line'>updelay: 0 ms
+</span><span class='line'>downdelay: 0 ms
+</span><span class='line'>lacp_status: off
+</span><span class='line'>
+</span><span class='line'>slave eth3: enabled
+</span><span class='line'>  active slave
+</span><span class='line'>  may_enable: true
+</span><span class='line'>
+</span><span class='line'>slave eth4: enabled
+</span><span class='line'>  may_enable: true
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>2.3.1</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ovs-appctl bond/show bond3
+</span><span class='line'>---- bond3 ----
+</span><span class='line'>bond_mode: active-backup
+</span><span class='line'>bond may use recirculation: no, Recirc-ID : -1
+</span><span class='line'>bond-hash-basis: 0
+</span><span class='line'>updelay: 0 ms
+</span><span class='line'>downdelay: 0 ms
+</span><span class='line'>lacp_status: off
+</span><span class='line'>active slave mac: fc:15:b4:28:86:93(eno4)
+</span><span class='line'>
+</span><span class='line'>slave eno4: enabled
+</span><span class='line'>  active slave
+</span><span class='line'>  may_enable: true
+</span><span class='line'>
+</span><span class='line'>slave ens2f3: enabled
+</span><span class='line'>  may_enable: true</span></code></pre></td></tr></table></div></figure>
+
+
 <h1>参照 URL</h1>
 
 <ul>
@@ -365,10 +571,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/2015/02/19/openvswitch/" title="Previous Post: openvswitch のインストールと初期セットアップ">&laquo; openvswitch のインストールと初期セットアップ</a>
+        <a class="basic-alignment left" href="/2015/02/20/openvnet/" title="Previous Post: Openvnet">&laquo; Openvnet</a>
       
-      
-        <a class="basic-alignment right" href="/2015/02/20/openvnet/" title="Next Post: openvnet のインストール">openvnet のインストール &raquo;</a>
       
     </p>
   </footer>
@@ -384,22 +588,22 @@
 </section>
 <section>
   <h1>Categories</h1>
-    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/kvm/'>kvm (2)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/openvnet/'>openvnet (1)</a></li><li><a href='/blog/categories/openvswitch/'>openvswitch (2)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (3)</a></li><li><a href='/blog/categories/wakame-vdc/'>wakame-vdc (2)</a></li></ul>
+    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/kvm/'>kvm (2)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/openvswitch/'>openvswitch (2)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (3)</a></li><li><a href='/blog/categories/wakame-vdc/'>wakame-vdc (2)</a></li></ul>
 </section>
 <section>
   <h1>Tag Cloud</h1>
-    <span id="tag-cloud"><a href='/blog/tags/boot2docker' style='font-size: 115.0%'>boot2docker(1)</a> <a href='/blog/tags/chef-client' style='font-size: 115.0%'>chef-client(1)</a> <a href='/blog/tags/chef-repo' style='font-size: 130.0%'>chef-repo(2)</a> <a href='/blog/tags/chef-server' style='font-size: 130.0%'>chef-server(2)</a> <a href='/blog/tags/chef-solo' style='font-size: 115.0%'>chef-solo(1)</a> <a href='/blog/tags/hosted-chef' style='font-size: 115.0%'>hosted chef(1)</a> <a href='/blog/tags/kitchen-ec2' style='font-size: 115.0%'>kitchen-ec2(1)</a> <a href='/blog/tags/knife-ec2' style='font-size: 130.0%'>knife-ec2(2)</a> <a href='/blog/tags/knife-solo' style='font-size: 115.0%'>knife-solo(1)</a> <a href='/blog/tags/kvm' style='font-size: 145.0%'>kvm(3)</a> <a href='/blog/tags/network' style='font-size: 160.0%'>network(4)</a> <a href='/blog/tags/windows' style='font-size: 115.0%'>windows(1)</a> </span>
+    <span id="tag-cloud"><a href='/blog/tags/boot2docker' style='font-size: 120.0%'>boot2docker(1)</a> <a href='/blog/tags/chef-client' style='font-size: 120.0%'>chef-client(1)</a> <a href='/blog/tags/chef-repo' style='font-size: 140.0%'>chef-repo(2)</a> <a href='/blog/tags/chef-server' style='font-size: 140.0%'>chef-server(2)</a> <a href='/blog/tags/chef-solo' style='font-size: 120.0%'>chef-solo(1)</a> <a href='/blog/tags/hosted-chef' style='font-size: 120.0%'>hosted chef(1)</a> <a href='/blog/tags/kitchen-ec2' style='font-size: 120.0%'>kitchen-ec2(1)</a> <a href='/blog/tags/knife-ec2' style='font-size: 140.0%'>knife-ec2(2)</a> <a href='/blog/tags/knife-solo' style='font-size: 120.0%'>knife-solo(1)</a> <a href='/blog/tags/kvm' style='font-size: 160.0%'>kvm(3)</a> <a href='/blog/tags/network' style='font-size: 160.0%'>network(3)</a> <a href='/blog/tags/windows' style='font-size: 120.0%'>windows(1)</a> </span>
 </section>
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/2015/02/20/openvnet/">openvnet のインストール</a>
+        <a href="/2015/02/20/openvswitch/">openvswitch で bonding</a>
       </li>
     
       <li class="post">
-        <a href="/2015/02/20/openvswitch/">openvswitch で bonding</a>
+        <a href="/2015/02/20/openvnet/">Openvnet</a>
       </li>
     
       <li class="post">

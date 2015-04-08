@@ -4,7 +4,7 @@
   <title><![CDATA[Tag: Kvm | YggdrasillNetwork Blog]]></title>
   <link href="http://ryoogata.github.io/blog/tags/kvm/atom.xml" rel="self"/>
   <link href="http://ryoogata.github.io/"/>
-  <updated>2015-02-20T12:25:24+09:00</updated>
+  <updated>2015-04-08T23:09:40+09:00</updated>
   <id>http://ryoogata.github.io/</id>
   <author>
     <name><![CDATA[Ryo Ogata]]></name>
@@ -31,7 +31,7 @@
 
 <h2>必要なパッケージのインストール</h2>
 
-<pre><code>yum install -y telnet tcpdump wget man man-pages ntpdate bind-utils openssh-clients
+<pre><code>yum install -y telnet tcpdump wget man man-pages ntpdate bind-utils openssh-clients nfs-utils nfs-utils-lib
 </code></pre>
 
 <h2>ipv6 disable 設定</h2>
@@ -190,11 +190,220 @@ image add local bo-20150213_1_cent_base \
 <pre><code># virsh edit &lt;vm-name&gt;
 </code></pre>
 
+<h2>実行されている VM の設定確認</h2>
+
+<pre><code># virsh dumpxml &lt;vm-name&gt;
+</code></pre>
+
+<h2>ホストに接続されているソケット数、コア数およびハイパースレッド数に関する情報を確認</h2>
+
+<pre><code># virsh nodeinfo
+CPU モデル:       x86_64
+CPU:                 8
+CPU 周波数:       1795 MHz
+CPU ソケット数: 1
+ソケットあたりのコア数: 4
+コアあたりのスレッド数: 1
+NUMA セル数:      2
+メモリー容量:  65801024 KiB
+</code></pre>
+
+<h2>capabilities</h2>
+
+<pre><code>[root@kvm1 images]# virsh capabilities
+&lt;capabilities&gt;
+
+  &lt;host&gt;
+    &lt;uuid&gt;37343730-3838-434e-3734-353030384344&lt;/uuid&gt;
+    &lt;cpu&gt;
+      &lt;arch&gt;x86_64&lt;/arch&gt;
+      &lt;model&gt;SandyBridge&lt;/model&gt;
+      &lt;vendor&gt;Intel&lt;/vendor&gt;
+      &lt;topology sockets='1' cores='4' threads='1'/&gt;
+      &lt;feature name='invtsc'/&gt;
+      &lt;feature name='erms'/&gt;
+      &lt;feature name='smep'/&gt;
+      &lt;feature name='fsgsbase'/&gt;
+      &lt;feature name='pdpe1gb'/&gt;
+      &lt;feature name='rdrand'/&gt;
+      &lt;feature name='f16c'/&gt;
+      &lt;feature name='osxsave'/&gt;
+      &lt;feature name='dca'/&gt;
+      &lt;feature name='pcid'/&gt;
+      &lt;feature name='pdcm'/&gt;
+      &lt;feature name='xtpr'/&gt;
+      &lt;feature name='tm2'/&gt;
+      &lt;feature name='est'/&gt;
+      &lt;feature name='smx'/&gt;
+      &lt;feature name='vmx'/&gt;
+      &lt;feature name='ds_cpl'/&gt;
+      &lt;feature name='monitor'/&gt;
+      &lt;feature name='dtes64'/&gt;
+      &lt;feature name='pbe'/&gt;
+      &lt;feature name='tm'/&gt;
+      &lt;feature name='ht'/&gt;
+      &lt;feature name='ss'/&gt;
+      &lt;feature name='acpi'/&gt;
+      &lt;feature name='ds'/&gt;
+      &lt;feature name='vme'/&gt;
+    &lt;/cpu&gt;
+    &lt;power_management&gt;
+      &lt;suspend_disk/&gt;
+    &lt;/power_management&gt;
+    &lt;migration_features&gt;
+      &lt;live/&gt;
+      &lt;uri_transports&gt;
+        &lt;uri_transport&gt;tcp&lt;/uri_transport&gt;
+      &lt;/uri_transports&gt;
+    &lt;/migration_features&gt;
+    &lt;topology&gt;
+      &lt;cells num='2'&gt;
+        &lt;cell id='0'&gt;
+          &lt;cpus num='4'&gt;
+            &lt;cpu id='0' socket_id='0' core_id='0' siblings='0'/&gt;
+            &lt;cpu id='1' socket_id='0' core_id='1' siblings='1'/&gt;
+            &lt;cpu id='2' socket_id='0' core_id='2' siblings='2'/&gt;
+            &lt;cpu id='3' socket_id='0' core_id='3' siblings='3'/&gt;
+          &lt;/cpus&gt;
+        &lt;/cell&gt;
+        &lt;cell id='1'&gt;
+          &lt;cpus num='4'&gt;
+            &lt;cpu id='4' socket_id='1' core_id='0' siblings='4'/&gt;
+            &lt;cpu id='5' socket_id='1' core_id='1' siblings='5'/&gt;
+            &lt;cpu id='6' socket_id='1' core_id='2' siblings='6'/&gt;
+            &lt;cpu id='7' socket_id='1' core_id='3' siblings='7'/&gt;
+          &lt;/cpus&gt;
+        &lt;/cell&gt;
+      &lt;/cells&gt;
+    &lt;/topology&gt;
+    &lt;secmodel&gt;
+      &lt;model&gt;selinux&lt;/model&gt;
+      &lt;doi&gt;0&lt;/doi&gt;
+    &lt;/secmodel&gt;
+    &lt;secmodel&gt;
+      &lt;model&gt;dac&lt;/model&gt;
+      &lt;doi&gt;0&lt;/doi&gt;
+    &lt;/secmodel&gt;
+  &lt;/host&gt;
+
+  &lt;guest&gt;
+    &lt;os_type&gt;hvm&lt;/os_type&gt;
+    &lt;arch name='i686'&gt;
+      &lt;wordsize&gt;32&lt;/wordsize&gt;
+      &lt;emulator&gt;/usr/libexec/qemu-kvm&lt;/emulator&gt;
+      &lt;machine&gt;rhel6.6.0&lt;/machine&gt;
+      &lt;machine canonical='rhel6.6.0'&gt;pc&lt;/machine&gt;
+      &lt;machine&gt;rhel6.5.0&lt;/machine&gt;
+      &lt;machine&gt;rhel6.4.0&lt;/machine&gt;
+      &lt;machine&gt;rhel6.3.0&lt;/machine&gt;
+      &lt;machine&gt;rhel6.2.0&lt;/machine&gt;
+      &lt;machine&gt;rhel6.1.0&lt;/machine&gt;
+      &lt;machine&gt;rhel6.0.0&lt;/machine&gt;
+      &lt;machine&gt;rhel5.5.0&lt;/machine&gt;
+      &lt;machine&gt;rhel5.4.4&lt;/machine&gt;
+      &lt;machine&gt;rhel5.4.0&lt;/machine&gt;
+      &lt;domain type='qemu'&gt;
+      &lt;/domain&gt;
+      &lt;domain type='kvm'&gt;
+        &lt;emulator&gt;/usr/libexec/qemu-kvm&lt;/emulator&gt;
+      &lt;/domain&gt;
+    &lt;/arch&gt;
+    &lt;features&gt;
+      &lt;cpuselection/&gt;
+      &lt;deviceboot/&gt;
+      &lt;acpi default='on' toggle='yes'/&gt;
+      &lt;apic default='on' toggle='no'/&gt;
+      &lt;pae/&gt;
+      &lt;nonpae/&gt;
+    &lt;/features&gt;
+  &lt;/guest&gt;
+
+  &lt;guest&gt;
+    &lt;os_type&gt;hvm&lt;/os_type&gt;
+    &lt;arch name='x86_64'&gt;
+      &lt;wordsize&gt;64&lt;/wordsize&gt;
+      &lt;emulator&gt;/usr/libexec/qemu-kvm&lt;/emulator&gt;
+      &lt;machine&gt;rhel6.6.0&lt;/machine&gt;
+      &lt;machine canonical='rhel6.6.0'&gt;pc&lt;/machine&gt;
+      &lt;machine&gt;rhel6.5.0&lt;/machine&gt;
+      &lt;machine&gt;rhel6.4.0&lt;/machine&gt;
+      &lt;machine&gt;rhel6.3.0&lt;/machine&gt;
+      &lt;machine&gt;rhel6.2.0&lt;/machine&gt;
+      &lt;machine&gt;rhel6.1.0&lt;/machine&gt;
+      &lt;machine&gt;rhel6.0.0&lt;/machine&gt;
+      &lt;machine&gt;rhel5.5.0&lt;/machine&gt;
+      &lt;machine&gt;rhel5.4.4&lt;/machine&gt;
+      &lt;machine&gt;rhel5.4.0&lt;/machine&gt;
+      &lt;domain type='qemu'&gt;
+      &lt;/domain&gt;
+      &lt;domain type='kvm'&gt;
+        &lt;emulator&gt;/usr/libexec/qemu-kvm&lt;/emulator&gt;
+      &lt;/domain&gt;
+    &lt;/arch&gt;
+    &lt;features&gt;
+      &lt;cpuselection/&gt;
+      &lt;deviceboot/&gt;
+      &lt;acpi default='on' toggle='yes'/&gt;
+      &lt;apic default='on' toggle='no'/&gt;
+    &lt;/features&gt;
+  &lt;/guest&gt;
+
+&lt;/capabilities&gt;
+</code></pre>
+
+<h1>VM 名のリネーム</h1>
+
+<pre><code># virsh edit nat01
+</code></pre>
+
+<p>下記の行を編集</p>
+
+<pre><code>&lt;name&gt;nat01&lt;/name&gt;
+</code></pre>
+
+<p>下記の行を削除
+<code>
+&lt;uuid&gt;1f85892f-195a-d19b-3a7a-99457b558ab8&lt;/uuid&gt;
+</code></p>
+
 <h1>NIC の追加</h1>
+
+<h2>Linux Bridge 環境</h2>
 
 <p>VM が起動している状態で実行可能</p>
 
 <pre><code># virsh attach-interface --type bridge --source br0 --model e1000 nat
+</code></pre>
+
+<h2>openvswitch 環境</h2>
+
+<p><code>virsh attach-interface</code> コマンドではエラーになるため、VM が停止した状態で設定ファイルに下記のような記述を追加</p>
+
+<pre><code>&lt;interface type='bridge'&gt;
+  &lt;source bridge='br3'/&gt;
+  &lt;virtualport type='openvswitch'/&gt;
+&lt;/interface&gt;
+</code></pre>
+
+<p><code>virsh edit</code> コマンド実行後、自動的に下記のような設定になっている</p>
+
+<pre><code>&lt;interface type='bridge'&gt;
+  &lt;mac address='52:54:00:90:9a:9e'/&gt;
+  &lt;source bridge='br3'/&gt;
+  &lt;virtualport type='openvswitch'&gt;
+    &lt;parameters interfaceid='a52f60f2-2ef5-3eb5-9a89-cb0f13e3aa40'/&gt;
+  &lt;/virtualport&gt;
+  &lt;address type='pci' domain='0x0000' bus='0x00' slot='0x08' function='0x0'/&gt;
+&lt;/interface&gt;
+</code></pre>
+
+<p><code>mac address</code>, <code>parameters</code>, <code>address</code> は自動的に設定してくれる</p>
+
+<p>以下は <code>virsh attach-interface</code> コマンド実行時のエラーメッセージ</p>
+
+<pre><code># virsh attach-interface --type bridge --source br1 --model e1000 fumi-1
+エラー: インターフェースを接続できませんでした
+エラー: Unable to add bridge br1 port vnet2: Operation not supported
 </code></pre>
 
 <h1>VM に Disk の追加</h1>
@@ -249,6 +458,11 @@ image add local bo-20150213_1_cent_base \
 <pre><code># virsh edit Maria-1
 </code></pre>
 
+<pre><code>    &lt;graphics type='vnc' port='20001' autoport='no' listen='0.0.0.0'&gt;
+      &lt;listen type='address' address='0.0.0.0'/&gt;
+    &lt;/graphics&gt;
+</code></pre>
+
 <h2>4. VM の起動</h2>
 
 <pre><code>virsh start Maria-1
@@ -263,20 +477,33 @@ image add local bo-20150213_1_cent_base \
 
 <h2>6. ifcfg-eth0 の編集</h2>
 
-<p>UUID
-BOOTPROTO=dchp</p>
+<pre><code>UUID
+HWADDR
+BOOTPROTO=dchp
 
-<p>BOOTPROTO=none
+BOOTPROTO=none
 IPADDR=211.14.1.11
-NETMASK=255.255.255.192</p>
+NETMASK=255.255.255.192
+</code></pre>
 
 <h2>7. VM の再起動</h2>
+
+<pre><code># shutdown -r now
+</code></pre>
 
 <h2>8. Interface のアドレス設定</h2>
 
 <p>手動で IP アドレスを付与</p>
 
+<pre><code># ifconfig eth0 inet 172.25.255.131/24
+</code></pre>
+
 <h2>9. resolv.conf の編集</h2>
+
+<h1>VNC 設定</h1>
+
+<pre><code>&lt;graphics type='vnc' port='21144' autoport='no' listen='0.0.0.0' keymap='ja' passwd='Password'&gt;
+</code></pre>
 
 <h1>参照 URL</h1>
 

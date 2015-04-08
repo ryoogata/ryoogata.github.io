@@ -4,7 +4,7 @@
   <title><![CDATA[Category: docker | YggdrasillNetwork Blog]]></title>
   <link href="http://ryoogata.github.io/blog/categories/docker/atom.xml" rel="self"/>
   <link href="http://ryoogata.github.io/"/>
-  <updated>2015-02-20T12:25:24+09:00</updated>
+  <updated>2015-04-08T23:09:40+09:00</updated>
   <id>http://ryoogata.github.io/</id>
   <author>
     <name><![CDATA[Ryo Ogata]]></name>
@@ -162,6 +162,11 @@ Writing /Users/ryo/.boot2docker/certs/boot2docker-vm/ca.pem
 Writing /Users/ryo/.boot2docker/certs/boot2docker-vm/cert.pem
 Writing /Users/ryo/.boot2docker/certs/boot2docker-vm/key.pem
 Your environment variables are already set correctly.
+</code></pre>
+
+<h1>バージョンアップ</h1>
+
+<pre><code>$ boot2docker upgrade
 </code></pre>
 
 <h1>Memo</h1>

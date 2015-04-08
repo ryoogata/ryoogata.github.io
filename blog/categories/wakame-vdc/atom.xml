@@ -4,7 +4,7 @@
   <title><![CDATA[Category: wakame-vdc | YggdrasillNetwork Blog]]></title>
   <link href="http://ryoogata.github.io/blog/categories/wakame-vdc/atom.xml" rel="self"/>
   <link href="http://ryoogata.github.io/"/>
-  <updated>2015-02-20T12:25:24+09:00</updated>
+  <updated>2015-04-08T23:09:40+09:00</updated>
   <id>http://ryoogata.github.io/</id>
   <author>
     <name><![CDATA[Ryo Ogata]]></name>
@@ -31,7 +31,7 @@
 
 <h2>必要なパッケージのインストール</h2>
 
-<pre><code>yum install -y telnet tcpdump wget man man-pages ntpdate bind-utils openssh-clients
+<pre><code>yum install -y telnet tcpdump wget man man-pages ntpdate bind-utils openssh-clients nfs-utils nfs-utils-lib
 </code></pre>
 
 <h2>ipv6 disable 設定</h2>

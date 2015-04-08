@@ -146,12 +146,388 @@
 </pre></td><td class='code'><pre><code class=''><span class='line'># virsh edit &lt;vm-name&gt;</span></code></pre></td></tr></table></div></figure>
 
 
+<h2>実行されている VM の設定確認</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># virsh dumpxml &lt;vm-name&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>ホストに接続されているソケット数、コア数およびハイパースレッド数に関する情報を確認</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># virsh nodeinfo
+</span><span class='line'>CPU モデル:       x86_64
+</span><span class='line'>CPU:                 8
+</span><span class='line'>CPU 周波数:       1795 MHz
+</span><span class='line'>CPU ソケット数: 1
+</span><span class='line'>ソケットあたりのコア数: 4
+</span><span class='line'>コアあたりのスレッド数: 1
+</span><span class='line'>NUMA セル数:      2
+</span><span class='line'>メモリー容量:  65801024 KiB</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>capabilities</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[root@kvm1 images]# virsh capabilities
+</span><span class='line'>&lt;capabilities&gt;
+</span><span class='line'>
+</span><span class='line'>  &lt;host&gt;
+</span><span class='line'>    &lt;uuid&gt;37343730-3838-434e-3734-353030384344&lt;/uuid&gt;
+</span><span class='line'>    &lt;cpu&gt;
+</span><span class='line'>      &lt;arch&gt;x86_64&lt;/arch&gt;
+</span><span class='line'>      &lt;model&gt;SandyBridge&lt;/model&gt;
+</span><span class='line'>      &lt;vendor&gt;Intel&lt;/vendor&gt;
+</span><span class='line'>      &lt;topology sockets='1' cores='4' threads='1'/&gt;
+</span><span class='line'>      &lt;feature name='invtsc'/&gt;
+</span><span class='line'>      &lt;feature name='erms'/&gt;
+</span><span class='line'>      &lt;feature name='smep'/&gt;
+</span><span class='line'>      &lt;feature name='fsgsbase'/&gt;
+</span><span class='line'>      &lt;feature name='pdpe1gb'/&gt;
+</span><span class='line'>      &lt;feature name='rdrand'/&gt;
+</span><span class='line'>      &lt;feature name='f16c'/&gt;
+</span><span class='line'>      &lt;feature name='osxsave'/&gt;
+</span><span class='line'>      &lt;feature name='dca'/&gt;
+</span><span class='line'>      &lt;feature name='pcid'/&gt;
+</span><span class='line'>      &lt;feature name='pdcm'/&gt;
+</span><span class='line'>      &lt;feature name='xtpr'/&gt;
+</span><span class='line'>      &lt;feature name='tm2'/&gt;
+</span><span class='line'>      &lt;feature name='est'/&gt;
+</span><span class='line'>      &lt;feature name='smx'/&gt;
+</span><span class='line'>      &lt;feature name='vmx'/&gt;
+</span><span class='line'>      &lt;feature name='ds_cpl'/&gt;
+</span><span class='line'>      &lt;feature name='monitor'/&gt;
+</span><span class='line'>      &lt;feature name='dtes64'/&gt;
+</span><span class='line'>      &lt;feature name='pbe'/&gt;
+</span><span class='line'>      &lt;feature name='tm'/&gt;
+</span><span class='line'>      &lt;feature name='ht'/&gt;
+</span><span class='line'>      &lt;feature name='ss'/&gt;
+</span><span class='line'>      &lt;feature name='acpi'/&gt;
+</span><span class='line'>      &lt;feature name='ds'/&gt;
+</span><span class='line'>      &lt;feature name='vme'/&gt;
+</span><span class='line'>    &lt;/cpu&gt;
+</span><span class='line'>    &lt;power_management&gt;
+</span><span class='line'>      &lt;suspend_disk/&gt;
+</span><span class='line'>    &lt;/power_management&gt;
+</span><span class='line'>    &lt;migration_features&gt;
+</span><span class='line'>      &lt;live/&gt;
+</span><span class='line'>      &lt;uri_transports&gt;
+</span><span class='line'>        &lt;uri_transport&gt;tcp&lt;/uri_transport&gt;
+</span><span class='line'>      &lt;/uri_transports&gt;
+</span><span class='line'>    &lt;/migration_features&gt;
+</span><span class='line'>    &lt;topology&gt;
+</span><span class='line'>      &lt;cells num='2'&gt;
+</span><span class='line'>        &lt;cell id='0'&gt;
+</span><span class='line'>          &lt;cpus num='4'&gt;
+</span><span class='line'>            &lt;cpu id='0' socket_id='0' core_id='0' siblings='0'/&gt;
+</span><span class='line'>            &lt;cpu id='1' socket_id='0' core_id='1' siblings='1'/&gt;
+</span><span class='line'>            &lt;cpu id='2' socket_id='0' core_id='2' siblings='2'/&gt;
+</span><span class='line'>            &lt;cpu id='3' socket_id='0' core_id='3' siblings='3'/&gt;
+</span><span class='line'>          &lt;/cpus&gt;
+</span><span class='line'>        &lt;/cell&gt;
+</span><span class='line'>        &lt;cell id='1'&gt;
+</span><span class='line'>          &lt;cpus num='4'&gt;
+</span><span class='line'>            &lt;cpu id='4' socket_id='1' core_id='0' siblings='4'/&gt;
+</span><span class='line'>            &lt;cpu id='5' socket_id='1' core_id='1' siblings='5'/&gt;
+</span><span class='line'>            &lt;cpu id='6' socket_id='1' core_id='2' siblings='6'/&gt;
+</span><span class='line'>            &lt;cpu id='7' socket_id='1' core_id='3' siblings='7'/&gt;
+</span><span class='line'>          &lt;/cpus&gt;
+</span><span class='line'>        &lt;/cell&gt;
+</span><span class='line'>      &lt;/cells&gt;
+</span><span class='line'>    &lt;/topology&gt;
+</span><span class='line'>    &lt;secmodel&gt;
+</span><span class='line'>      &lt;model&gt;selinux&lt;/model&gt;
+</span><span class='line'>      &lt;doi&gt;0&lt;/doi&gt;
+</span><span class='line'>    &lt;/secmodel&gt;
+</span><span class='line'>    &lt;secmodel&gt;
+</span><span class='line'>      &lt;model&gt;dac&lt;/model&gt;
+</span><span class='line'>      &lt;doi&gt;0&lt;/doi&gt;
+</span><span class='line'>    &lt;/secmodel&gt;
+</span><span class='line'>  &lt;/host&gt;
+</span><span class='line'>
+</span><span class='line'>  &lt;guest&gt;
+</span><span class='line'>    &lt;os_type&gt;hvm&lt;/os_type&gt;
+</span><span class='line'>    &lt;arch name='i686'&gt;
+</span><span class='line'>      &lt;wordsize&gt;32&lt;/wordsize&gt;
+</span><span class='line'>      &lt;emulator&gt;/usr/libexec/qemu-kvm&lt;/emulator&gt;
+</span><span class='line'>      &lt;machine&gt;rhel6.6.0&lt;/machine&gt;
+</span><span class='line'>      &lt;machine canonical='rhel6.6.0'&gt;pc&lt;/machine&gt;
+</span><span class='line'>      &lt;machine&gt;rhel6.5.0&lt;/machine&gt;
+</span><span class='line'>      &lt;machine&gt;rhel6.4.0&lt;/machine&gt;
+</span><span class='line'>      &lt;machine&gt;rhel6.3.0&lt;/machine&gt;
+</span><span class='line'>      &lt;machine&gt;rhel6.2.0&lt;/machine&gt;
+</span><span class='line'>      &lt;machine&gt;rhel6.1.0&lt;/machine&gt;
+</span><span class='line'>      &lt;machine&gt;rhel6.0.0&lt;/machine&gt;
+</span><span class='line'>      &lt;machine&gt;rhel5.5.0&lt;/machine&gt;
+</span><span class='line'>      &lt;machine&gt;rhel5.4.4&lt;/machine&gt;
+</span><span class='line'>      &lt;machine&gt;rhel5.4.0&lt;/machine&gt;
+</span><span class='line'>      &lt;domain type='qemu'&gt;
+</span><span class='line'>      &lt;/domain&gt;
+</span><span class='line'>      &lt;domain type='kvm'&gt;
+</span><span class='line'>        &lt;emulator&gt;/usr/libexec/qemu-kvm&lt;/emulator&gt;
+</span><span class='line'>      &lt;/domain&gt;
+</span><span class='line'>    &lt;/arch&gt;
+</span><span class='line'>    &lt;features&gt;
+</span><span class='line'>      &lt;cpuselection/&gt;
+</span><span class='line'>      &lt;deviceboot/&gt;
+</span><span class='line'>      &lt;acpi default='on' toggle='yes'/&gt;
+</span><span class='line'>      &lt;apic default='on' toggle='no'/&gt;
+</span><span class='line'>      &lt;pae/&gt;
+</span><span class='line'>      &lt;nonpae/&gt;
+</span><span class='line'>    &lt;/features&gt;
+</span><span class='line'>  &lt;/guest&gt;
+</span><span class='line'>
+</span><span class='line'>  &lt;guest&gt;
+</span><span class='line'>    &lt;os_type&gt;hvm&lt;/os_type&gt;
+</span><span class='line'>    &lt;arch name='x86_64'&gt;
+</span><span class='line'>      &lt;wordsize&gt;64&lt;/wordsize&gt;
+</span><span class='line'>      &lt;emulator&gt;/usr/libexec/qemu-kvm&lt;/emulator&gt;
+</span><span class='line'>      &lt;machine&gt;rhel6.6.0&lt;/machine&gt;
+</span><span class='line'>      &lt;machine canonical='rhel6.6.0'&gt;pc&lt;/machine&gt;
+</span><span class='line'>      &lt;machine&gt;rhel6.5.0&lt;/machine&gt;
+</span><span class='line'>      &lt;machine&gt;rhel6.4.0&lt;/machine&gt;
+</span><span class='line'>      &lt;machine&gt;rhel6.3.0&lt;/machine&gt;
+</span><span class='line'>      &lt;machine&gt;rhel6.2.0&lt;/machine&gt;
+</span><span class='line'>      &lt;machine&gt;rhel6.1.0&lt;/machine&gt;
+</span><span class='line'>      &lt;machine&gt;rhel6.0.0&lt;/machine&gt;
+</span><span class='line'>      &lt;machine&gt;rhel5.5.0&lt;/machine&gt;
+</span><span class='line'>      &lt;machine&gt;rhel5.4.4&lt;/machine&gt;
+</span><span class='line'>      &lt;machine&gt;rhel5.4.0&lt;/machine&gt;
+</span><span class='line'>      &lt;domain type='qemu'&gt;
+</span><span class='line'>      &lt;/domain&gt;
+</span><span class='line'>      &lt;domain type='kvm'&gt;
+</span><span class='line'>        &lt;emulator&gt;/usr/libexec/qemu-kvm&lt;/emulator&gt;
+</span><span class='line'>      &lt;/domain&gt;
+</span><span class='line'>    &lt;/arch&gt;
+</span><span class='line'>    &lt;features&gt;
+</span><span class='line'>      &lt;cpuselection/&gt;
+</span><span class='line'>      &lt;deviceboot/&gt;
+</span><span class='line'>      &lt;acpi default='on' toggle='yes'/&gt;
+</span><span class='line'>      &lt;apic default='on' toggle='no'/&gt;
+</span><span class='line'>    &lt;/features&gt;
+</span><span class='line'>  &lt;/guest&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;/capabilities&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>VM 名のリネーム</h1>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># virsh edit nat01</span></code></pre></td></tr></table></div></figure>
+
+
+<p>下記の行を編集</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;name&gt;nat01&lt;/name&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>下記の行を削除</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;uuid&gt;1f85892f-195a-d19b-3a7a-99457b558ab8&lt;/uuid&gt;</span></code></pre></td></tr></table></div></figure>
+
+
 <h1>NIC の追加</h1>
+
+<h2>Linux Bridge 環境</h2>
 
 <p>VM が起動している状態で実行可能</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'># virsh attach-interface --type bridge --source br0 --model e1000 nat</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>openvswitch 環境</h2>
+
+<p><code>virsh attach-interface</code> コマンドではエラーになるため、VM が停止した状態で設定ファイルに下記のような記述を追加</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;interface type='bridge'&gt;
+</span><span class='line'>  &lt;source bridge='br3'/&gt;
+</span><span class='line'>  &lt;virtualport type='openvswitch'/&gt;
+</span><span class='line'>&lt;/interface&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>virsh edit</code> コマンド実行後、自動的に下記のような設定になっている</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;interface type='bridge'&gt;
+</span><span class='line'>  &lt;mac address='52:54:00:90:9a:9e'/&gt;
+</span><span class='line'>  &lt;source bridge='br3'/&gt;
+</span><span class='line'>  &lt;virtualport type='openvswitch'&gt;
+</span><span class='line'>    &lt;parameters interfaceid='a52f60f2-2ef5-3eb5-9a89-cb0f13e3aa40'/&gt;
+</span><span class='line'>  &lt;/virtualport&gt;
+</span><span class='line'>  &lt;address type='pci' domain='0x0000' bus='0x00' slot='0x08' function='0x0'/&gt;
+</span><span class='line'>&lt;/interface&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>mac address</code>, <code>parameters</code>, <code>address</code> は自動的に設定してくれる</p>
+
+<p>以下は <code>virsh attach-interface</code> コマンド実行時のエラーメッセージ</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># virsh attach-interface --type bridge --source br1 --model e1000 fumi-1
+</span><span class='line'>エラー: インターフェースを接続できませんでした
+</span><span class='line'>エラー: Unable to add bridge br1 port vnet2: Operation not supported</span></code></pre></td></tr></table></div></figure>
 
 
 <h1>VM に Disk の追加</h1>
@@ -219,6 +595,16 @@
 </pre></td><td class='code'><pre><code class=''><span class='line'># virsh edit Maria-1</span></code></pre></td></tr></table></div></figure>
 
 
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;graphics type='vnc' port='20001' autoport='no' listen='0.0.0.0'&gt;
+</span><span class='line'>  &lt;listen type='address' address='0.0.0.0'/&gt;
+</span><span class='line'>&lt;/graphics&gt;</span></code></pre></td></tr></table></div></figure>
+
+
 <h2>4. VM の起動</h2>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -235,20 +621,43 @@
 
 <h2>6. ifcfg-eth0 の編集</h2>
 
-<p>UUID
-BOOTPROTO=dchp</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>UUID
+</span><span class='line'>HWADDR
+</span><span class='line'>BOOTPROTO=dchp
+</span><span class='line'>
+</span><span class='line'>BOOTPROTO=none
+</span><span class='line'>IPADDR=211.14.1.11
+</span><span class='line'>NETMASK=255.255.255.192</span></code></pre></td></tr></table></div></figure>
 
-<p>BOOTPROTO=none
-IPADDR=211.14.1.11
-NETMASK=255.255.255.192</p>
 
 <h2>7. VM の再起動</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># shutdown -r now</span></code></pre></td></tr></table></div></figure>
+
 
 <h2>8. Interface のアドレス設定</h2>
 
 <p>手動で IP アドレスを付与</p>
 
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ifconfig eth0 inet 172.25.255.131/24</span></code></pre></td></tr></table></div></figure>
+
+
 <h2>9. resolv.conf の編集</h2>
+
+<h1>VNC 設定</h1>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;graphics type='vnc' port='21144' autoport='no' listen='0.0.0.0' keymap='ja' passwd='Password'&gt;</span></code></pre></td></tr></table></div></figure>
+
 
 <h1>参照 URL</h1>
 
@@ -324,22 +733,22 @@ NETMASK=255.255.255.192</p>
 </section>
 <section>
   <h1>Categories</h1>
-    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/kvm/'>kvm (2)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/openvnet/'>openvnet (1)</a></li><li><a href='/blog/categories/openvswitch/'>openvswitch (2)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (3)</a></li><li><a href='/blog/categories/wakame-vdc/'>wakame-vdc (2)</a></li></ul>
+    <ul id="category-list"><li><a href='/blog/categories/chef/'>chef (7)</a></li><li><a href='/blog/categories/docker/'>docker (2)</a></li><li><a href='/blog/categories/kvm/'>kvm (2)</a></li><li><a href='/blog/categories/octopress/'>octopress (1)</a></li><li><a href='/blog/categories/openvswitch/'>openvswitch (2)</a></li><li><a href='/blog/categories/packer/'>packer (1)</a></li><li><a href='/blog/categories/vagrant/'>vagrant (3)</a></li><li><a href='/blog/categories/wakame-vdc/'>wakame-vdc (2)</a></li></ul>
 </section>
 <section>
   <h1>Tag Cloud</h1>
-    <span id="tag-cloud"><a href='/blog/tags/boot2docker' style='font-size: 115.0%'>boot2docker(1)</a> <a href='/blog/tags/chef-client' style='font-size: 115.0%'>chef-client(1)</a> <a href='/blog/tags/chef-repo' style='font-size: 130.0%'>chef-repo(2)</a> <a href='/blog/tags/chef-server' style='font-size: 130.0%'>chef-server(2)</a> <a href='/blog/tags/chef-solo' style='font-size: 115.0%'>chef-solo(1)</a> <a href='/blog/tags/hosted-chef' style='font-size: 115.0%'>hosted chef(1)</a> <a href='/blog/tags/kitchen-ec2' style='font-size: 115.0%'>kitchen-ec2(1)</a> <a href='/blog/tags/knife-ec2' style='font-size: 130.0%'>knife-ec2(2)</a> <a href='/blog/tags/knife-solo' style='font-size: 115.0%'>knife-solo(1)</a> <a href='/blog/tags/kvm' style='font-size: 145.0%'>kvm(3)</a> <a href='/blog/tags/network' style='font-size: 160.0%'>network(4)</a> <a href='/blog/tags/windows' style='font-size: 115.0%'>windows(1)</a> </span>
+    <span id="tag-cloud"><a href='/blog/tags/boot2docker' style='font-size: 120.0%'>boot2docker(1)</a> <a href='/blog/tags/chef-client' style='font-size: 120.0%'>chef-client(1)</a> <a href='/blog/tags/chef-repo' style='font-size: 140.0%'>chef-repo(2)</a> <a href='/blog/tags/chef-server' style='font-size: 140.0%'>chef-server(2)</a> <a href='/blog/tags/chef-solo' style='font-size: 120.0%'>chef-solo(1)</a> <a href='/blog/tags/hosted-chef' style='font-size: 120.0%'>hosted chef(1)</a> <a href='/blog/tags/kitchen-ec2' style='font-size: 120.0%'>kitchen-ec2(1)</a> <a href='/blog/tags/knife-ec2' style='font-size: 140.0%'>knife-ec2(2)</a> <a href='/blog/tags/knife-solo' style='font-size: 120.0%'>knife-solo(1)</a> <a href='/blog/tags/kvm' style='font-size: 160.0%'>kvm(3)</a> <a href='/blog/tags/network' style='font-size: 160.0%'>network(3)</a> <a href='/blog/tags/windows' style='font-size: 120.0%'>windows(1)</a> </span>
 </section>
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/2015/02/20/openvnet/">openvnet のインストール</a>
+        <a href="/2015/02/20/openvswitch/">openvswitch で bonding</a>
       </li>
     
       <li class="post">
-        <a href="/2015/02/20/openvswitch/">openvswitch で bonding</a>
+        <a href="/2015/02/20/openvnet/">Openvnet</a>
       </li>
     
       <li class="post">
