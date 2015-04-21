@@ -4,7 +4,7 @@
   <title><![CDATA[YggdrasillNetwork Blog]]></title>
   <link href="http://ryoogata.github.io/atom.xml" rel="self"/>
   <link href="http://ryoogata.github.io/"/>
-  <updated>2015-04-08T23:14:09+09:00</updated>
+  <updated>2015-04-21T10:56:36+09:00</updated>
   <id>http://ryoogata.github.io/</id>
   <author>
     <name><![CDATA[Ryo Ogata]]></name>
@@ -3363,7 +3363,17 @@ Port 2442</p>
 </span><span class='line'>hello world</span></code></pre></td></tr></table></div></figure>
 
 
-<h1>2 回目以降</h1>
+<h1>バージョンアップ</h1>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ boot2docker upgrade</span></code></pre></td></tr></table></div></figure>
+
+
+<p>$ ssh -i ~/.ssh/id_boot2docker -p 2022 docker@localhost</p>
+
+<h1>boot2docker の起動</h1>
+
+<p>boot2docker を利用する際には下記のコマンドを実行</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -3385,10 +3395,57 @@ Port 2442</p>
 </span><span class='line'>Your environment variables are already set correctly.</span></code></pre></td></tr></table></div></figure>
 
 
-<h1>バージョンアップ</h1>
+<h1>Tips</h1>
+
+<h2>boot2docker VM へ SSH ログイン</h2>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ boot2docker upgrade</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ boot2docker ssh</span></code></pre></td></tr></table></div></figure>
+
+
+<p>もしくは</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ssh -i ~/.ssh/id_boot2docker -p 2022 docker@localhost</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>boot2docker 起動の HTTP サーバへのアクセス方法</h2>
+
+<p>SSH のポートフォワードを利用して接続</p>
+
+<h3>接続先の確認</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ docker ps
+</span><span class='line'>CONTAINER ID        IMAGE                    COMMAND                CREATED             STATUS              PORTS                   NAMES
+</span><span class='line'>cd76569cbb74        ryoogata/fswiki:latest   "/usr/sbin/apachectl   12 minutes ago      Up 12 minutes       0.0.0.0:49153-&gt;80/tcp   sick_mcclintock     
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>ssh コマンドの実行</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ssh -i ~/.ssh/id_boot2docker -p 2022 -N -L  8080:localhost:49153 docker@localhost</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>nsenter</h2>
+
+<h3>セットアップ</h3>
+
+<p>boot2docker に ssh でログインしてから実行</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ docker run --rm -v /usr/local/bin:/target jpetazzo/nsenter</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>コンテナにログイン</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ PID=$(docker inspect --format  &lt;container_name_or_ID&gt;)
+</span><span class='line'>$ sudo nsenter --target $PID --mount --uts --ipc --net --pid</span></code></pre></td></tr></table></div></figure>
 
 
 <h1>Memo</h1>
@@ -3417,8 +3474,7 @@ Port 2442</p>
 
 <h1>参照 URL</h1>
 
-<p><a href="http://qiita.com/AH_korikori/items/8a165c081e8eb699deb3">http://qiita.com/AH_korikori/items/8a165c081e8eb699deb3</a>
-/</p>
+<p><a href="http://qiita.com/AH_korikori/items/8a165c081e8eb699deb3">http://qiita.com/AH_korikori/items/8a165c081e8eb699deb3</a></p>
 ]]></content>
   </entry>
   
